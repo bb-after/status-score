@@ -1,0 +1,59 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  name      String?
+  keywords  Keyword[]
+  reports   Report[]
+  createdAt DateTime  @default(now())
+}
+
+model Keyword {
+  id          Int          @id @default(autoincrement())
+  name        String
+  score       Int?
+  user        User         @relation(fields: [userId], references: [id])
+  userId      Int
+  reports     Report[]
+  dataSources KeywordToDataSource[]  // Reference the join table
+  createdAt   DateTime     @default(now())
+}
+
+model DataSource {
+  id          Int          @id @default(autoincrement())
+  name        String       @unique
+  keywords    KeywordToDataSource[]  // Reference the join table
+  createdAt   DateTime     @default(now())
+}
+
+// Join table for the many-to-many relationship between Keyword and DataSource
+model KeywordToDataSource {
+  keywordId    Int
+  dataSourceId Int
+  keyword      Keyword    @relation(fields: [keywordId], references: [id])
+  dataSource   DataSource @relation(fields: [dataSourceId], references: [id])
+
+  @@id([keywordId, dataSourceId]) // Composite primary key defined at the model level
+}
+
+
+model Report {
+  id        Int      @id @default(autoincrement())
+  aiEngine  String
+  payload   Json
+  imageUrl  String?
+  pdfUrl    String?
+  keyword   Keyword  @relation(fields: [keywordId], references: [id])
+  keywordId Int
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  createdAt DateTime @default(now())
+}
