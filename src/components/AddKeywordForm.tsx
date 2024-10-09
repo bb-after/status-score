@@ -10,7 +10,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 
-const AddKeywordForm = ({ userId }) => {
+const AddKeywordForm = () => {
   const [keyword, setKeyword] = useState("");
   const [score, setScore] = useState("");
   const [selectedSources, setSelectedSources] = useState<string[]>([]);
@@ -18,6 +18,7 @@ const AddKeywordForm = ({ userId }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const userId = 1; // Hardcoded user ID for now
 
     try {
       const response = await fetch("/api/keywords/add", {
