@@ -1,18 +1,20 @@
-// pages/api/keywords/add.ts
 import { NextApiRequest, NextApiResponse } from 'next';
 import prisma from '../../../lib/prisma';
-import { getOpenAISentiment } from '../../../utils/openai';
 import { getGeminiSentiment } from '../../../utils/gemini';
+import { getOpenAISentiment } from '../../../utils/openai';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
-    const { keyword, userId } = req.body;
+    const { keyword, aiEngine } = req.body;
 
-    if (!keyword || !userId) {
-      return res.status(400).json({ error: 'Invalid input' });
+    if (!keyword || !aiEngine) {
+      return res.status(400).json({ error: 'Invalid input: keyword and aiEngine are required' });
     }
 
     try {
+      // Hardcoded user ID for now
+      const userId = 1;
+
       // Step 1: Store the Keyword in the Database
       const newKeyword = await prisma.keyword.create({
         data: {
@@ -21,16 +23,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
       });
 
-      // Step 2: Mock the AI Engine Result (Simulate fetching from an AI engine)
-      // Note: Replace this with a real API call to an AI engine later
-      // const aiResult = await getOpenAISentiment(keyword);
-      const aiResult = await getGeminiSentiment(keyword);
+      // Step 2: Fetch the AI Engine Result based on user selection
+      let aiResult;
+      if (aiEngine === 'Gemini') {
+        aiResult = await getGeminiSentiment(keyword);
+      } else if (aiEngine === 'OpenAI') {
+        aiResult = await getOpenAISentiment(keyword);
+      } else {
+        return res.status(400).json({ error: 'Invalid AI Engine selected' });
+      }
 
-      // Step 3: Store the AI Engine Result in the Database
+      // Step 3: Store the AI Engine Result in the Database as a Report
       const newReport = await prisma.report.create({
         data: {
-          aiEngine: 'Gemini', // Update this with the actual engine name
-          payload: aiResult, // This should be the result from the AI engine
+          aiEngine,
+          payload: aiResult,
           keyword: { connect: { id: newKeyword.id } },
           user: { connect: { id: userId } },
         },
