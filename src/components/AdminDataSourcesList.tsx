@@ -3,8 +3,16 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
 
+interface DataSource {
+  id: number;
+  name: string;
+  model: string;
+  active: boolean;
+  prompt: string;
+}
+
 const AdminDataSourcesList = () => {
-  const [dataSources, setDataSources] = useState([]);
+  const [dataSources, setDataSources] = useState<DataSource[]>([]);
   const router = useRouter();
 
   useEffect(() => {
