@@ -6,7 +6,13 @@ const AdminEditDataSourcePage = () => {
   const router = useRouter();
   const { id } = router.query;
 
-  return <Layout>{id && <AddOrEditDataSource dataSourceId={id} />}</Layout>;
+  return (
+    <Layout>
+      {id && typeof id === "string" && (
+        <AddOrEditDataSource dataSourceId={id} />
+      )}
+    </Layout>
+  );
 };
 
 export default AdminEditDataSourcePage;
