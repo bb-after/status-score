@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getDataSourceById } from './dataSource';
 
 /**
  * Function to initialize and cache the Gemini API client
@@ -24,18 +25,21 @@ const getGeminiClient = (() => {
 /**
  * Function to get sentiment or content related to the keyword from Gemini.
  * @param keyword - The keyword to analyze.
+ * @param dataSourceId - The ID of the data source to get configuration from the database
  * @returns Sentiment analysis result.
  */
-export async function getGeminiSentiment(keyword: string) {
+export async function getGeminiSentiment(keyword: string, dataSourceId: number) {
   try {
+    
+    // Fetch the data source configuration using the utility function
+    const dataSource = await getDataSourceById(dataSourceId);
+    
     // Get the client to use for the request
     const genAI = getGeminiClient();
 
-    // Get a model instance with the appropriate model ID
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-
-    // Define the prompt
-    const prompt = `Analyze the sentiment of the following keyword and provide a summary: "${keyword}"`;
+    // Use the model ID and prompt from the data source
+    const model = genAI.getGenerativeModel({ model: dataSource.model });
+    const prompt = dataSource.prompt.replace("{keyword}", keyword); // Replace placeholder with actual keyword
 
     // Use the model to generate content
     const result = await model.generateContent(prompt);
@@ -45,7 +49,6 @@ export async function getGeminiSentiment(keyword: string) {
 
     // Return the result with placeholder sentiment
     return {
-      sentiment: 'positive', // Placeholder sentiment
       summary: generatedText,
     };
   } catch (error) {

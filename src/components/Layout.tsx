@@ -39,6 +39,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <Link href="/add-keyword" color="gray.300">
               Add Keyword
             </Link>
+            <Link href="/keyword-analysis" color="gray.300">
+              Keyword Analysis
+            </Link>
+            <Link href="/schedule" color="gray.300">
+              Schedule
+            </Link>
+
+            <Link href="/admin/data-sources" color="gray.300">
+              Data Sources
+            </Link>
           </HStack>
           <IconButton
             size="md"

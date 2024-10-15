@@ -13,28 +13,32 @@ model User {
   name      String?
   keywords  Keyword[]
   reports   Report[]
+  schedules Schedule[]
   admin     Boolean   @default(false)
   createdAt DateTime  @default(now())
 }
 
+
 model Keyword {
-  id          Int                   @id @default(autoincrement())
+  id          Int          @id @default(autoincrement())
   name        String
-  user        User                  @relation(fields: [userId], references: [id])
+  user        User         @relation(fields: [userId], references: [id])
   userId      Int
   reports     Report[]
-  dataSources KeywordToDataSource[] // Reference the join table
-  createdAt   DateTime              @default(now())
+  dataSources KeywordToDataSource[]  // Reference the join table
+  schedules   Schedule[]
+  createdAt   DateTime     @default(now())
 }
 
 model DataSource {
-  id                  Int                   @id @default(autoincrement())
-  name                String                @unique // E.g., 'Gemini', 'OpenAI'
-  model               String // Model name, e.g., 'gemini-1.5-flash' or 'text-davinci-003'
-  prompt              String // Custom prompt for this data source
-  active              Boolean               @default(true) // Whether this data source is active
-  createdAt           DateTime              @default(now())
-  KeywordToDataSource KeywordToDataSource[]
+  id        Int      @id @default(autoincrement())
+  name      String   @unique // E.g., 'Gemini', 'OpenAI'
+  model     String   // Model name, e.g., 'gemini-1.5-flash' or 'text-davinci-003'
+  prompt    String   @db.Text // Custom prompt for this data source
+  active    Boolean  @default(true) // Whether this data source is active
+  createdAt DateTime @default(now())
+  keywords   KeywordToDataSource[]  // Reference to the join table (reverse relation)
+  dataSourceResults DataSourceResult[]
 }
 
 // Join table for the many-to-many relationship between Keyword and DataSource
@@ -47,15 +51,49 @@ model KeywordToDataSource {
   @@id([keywordId, dataSourceId]) // Composite primary key defined at the model level
 }
 
+
 model Report {
   id        Int      @id @default(autoincrement())
   aiEngine  String
-  payload   Json
-  imageUrl  String?
-  pdfUrl    String?
+  prompt    String   @db.Text // Field to hold the prompt, ensure it's here
+  response  String   @db.Text // Field to hold the AI response
+  sentiment String   // Example values: 'positive', 'neutral', 'negative'
+  payload   Json     // The full response from the AI
+  imageUrl  String?  // Optional field for images, if needed
+  pdfUrl    String?  // Optional field for PDFs, if needed
   keyword   Keyword  @relation(fields: [keywordId], references: [id])
   keywordId Int
   user      User     @relation(fields: [userId], references: [id])
   userId    Int
   createdAt DateTime @default(now())
+  dataSourceResults DataSourceResult[] // Link to individual data source results
+}
+
+
+model Schedule {
+  id           Int       @id @default(autoincrement())
+  keyword      Keyword   @relation(fields: [keywordId], references: [id])
+  keywordId    Int
+  user         User      @relation(fields: [userId], references: [id])
+  userId       Int
+  frequency    String    // Options: "daily", "weekly", "monthly"
+  emails       String    // Comma-separated email addresses
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([keywordId, userId]) // Ensures one schedule per keyword per user
+}
+
+model DataSourceResult {
+  id           Int       @id @default(autoincrement())
+  report       Report    @relation(fields: [reportId], references: [id])
+  reportId     Int       // Foreign key to the Report
+  dataSource   DataSource @relation(fields: [dataSourceId], references: [id])
+  dataSourceId Int       // Foreign key to the DataSource
+  sentiment    String    // Sentiment from this data source ('positive', 'neutral', 'negative')
+  prompt       String      @db.Text // The prompt used for the AI request
+  response     String    @db.Text // The response text from this data source
+  payload      Json        // The full payload received from the AI
+  score        Int       // Numerical representation of the sentiment
+  createdAt    DateTime  @default(now())
 }

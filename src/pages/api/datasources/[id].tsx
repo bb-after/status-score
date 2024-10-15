@@ -7,12 +7,33 @@ export default async function handler(
 ) {
   const { id } = req.query;
 
-  if (req.method === "PUT") {
+  if (req.method === "GET") {
+    // Fetch the data source by ID
+    try {
+      const dataSource = await prisma.dataSource.findUnique({
+        where: {
+          id: Number(id),
+        },
+      });
+
+      if (!dataSource) {
+        return res.status(404).json({ error: "Data source not found" });
+      }
+
+      res.status(200).json(dataSource);
+    } catch (error) {
+      console.error("Failed to fetch data source", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  } else if (req.method === "PUT") {
+    // Update the data source by ID
     const { name, model, prompt, active } = req.body;
 
     try {
       const updatedDataSource = await prisma.dataSource.update({
-        where: { id: Number(id) },
+        where: {
+          id: Number(id),
+        },
         data: {
           name,
           model,
@@ -20,21 +41,14 @@ export default async function handler(
           active,
         },
       });
+
       res.status(200).json(updatedDataSource);
     } catch (error) {
-      res.status(500).json({ error: "Failed to update data source" });
-    }
-  } else if (req.method === "DELETE") {
-    try {
-      await prisma.dataSource.delete({
-        where: { id: Number(id) },
-      });
-      res.status(204).end();
-    } catch (error) {
-      res.status(500).json({ error: "Failed to delete data source" });
+      console.error("Failed to update data source", error);
+      res.status(500).json({ error: "Internal server error" });
     }
   } else {
-    res.setHeader("Allow", ["PUT", "DELETE"]);
+    res.setHeader("Allow", ["GET", "PUT"]);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }
