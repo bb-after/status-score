@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import KeywordDropdown from "../components/KeywordDropdown";
-import Loader from "../components/Loader"; // Import the loader component
-import { Box, Heading, Button, Alert, AlertIcon } from "@chakra-ui/react";
+import FiltersPanel from "../components/FiltersPanel";
+import ReportsTable from "../components/ReportsTable";
+import { Box, Heading } from "@chakra-ui/react";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -31,10 +32,20 @@ const Dashboard = () => {
   const [selectedKeywordId, setSelectedKeywordId] = useState<number | null>(
     null
   );
-  const [selectedKeywordName, setSelectedKeywordName] = useState<string>(""); // State for keyword name
+  const [selectedKeywordName, setSelectedKeywordName] = useState(""); // State for keyword name
   const [reports, setReports] = useState<any[]>([]);
-  const [loading, setLoading] = useState<boolean>(false); // State for loading status
-  const [error, setError] = useState<string | null>(null); // State for error messages
+  const [filteredReports, setFilteredReports] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedDataSource, setSelectedDataSource] = useState<string>("ALL");
+  const [selectedSentiment, setSelectedSentiment] = useState<string>("ALL");
+  const [dateRange, setDateRange] = useState<{
+    startDate: Date;
+    endDate: Date;
+  }>({
+    startDate: new Date(), // Defaults to today until data is fetched
+    endDate: new Date(), // Defaults to today until data is fetched
+  });
 
   useEffect(() => {
     if (selectedKeywordId) {
@@ -42,18 +53,69 @@ const Dashboard = () => {
     }
   }, [selectedKeywordId]);
 
+  useEffect(() => {
+    if (reports.length > 0) {
+      // Update the date range based on report dates to avoid showing unrealistic defaults
+      const dates = reports.map((report) => new Date(report.createdAt));
+      const earliestDate = new Date(Math.min(...dates.map((d) => d.getTime())));
+      const latestDate = new Date(Math.max(...dates.map((d) => d.getTime())));
+
+      setDateRange({ startDate: earliestDate, endDate: latestDate });
+
+      // Apply filters initially based on the full date range
+      applyFilters();
+    }
+  }, [reports]);
+
+  useEffect(() => {
+    // Automatically apply filters whenever filter values change
+    applyFilters();
+  }, [selectedDataSource, selectedSentiment, dateRange]);
+
   const fetchReports = async (keywordId: number) => {
-    setLoading(true);
+    setIsLoading(true);
     setError(null);
     try {
       const response = await axios.get(`/api/reports?keywordId=${keywordId}`);
       setReports(response.data);
+      setFilteredReports(response.data); // Set the initial filtered reports to all reports
     } catch (error) {
       console.error("Failed to fetch reports", error);
       setError("Failed to fetch reports. Please try again.");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
+  };
+
+  const applyFilters = () => {
+    const filtered = reports
+      .map((report) => {
+        // Filter `dataSourceResults` within each `report` to match selected criteria
+        const filteredResults = report.dataSourceResults.filter((result) => {
+          const matchesDataSource =
+            selectedDataSource === "ALL" ||
+            result.dataSource?.name === selectedDataSource;
+
+          const matchesSentiment =
+            selectedSentiment === "ALL" ||
+            result.sentiment === selectedSentiment;
+
+          const reportDate = new Date(report.createdAt);
+          const matchesDateRange =
+            reportDate >= dateRange.startDate &&
+            reportDate <= dateRange.endDate;
+
+          return matchesDataSource && matchesSentiment && matchesDateRange;
+        });
+
+        return {
+          ...report,
+          dataSourceResults: filteredResults,
+        };
+      })
+      .filter((report) => report.dataSourceResults.length > 0);
+
+    setFilteredReports(filtered);
   };
 
   // Prepare data for the chart
@@ -91,10 +153,12 @@ const Dashboard = () => {
           label: function (context) {
             const index = context.dataIndex;
             const report = reports[index];
+
             const score = report.sentiment;
+
             return [
               `Score: ${score}`,
-              `Summary: ${report.payload.summary || "No summary available"}`,
+              `Summary: ${report.payload?.summary || "No summary available"}`,
             ];
           },
         },
@@ -105,7 +169,7 @@ const Dashboard = () => {
         beginAtZero: true,
         ticks: {
           stepSize: 1,
-          callback: function (value: number) {
+          callback: function (value) {
             switch (value) {
               case 3:
                 return "Positive";
@@ -122,15 +186,14 @@ const Dashboard = () => {
     },
   };
 
-  // This function will be called when the user selects a new keyword from the dropdown
   const handleKeywordSelection = (keywordId: number, keywordName: string) => {
     setSelectedKeywordId(keywordId);
-    setSelectedKeywordName(keywordName); // Store the keyword name
+    setSelectedKeywordName(keywordName);
   };
 
   return (
     <Layout>
-      <Box maxW="2xl" mx="auto" py="12" px="6">
+      <Box maxW="6xl" mx="auto" py="12" px="6">
         <Heading as="h2" size="xl" textAlign="center" mb={6}>
           Dashboard
         </Heading>
@@ -138,35 +201,48 @@ const Dashboard = () => {
         {/* Add the KeywordDropdown here */}
         <KeywordDropdown onSelectKeyword={handleKeywordSelection} />
 
-        {/* Display Loader if loading */}
-        {loading && <Loader />}
-
-        {/* Show error if it exists */}
-        {error && (
-          <Alert status="error" mt={6}>
-            <AlertIcon />
-            {error}
-          </Alert>
-        )}
-
-        {/* Show selected keyword reports */}
-        {selectedKeywordId && !loading && !error && (
+        {selectedKeywordId && (
           <Box mt={6}>
             <Heading as="h2" size="lg">
-              Reports for &quot;{selectedKeywordName}&quot;
+              Reports for "{selectedKeywordName}"
             </Heading>
 
-            {reports.length > 0 ? (
-              <Box mt={8}>
-                <Line data={chartData} options={chartOptions} />
+            {isLoading ? (
+              <Box mt={4}>Loading...</Box>
+            ) : error ? (
+              <Box mt={4} color="red.500">
+                {error}
               </Box>
             ) : (
-              <Box mt={8}>
-                <p>
-                  No reports available for the selected keyword. Please select a
-                  different keyword.
-                </p>
-              </Box>
+              <>
+                {filteredReports.length > 0 ? (
+                  <Box mt={8}>
+                    {/* Chart showing sentiment trend */}
+                    <Line data={chartData} options={chartOptions} />
+
+                    {/* Filters Section */}
+                    <FiltersPanel
+                      selectedDataSource={selectedDataSource}
+                      setSelectedDataSource={setSelectedDataSource}
+                      selectedSentiment={selectedSentiment}
+                      setSelectedSentiment={setSelectedSentiment}
+                      dateRange={dateRange}
+                      setDateRange={setDateRange}
+                      reports={reports}
+                    />
+
+                    {/* Table showing detailed analysis */}
+                    <ReportsTable filteredReports={filteredReports} />
+                  </Box>
+                ) : (
+                  <Box mt={8}>
+                    <p>
+                      No reports available for the selected keyword. Please
+                      select a different keyword.
+                    </p>
+                  </Box>
+                )}
+              </>
             )}
           </Box>
         )}
