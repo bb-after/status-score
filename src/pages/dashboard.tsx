@@ -204,7 +204,7 @@ const Dashboard = () => {
         {selectedKeywordId && (
           <Box mt={6}>
             <Heading as="h2" size="lg">
-              Reports for "{selectedKeywordName}"
+              Reports for &quot;{selectedKeywordName}&quot;
             </Heading>
 
             {isLoading ? (
