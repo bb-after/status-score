@@ -12,7 +12,13 @@ import {
 import axios from "axios";
 import { useRouter } from "next/router";
 
-const AddOrEditDataSource = ({ dataSourceId = null }) => {
+interface AddOrEditDataSourceProps {
+  dataSourceId?: string | null; // Update the type definition
+}
+
+const AddOrEditDataSource = ({
+  dataSourceId = null,
+}: AddOrEditDataSourceProps) => {
   const router = useRouter();
   const [dataSource, setDataSource] = useState({
     name: "",

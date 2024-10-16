@@ -4,9 +4,9 @@ import prisma from '../../../lib/prisma';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
-    const { aiEngine, payload, keywordId, userId, imageUrl, pdfUrl } = req.body;
+    const { aiEngine, payload, keywordId, userId, imageUrl, pdfUrl, prompt, response, sentiment } = req.body;
 
-    if (!aiEngine || !payload || !keywordId || !userId) {
+    if (!aiEngine || !payload || !keywordId || !userId || !prompt || !response || !sentiment) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
@@ -17,8 +17,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           payload,
           keywordId: parseInt(keywordId),
           userId: parseInt(userId),
-          imageUrl,
-          pdfUrl,
+          imageUrl: imageUrl || null,
+          pdfUrl: pdfUrl || null,
+          prompt,
+          response,
+          sentiment,
         },
       });
 
