@@ -1,10 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Box,
   FormControl,
   FormLabel,
   Input,
-  Select,
   Button,
   Heading,
   Alert,
@@ -14,51 +13,17 @@ import axios from "axios";
 import { useRouter } from "next/router";
 import Loader from "../components/Loader"; // Reusing the Loader component
 
-// Define an interface for the data source object
-interface DataSource {
-  id: number;
-  name: string;
-  model: string;
-  prompt: string;
-  active: boolean;
-}
-
 const AddKeywordForm = () => {
   const [keyword, setKeyword] = useState("");
-  const [dataSources, setDataSources] = useState<DataSource[]>([]);
-  const [selectedDataSourceId, setSelectedDataSourceId] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(true);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   // Fetch available data sources when the component mounts
-  useEffect(() => {
-    const fetchDataSources = async () => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const response = await axios.get("/api/datasources");
-        const activeDataSources = response.data.filter(
-          (source: DataSource) => source.active
-        );
-        setDataSources(activeDataSources);
-      } catch (error) {
-        console.error("Failed to fetch data sources", error);
-        setError("Failed to fetch data sources. Please try again.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDataSources();
-  }, []);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!keyword || !selectedDataSourceId) {
+    if (!keyword) {
       alert("Please enter a keyword and select a data source.");
       return;
     }
@@ -70,15 +35,10 @@ const AddKeywordForm = () => {
       // Send POST request to backend to add the keyword and trigger sentiment analysis
       await axios.post("/api/keywords/add", {
         keyword,
-        aiEngine: dataSources.find(
-          (ds) => ds.id === Number(selectedDataSourceId)
-        )?.name,
-        dataSourceId: selectedDataSourceId,
       });
 
       // Redirect or reset after successful submission
       setKeyword("");
-      setSelectedDataSourceId("");
       router.push("/dashboard");
     } catch (error) {
       console.error("Failed to add keyword", error);
@@ -90,13 +50,6 @@ const AddKeywordForm = () => {
 
   return (
     <Box maxW="2xl" mx="auto" py="12" px="6">
-      <Heading as="h2" size="xl" textAlign="center" mb={6}>
-        Add Keyword for Sentiment Analysis
-      </Heading>
-
-      {/* Show loader while fetching data sources */}
-      {loading && <Loader />}
-
       {/* Show error if it exists */}
       {error && (
         <Alert status="error" mb={4}>
@@ -105,7 +58,7 @@ const AddKeywordForm = () => {
         </Alert>
       )}
 
-      {!loading && !error && (
+      {!error && (
         <Box
           as="form"
           onSubmit={handleSubmit}
@@ -124,21 +77,6 @@ const AddKeywordForm = () => {
               onChange={(e) => setKeyword(e.target.value)}
               placeholder="Enter a keyword to analyze"
             />
-          </FormControl>
-
-          <FormControl id="dataSource" mb={4}>
-            <FormLabel>Select AI Engine</FormLabel>
-            <Select
-              placeholder="Select an AI engine"
-              value={selectedDataSourceId}
-              onChange={(e) => setSelectedDataSourceId(e.target.value)}
-            >
-              {dataSources.map((dataSource) => (
-                <option key={dataSource.id} value={dataSource.id}>
-                  {dataSource.name} - Model: {dataSource.model}
-                </option>
-              ))}
-            </Select>
           </FormControl>
 
           {/* Show loader button while submitting */}
