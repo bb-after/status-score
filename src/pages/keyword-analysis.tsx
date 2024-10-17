@@ -109,7 +109,7 @@ const KeywordAnalysisPage = () => {
             <Box mt={4}>
               <CheckboxGroup
                 value={selectedSources}
-                onChange={(values) => setSelectedSources(values)}
+                onChange={(values: string[]) => setSelectedSources(values)}
               >
                 <Stack direction="column">
                   {dataSources.map((source) => (
