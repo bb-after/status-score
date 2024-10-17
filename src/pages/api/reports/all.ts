@@ -6,10 +6,11 @@ import { getClaudeSentiment } from '../../../utils/claude';
 import { getGoogleNewsSentiment } from '../../../utils/googleNews';
 import { getGrokSentiment } from '../../../utils/grok';
 import { analyzeSentimentGoogle } from '../../../utils/googleLanguage';
+import { searchTwitter } from '../../../utils/twitter';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
-    const { keywordId } = req.body;
+    const { keywordId, dataSourceIds } = req.body;
 
     // Type Definition for AnalysisResult
     type AnalysisResult = {
@@ -30,8 +31,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(404).json({ error: 'Keyword not found' });
       }
 
-      // Fetch all active data sources
-      const dataSources = await prisma.dataSource.findMany({ where: { active: true } });
+      // Fetch all active data sources or use provided dataSourceIds to filter
+      let dataSources;
+      if (dataSourceIds && dataSourceIds.length > 0) {
+        const parsedDataSourceIds = dataSourceIds.map((id: string) => parseInt(id, 10));
+        dataSources = await prisma.dataSource.findMany({
+          where: {
+            id: { in: parsedDataSourceIds },
+            active: true,
+          },
+        });
+      } else {
+        dataSources = await prisma.dataSource.findMany({ where: { active: true } });
+      }
+
+      if (dataSources.length === 0) {
+        return res.status(400).json({ error: 'No active data sources found or selected' });
+      }
+
       const analysisResults: AnalysisResult[] = [];
       let overallSentimentScore = 0;
       let sentimentCount = 0;
@@ -58,11 +75,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             result = await getGeminiSentiment(keywordRecord.name, source.id);
             break;
           case 'openai gpt-4':
-            result = await getOpenAISentiment(keywordRecord.name, source.id);
-            break;
           case 'openai gpt-3.5':
             result = await getOpenAISentiment(keywordRecord.name, source.id);
-            break;  
+            break;
           case 'claude':
             result = await getClaudeSentiment(keywordRecord.name, source.id);
             break;
@@ -72,11 +87,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           case 'grok':
             result = await getGrokSentiment(keywordRecord.name, source.id);
             break;
+          case 'twitter':
+            result = await searchTwitter(keywordRecord.name);
+            break;
           default:
             continue;
         }
 
         let sentimentAnalysis = await analyzeSentimentGoogle(result.summary);
+        console.log('analysis?', sentimentAnalysis);
         // Validate the result
         if (!result || !result.summary) {
           console.warn(`Invalid result for source ${source.name}`);
@@ -84,20 +103,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         // Parse sentiment into a numerical score
-        let score = 0;
-        switch (sentimentAnalysis.sentiment) {
-          case 'positive':
-            score = 3;
-            break;
-          case 'neutral':
-            score = 2;
-            break;
-          case 'negative':
-            score = 1;
-            break;
-          default:
-            score = 0;
-        }
+        let score = sentimentAnalysis.compositeScore;
+        // switch (sentimentAnalysis.sentiment) {
+        //   case 'positive':
+        //     score = 3;
+        //     break;
+        //   case 'neutral':
+        //     score = 2;
+        //     break;
+        //   case 'negative':
+        //     score = 1;
+        //     break;
+        //   default:
+        //     score = 0;
+        // }
 
         // Add the result to the analysisResults array
         analysisResults.push({
@@ -110,8 +129,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // Step 3: Create the DataSourceResult linked to the report
         await prisma.dataSourceResult.create({
           data: {
-            prompt: source.prompt, // Make sure 'prompt' is being provided correctly
-            payload: result, // Ensure 'result' is an object or valid JSON
+            prompt: source.prompt, // Store the prompt used
+            payload: result, // Store the entire AI response as JSON
             report: { connect: { id: newReport.id } },
             dataSource: { connect: { id: source.id } },
             sentiment: sentimentAnalysis.sentiment,

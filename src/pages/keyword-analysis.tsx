@@ -1,8 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import Layout from "../components/Layout";
 import KeywordDropdown from "../components/KeywordDropdown";
-import { Box, Heading, Button, Text, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  Heading,
+  Button,
+  Text,
+  VStack,
+  RadioGroup,
+  Stack,
+  Radio,
+  Checkbox,
+  CheckboxGroup,
+} from "@chakra-ui/react";
 import Loader from "../components/Loader";
 
 const KeywordAnalysisPage = () => {
@@ -13,6 +24,29 @@ const KeywordAnalysisPage = () => {
   const [overallSentiment, setOverallSentiment] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [dataSources, setDataSources] = useState<any[]>([]); // Holds the list of data sources
+  const [sourceSelectionMode, setSourceSelectionMode] = useState<string>("all"); // "all" or "specific"
+  const [selectedSources, setSelectedSources] = useState<string[]>([]);
+
+  useEffect(() => {
+    // Fetch available data sources
+    const fetchDataSources = async () => {
+      try {
+        const response = await axios.get("/api/datasources");
+        const activeDataSources = response.data.filter(
+          (source: any) => source.active
+        );
+        setDataSources(activeDataSources);
+        setSelectedSources(
+          activeDataSources.map((source: any) => source.id.toString())
+        ); // Initialize with all sources selected
+      } catch (error) {
+        console.error("Failed to fetch data sources", error);
+      }
+    };
+    fetchDataSources();
+  }, []);
 
   const handleKeywordSelection = (keywordId: number) => {
     setSelectedKeywordId(keywordId);
@@ -32,6 +66,7 @@ const KeywordAnalysisPage = () => {
     try {
       const response = await axios.post("/api/reports/all", {
         keywordId: selectedKeywordId,
+        dataSourceIds: sourceSelectionMode === "all" ? [] : selectedSources,
       });
 
       const { overallSentiment, analysisResults } = response.data;
@@ -52,15 +87,50 @@ const KeywordAnalysisPage = () => {
           Keyword Analysis
         </Heading>
 
+        {/* Keyword Selection */}
         <KeywordDropdown onSelectKeyword={handleKeywordSelection} />
 
+        {/* Source Selection Mode */}
+        <Box mt={4}>
+          <Heading as="h4" size="md" mb={4}>
+            Select Sources
+          </Heading>
+          <RadioGroup
+            onChange={(value) => setSourceSelectionMode(value)}
+            value={sourceSelectionMode}
+          >
+            <Stack direction="row" spacing={4}>
+              <Radio value="all">All Sources</Radio>
+              <Radio value="specific">Specific Sources</Radio>
+            </Stack>
+          </RadioGroup>
+
+          {sourceSelectionMode === "specific" && (
+            <Box mt={4}>
+              <CheckboxGroup
+                value={selectedSources}
+                onChange={(values) => setSelectedSources(values)}
+              >
+                <Stack direction="column">
+                  {dataSources.map((source) => (
+                    <Checkbox key={source.id} value={source.id.toString()}>
+                      {source.name} - {source.model}
+                    </Checkbox>
+                  ))}
+                </Stack>
+              </CheckboxGroup>
+            </Box>
+          )}
+        </Box>
+
+        {/* Run Analysis Button */}
         <Button
           mt={4}
           colorScheme="teal"
           onClick={runAnalysis}
           isDisabled={!selectedKeywordId}
         >
-          Run Analysis for All Sources
+          Run Analysis
         </Button>
 
         {/* Loading Spinner */}
