@@ -5,20 +5,13 @@ import { getOpenAISentiment } from '../../../utils/openai';
 import { getClaudeSentiment } from '../../../utils/claude';
 import { getGoogleNewsSentiment } from '../../../utils/googleNews';
 import { getGrokSentiment } from '../../../utils/grok';
-import { analyzeSentimentGoogle } from '../../../utils/googleLanguage';
 import { searchTwitter } from '../../../utils/twitter';
+import { analyzeSentimentGoogle } from '../../../utils/googleLanguage';
+import { searchReddit } from '../../../utils/reddit';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
     const { keywordId, dataSourceIds } = req.body;
-
-    // Type Definition for AnalysisResult
-    type AnalysisResult = {
-      source: string;
-      sentiment: string; // Assuming sentiment is always a string
-      response: string;  // Assuming response is always a string
-      score: number;
-    };
 
     if (!keywordId) {
       return res.status(400).json({ error: 'Invalid input: keywordId is required' });
@@ -31,27 +24,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(404).json({ error: 'Keyword not found' });
       }
 
-      // Fetch all active data sources or use provided dataSourceIds to filter
-      let dataSources;
-      if (dataSourceIds && dataSourceIds.length > 0) {
-        const parsedDataSourceIds = dataSourceIds.map((id: string) => parseInt(id, 10));
-        dataSources = await prisma.dataSource.findMany({
-          where: {
-            id: { in: parsedDataSourceIds },
-            active: true,
-          },
-        });
-      } else {
-        dataSources = await prisma.dataSource.findMany({ where: { active: true } });
-      }
+      // Fetch the specified active data sources
+      const dataSources = await prisma.dataSource.findMany({
+        where: {
+          id: { in: dataSourceIds.map((id) => Number(id)) },
+          active: true,
+        },
+      });
 
-      if (dataSources.length === 0) {
-        return res.status(400).json({ error: 'No active data sources found or selected' });
-      }
-
-      const analysisResults: AnalysisResult[] = [];
-      let overallSentimentScore = 0;
-      let sentimentCount = 0;
+      const analysisResults: any[] = [];
+      let totalWeightedSentimentScore = 0;
+      let totalWeight = 0;
 
       // Step 1: Create the overall report in the database first
       const newReport = await prisma.report.create({
@@ -75,6 +58,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             result = await getGeminiSentiment(keywordRecord.name, source.id);
             break;
           case 'openai gpt-4':
+            result = await getOpenAISentiment(keywordRecord.name, source.id);
+            break;
           case 'openai gpt-3.5':
             result = await getOpenAISentiment(keywordRecord.name, source.id);
             break;
@@ -90,12 +75,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           case 'twitter':
             result = await searchTwitter(keywordRecord.name);
             break;
+          case 'reddit':
+            result = await searchReddit(keywordRecord.name);
+            break;
           default:
             continue;
         }
 
         let sentimentAnalysis = await analyzeSentimentGoogle(result.summary);
-        console.log('analysis?', sentimentAnalysis);
+
         // Validate the result
         if (!result || !result.summary) {
           console.warn(`Invalid result for source ${source.name}`);
@@ -103,58 +91,37 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         // Parse sentiment into a numerical score
-        let score = sentimentAnalysis.compositeScore;
-        // switch (sentimentAnalysis.sentiment) {
-        //   case 'positive':
-        //     score = 3;
-        //     break;
-        //   case 'neutral':
-        //     score = 2;
-        //     break;
-        //   case 'negative':
-        //     score = 1;
-        //     break;
-        //   default:
-        //     score = 0;
-        // }
+        let score = sentimentAnalysis.score;
+
+        // Apply the weighting of the data source to the score
+        const weightedScore = score * source.weight;
 
         // Add the result to the analysisResults array
         analysisResults.push({
           source: source.name,
-          sentiment: sentimentAnalysis.sentiment,
+          sentiment: sentimentAnalysis.score,
           response: result.summary,
-          score,
+          score: weightedScore,
+          weight: source.weight
         });
 
-        // Step 3: Create the DataSourceResult linked to the report
-        await prisma.dataSourceResult.create({
-          data: {
-            prompt: source.prompt, // Store the prompt used
-            payload: result, // Store the entire AI response as JSON
-            report: { connect: { id: newReport.id } },
-            dataSource: { connect: { id: source.id } },
-            sentiment: sentimentAnalysis.sentiment,
-            response: result.summary,
-            score,
-          },
-        });
-
-        overallSentimentScore += score;
-        sentimentCount++;
+        // Sum the weighted sentiment scores
+        totalWeightedSentimentScore += weightedScore;
+        totalWeight += source.weight;
       }
 
       // Calculate the overall sentiment score
-      const calculatedOverallSentiment = sentimentCount
-        ? (overallSentimentScore / sentimentCount).toFixed(2)
+      const calculatedOverallSentiment = totalWeight
+        ? (totalWeightedSentimentScore / totalWeight).toFixed(2)
         : 'No sentiment found';
 
       // Step 4: Update the overall report with the final data
       await prisma.report.update({
         where: { id: newReport.id },
         data: {
-          payload: analysisResults, // Store analysis results array
+          payload: analysisResults,
           sentiment: calculatedOverallSentiment,
-          response: JSON.stringify(analysisResults), // Stores full results as JSON string
+          response: JSON.stringify(analysisResults),
         },
       });
 

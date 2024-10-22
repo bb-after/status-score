@@ -32,13 +32,14 @@ model Keyword {
 
 model DataSource {
   id        Int      @id @default(autoincrement())
-  name      String   @unique // E.g., 'Gemini', 'OpenAI'
-  model     String   // Model name, e.g., 'gemini-1.5-flash' or 'text-davinci-003'
-  prompt    String   @db.Text // Custom prompt for this data source
-  active    Boolean  @default(true) // Whether this data source is active
+  name      String   @unique
+  model     String
+  prompt    String   @db.Text
+  active    Boolean  @default(true)
+  weight    Float    @default(1.0) // Weight for sentiment analysis, default value is 1.0
   createdAt DateTime @default(now())
-  keywords   KeywordToDataSource[]  // Reference to the join table (reverse relation)
-  dataSourceResults DataSourceResult[]
+  keywords  KeywordToDataSource[]  // Reference to the join table
+  dataSourceResults DataSourceResult[] // Reference to DataSourceResult table
 }
 
 // Join table for the many-to-many relationship between Keyword and DataSource

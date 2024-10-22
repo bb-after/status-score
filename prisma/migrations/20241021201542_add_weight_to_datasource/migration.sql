@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `DataSource` ADD COLUMN `weight` DOUBLE NOT NULL DEFAULT 1.0;
