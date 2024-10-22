@@ -17,6 +17,9 @@ import {
 } from "chart.js";
 import Layout from "../components/Layout";
 
+// import { withPageAuthRequired } from "@auth0/nextjs-auth0";
+// export const getServerSideProps = withPageAuthRequired();
+
 // Registering the necessary components and scales for Chart.js
 ChartJS.register(
   LineElement,
