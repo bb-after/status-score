@@ -45,6 +45,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <Link href="/schedule" color="gray.300">
               Schedule
             </Link>
+            <Link href="/admin/data-sources/weight-management" color="gray.300">
+              Weighting
+            </Link>
 
             <Link href="/admin/data-sources" color="gray.300">
               Data Sources

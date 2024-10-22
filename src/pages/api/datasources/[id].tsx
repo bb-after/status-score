@@ -27,7 +27,7 @@ export default async function handler(
     }
   } else if (req.method === "PUT") {
     // Update the data source by ID
-    const { name, model, prompt, active } = req.body;
+    const { name, model, prompt, active, weight } = req.body;
 
     try {
       const updatedDataSource = await prisma.dataSource.update({
@@ -39,6 +39,7 @@ export default async function handler(
           model,
           prompt,
           active,
+          weight,
         },
       });
 
