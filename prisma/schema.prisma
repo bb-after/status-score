@@ -11,6 +11,7 @@ model User {
   id        Int       @id @default(autoincrement())
   email     String    @unique
   name      String?
+  remoteAuth0ID String?
   keywords  Keyword[]
   reports   Report[]
   schedules Schedule[]
