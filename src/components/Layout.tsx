@@ -17,7 +17,10 @@ import axios from "axios";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<{ email?: string } | null>({
+    email: "",
+  });
+
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
