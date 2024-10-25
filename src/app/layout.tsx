@@ -1,3 +1,4 @@
+import { ChakraProvider } from "@chakra-ui/react";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "../styles/globals.css";
@@ -28,7 +29,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <ChakraProvider>{children}</ChakraProvider>
       </body>
     </html>
   );

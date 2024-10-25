@@ -8,11 +8,37 @@ import {
   IconButton,
   useDisclosure,
   Stack,
+  Text,
+  Button,
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [user, setUser] = useState<{ email?: string } | null>({
+    email: "",
+  });
+
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await axios.get("/api/auth/me", {
+          withCredentials: true,
+        });
+        setUser(response.data);
+      } catch (error) {
+        console.error("Failed to fetch user session", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   return (
     <>
@@ -30,28 +56,39 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             alignItems="center"
             display={{ base: "none", md: "flex" }}
           >
-            <Link href="/" color="gray.300">
-              Home
-            </Link>
-            <Link href="/dashboard" color="gray.300">
-              Dashboard
-            </Link>
-            <Link href="/add-keyword" color="gray.300">
-              Add Keyword
-            </Link>
-            <Link href="/keyword-analysis" color="gray.300">
-              Keyword Analysis
-            </Link>
-            <Link href="/schedule" color="gray.300">
-              Schedule
-            </Link>
-            <Link href="/admin/data-sources/weight-management" color="gray.300">
-              Weighting
-            </Link>
+            {user ? (
+              <>
+                <Link href="/dashboard" color="gray.300">
+                  Dashboard
+                </Link>
+                <Link href="/add-keyword" color="gray.300">
+                  Add Keyword
+                </Link>
+                <Link href="/keyword-analysis" color="gray.300">
+                  Keyword Analysis
+                </Link>
+                <Link href="/schedule" color="gray.300">
+                  Schedule
+                </Link>
+                <Link
+                  href="/admin/data-sources/weight-management"
+                  color="gray.300"
+                >
+                  Weighting
+                </Link>
+                <Link href="/admin/data-sources" color="gray.300">
+                  Data Sources
+                </Link>
 
-            <Link href="/admin/data-sources" color="gray.300">
-              Data Sources
-            </Link>
+                <Text color="gray.300">Welcome, {user?.email}</Text>
+              </>
+            ) : (
+              !isLoading && (
+                <Button as="a" href="/api/auth/login" colorScheme="teal">
+                  Login
+                </Button>
+              )
+            )}
           </HStack>
           <IconButton
             size="md"
@@ -65,15 +102,46 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {isOpen ? (
           <Box pb={4} display={{ md: "none" }}>
             <Stack as="nav" spacing={4}>
-              <Link href="/" color="gray.300">
-                Home
-              </Link>
-              <Link href="/dashboard" color="gray.300">
-                Dashboard
-              </Link>
-              <Link href="/add-keyword" color="gray.300">
-                Add Keyword
-              </Link>
+              {user ? (
+                <>
+                  <Link href="/dashboard" color="gray.300">
+                    Dashboard
+                  </Link>
+                  <Link href="/add-keyword" color="gray.300">
+                    Add Keyword
+                  </Link>
+                  <Link href="/keyword-analysis" color="gray.300">
+                    Keyword Analysis
+                  </Link>
+                  <Link href="/schedule" color="gray.300">
+                    Schedule
+                  </Link>
+                  <Link
+                    href="/admin/data-sources/weight-management"
+                    color="gray.300"
+                  >
+                    Weighting
+                  </Link>
+                  <Link href="/admin/data-sources" color="gray.300">
+                    Data Sources
+                  </Link>
+                  <Link href="/api/auth/logout" color="gray.300">
+                    Logout
+                  </Link>
+                  <Text color="gray.300">Welcome, {user?.email}</Text>
+                </>
+              ) : (
+                !isLoading && (
+                  <>
+                    <Link href="/" color="gray.300">
+                      Home
+                    </Link>
+                    <Button as="a" href="/api/auth/login" colorScheme="teal">
+                      Login
+                    </Button>
+                  </>
+                )
+              )}
             </Stack>
           </Box>
         ) : null}

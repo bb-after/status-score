@@ -11,13 +11,39 @@ model User {
   id        Int       @id @default(autoincrement())
   email     String    @unique
   name      String?
+  remoteAuth0ID String?
   keywords  Keyword[]
   reports   Report[]
   schedules Schedule[]
   admin     Boolean   @default(false)
   createdAt DateTime  @default(now())
+  teams TeamUser[]
 }
 
+model Team {
+  id        Int       @id @default(autoincrement())
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  members   TeamUser[]
+}
+
+model TeamUser {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  team      Team     @relation(fields: [teamId], references: [id])
+  teamId    Int
+  role      Role
+  createdAt DateTime @default(now())
+
+  @@unique([userId, teamId]) // Ensure that a user can belong to a team only once
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+}
 
 model Keyword {
   id          Int          @id @default(autoincrement())
