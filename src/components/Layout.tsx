@@ -23,7 +23,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get("/api/auth/me");
+        const response = await axios.get("/api/auth/me", {
+          withCredentials: true,
+        });
         setUser(response.data);
       } catch (error) {
         console.error("Failed to fetch user session", error);
@@ -75,10 +77,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   Data Sources
                 </Link>
 
-                <Text color="gray.300">Welcome, {user.email}</Text>
-                <Link href="/api/auth/logout" color="gray.300">
-                  Logout
-                </Link>
+                <Text color="gray.300">Welcome, {user?.email}</Text>
               </>
             ) : (
               !isLoading && (
@@ -126,7 +125,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   <Link href="/api/auth/logout" color="gray.300">
                     Logout
                   </Link>
-                  <Text color="gray.300">Welcome, {user.email}</Text>
+                  <Text color="gray.300">Welcome, {user?.email}</Text>
                 </>
               ) : (
                 !isLoading && (
