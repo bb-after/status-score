@@ -18,6 +18,7 @@ model User {
   admin     Boolean   @default(false)
   createdAt DateTime  @default(now())
   teams TeamUser[]
+  teamInvites     TeamInvite[]  // New relation to TeamInvite
 }
 
 model Team {
@@ -26,6 +27,7 @@ model Team {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   members   TeamUser[]
+  invites   TeamInvite[]
 }
 
 model TeamUser {
@@ -123,4 +125,16 @@ model DataSourceResult {
   payload      Json        // The full payload received from the AI
   score        Int       // Numerical representation of the sentiment
   createdAt    DateTime  @default(now())
+}
+
+model TeamInvite {
+  id       Int      @id @default(autoincrement())
+  teamId   Int
+  team     Team     @relation(fields: [teamId], references: [id])
+  userId   Int?     // Nullable for users not yet registered
+  user     User?    @relation(fields: [userId], references: [id])
+  email    String   // Email for users not yet registered
+  token    String   @unique
+  status   String   // PENDING, ACCEPTED, REJECTED
+  createdAt DateTime @default(now())
 }

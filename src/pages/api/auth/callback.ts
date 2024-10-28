@@ -3,7 +3,7 @@ import prisma from '../../../lib/prisma';
 
 export default async function callback(req, res) {
   console.log("Callback endpoint accessed");
-  debugger;
+  // debugger;
   try {
     const session = await handleCallback(req, res, {
       afterCallback: async (req, res, session) => {
