@@ -55,7 +55,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         user: {
           ...member.user,
           createdAt: member.user.createdAt instanceof Date ? member.user.createdAt.toISOString() : member.user.createdAt,
-          updatedAt: member.user.updatedAt instanceof Date ? member.user.updatedAt.toISOString() : member.user.updatedAt,
         },
       })),
     }));
