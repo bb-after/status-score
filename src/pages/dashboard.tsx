@@ -5,8 +5,6 @@ import FiltersPanel from "../components/FiltersPanel";
 import ReportsTable from "../components/ReportsTable";
 import { Box, Heading } from "@chakra-ui/react";
 import { Line } from "react-chartjs-2";
-import useAuthenticatedUser from "../hooks/useAuthenticatedUser";
-
 import {
   Chart as ChartJS,
   LineElement,
@@ -18,8 +16,6 @@ import {
   Legend,
 } from "chart.js";
 import Layout from "../components/Layout";
-import { useUser } from "@auth0/nextjs-auth0/client";
-import { useRouter } from "next/navigation";
 
 // Registering the necessary components and scales for Chart.js
 ChartJS.register(
@@ -51,21 +47,6 @@ const Dashboard = () => {
     endDate: new Date(), // Defaults to today until data is fetched
   });
 
-  const { user, isAuthLoading } = useAuthenticatedUser();
-
-  // const router = useRouter();
-
-  // useEffect(() => {
-  //   if (!isAuthLoading && !user) {
-  //     router.push("/");
-  //   }
-  // }, [user, isAuthLoading, router]);
-
-  // Return null to prevent rendering the page if the user is not authenticated.
-  // if (!user) {
-  //   return null;
-  // }
-
   useEffect(() => {
     if (selectedKeywordId) {
       fetchReports(selectedKeywordId);
@@ -90,19 +71,6 @@ const Dashboard = () => {
     // Automatically apply filters whenever filter values change
     applyFilters();
   }, [selectedDataSource, selectedSentiment, dateRange]);
-
-  // If the authentication status is still loading, display a loader
-  if (isAuthLoading) {
-    return (
-      <Layout>
-        <Box maxW="6xl" mx="auto" py="12" px="6">
-          <Heading as="h2" size="xl" textAlign="center" mb={6}>
-            Loading...
-          </Heading>
-        </Box>
-      </Layout>
-    );
-  }
 
   const fetchReports = async (keywordId: number) => {
     setIsLoading(true);

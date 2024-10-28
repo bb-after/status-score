@@ -17,10 +17,7 @@ import axios from "axios";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [user, setUser] = useState<{ email?: string } | null>({
-    email: "",
-  });
-
+  const [user, setUser] = useState<{ email?: string } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -56,7 +53,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             alignItems="center"
             display={{ base: "none", md: "flex" }}
           >
-            {user ? (
+            {isLoading ? (
+              // Loading state while waiting for the user's data
+              <Text color="gray.300">Loading...</Text>
+            ) : user ? (
+              // Show these links if the user is logged in
               <>
                 <Link href="/dashboard" color="gray.300">
                   Dashboard
@@ -89,11 +90,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </Text>
               </>
             ) : (
-              !isLoading && (
-                <Button as="a" href="/api/auth/login" colorScheme="teal">
-                  Login
-                </Button>
-              )
+              // Show login button if the user is not logged in
+              <Button as="a" href="/api/auth/login" colorScheme="teal">
+                Login
+              </Button>
             )}
           </HStack>
           <IconButton
@@ -108,7 +108,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {isOpen ? (
           <Box pb={4} display={{ md: "none" }}>
             <Stack as="nav" spacing={4}>
-              {user ? (
+              {isLoading ? (
+                <Text color="gray.300">Loading...</Text>
+              ) : user ? (
                 <>
                   <Text color="gray.300">{user?.email}</Text>
                   <Link href="/dashboard" color="gray.300">
@@ -137,16 +139,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   </Link>
                 </>
               ) : (
-                !isLoading && (
-                  <>
-                    <Link href="/" color="gray.300">
-                      Home
-                    </Link>
-                    <Button as="a" href="/api/auth/login" colorScheme="teal">
-                      Login
-                    </Button>
-                  </>
-                )
+                <>
+                  <Link href="/" color="gray.300">
+                    Home
+                  </Link>
+                  <Button as="a" href="/api/auth/login" colorScheme="teal">
+                    Login
+                  </Button>
+                </>
               )}
             </Stack>
           </Box>

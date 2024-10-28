@@ -3,7 +3,7 @@ import prisma from '../../../lib/prisma';
 
 export default async function callback(req, res) {
   console.log("Callback endpoint accessed");
-  debugger;
+  // debugger;
   try {
     const session = await handleCallback(req, res, {
       afterCallback: async (req, res, session) => {
@@ -23,13 +23,6 @@ export default async function callback(req, res) {
             remoteAuth0ID: user.sub,
           },
         });
-
-        res.cookie('auth0.is.authenticated', 'true', {
-          httpOnly: false,
-          secure: process.env.NODE_ENV === 'production',
-          path: '/',
-          sameSite: 'Lax'
-        });    
 
         console.log("User upserted into database:", upsertedUser);
         return session;

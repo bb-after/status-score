@@ -6,8 +6,8 @@ module.exports = {
     AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID,
     AUTH0_CLIENT_SECRET: process.env.AUTH0_CLIENT_SECRET,
     AUTH0_SECRET: process.env.AUTH0_SECRET,
-    AUTH0_COOKIE_SECURE: process.env.NODE_ENV === 'production',
-    AUTH0_COOKIE_SAME_SITE: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+    AUTH0_COOKIE_SECURE: process.env.NODE_ENV === 'production' ? 'true' : 'false',
+    AUTH0_COOKIE_SAME_SITE: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
   },
   async headers() {
     return [
