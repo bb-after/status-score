@@ -19,6 +19,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(400).json({ error: 'Invalid or expired invite' });
       }
 
+      if (invite.userId == null) {
+        return res.status(400).json({ error: 'Invalid userId passed through' });
+      }
+      
       // Update invite status to ACCEPTED and add user to the team
       await prisma.teamInvite.update({
         where: { token },
