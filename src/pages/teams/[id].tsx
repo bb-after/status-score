@@ -1,5 +1,6 @@
 // src/pages/teams/[id].tsx
 import { GetServerSideProps } from "next";
+import { ParsedUrlQuery } from "querystring";
 import { useState } from "react";
 import prisma from "../../lib/prisma";
 import {
@@ -31,11 +32,20 @@ interface TeamPageProps {
   };
 }
 
+interface Params extends ParsedUrlQuery {
+  id: string;
+}
+
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { id } = context.params;
+  const { params } = context;
+  if (!params || typeof params.id !== "string") {
+    return {
+      notFound: true,
+    };
+  }
 
   const team = await prisma.team.findUnique({
-    where: { id: Number(id) },
+    where: { id: Number(params.id) },
     include: {
       members: {
         include: {
