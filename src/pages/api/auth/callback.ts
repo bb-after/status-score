@@ -24,6 +24,13 @@ export default async function callback(req, res) {
           },
         });
 
+        res.cookie('auth0.is.authenticated', 'true', {
+          httpOnly: false,
+          secure: process.env.NODE_ENV === 'production',
+          path: '/',
+          sameSite: 'Lax'
+        });    
+
         console.log("User upserted into database:", upsertedUser);
         return session;
       },

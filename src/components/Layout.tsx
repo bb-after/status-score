@@ -80,7 +80,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   Data Sources
                 </Link>
 
-                <Text color="gray.300">Welcome, {user?.email}</Text>
+                <Text color="gray.300">
+                  Welcome, {user?.email}
+                  &nbsp;
+                  <Link href="/api/auth/logout" color="gray.300" fontSize="xs">
+                    (Logout)
+                  </Link>
+                </Text>
               </>
             ) : (
               !isLoading && (
@@ -104,6 +110,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <Stack as="nav" spacing={4}>
               {user ? (
                 <>
+                  <Text color="gray.300">{user?.email}</Text>
                   <Link href="/dashboard" color="gray.300">
                     Dashboard
                   </Link>
@@ -128,7 +135,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   <Link href="/api/auth/logout" color="gray.300">
                     Logout
                   </Link>
-                  <Text color="gray.300">Welcome, {user?.email}</Text>
                 </>
               ) : (
                 !isLoading && (
