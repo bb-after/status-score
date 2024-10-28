@@ -1,30 +1,31 @@
-// utils/sendEmail.ts
-import sgMail from '@sendgrid/mail';
+const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+const msg = {
+  to: 'test@example.com',
+  from: 'test@example.com', // Use the email address or domain you verified above
+  subject: 'Sending with Twilio SendGrid is Fun',
+  text: 'and easy to do anywhere, even with Node.js',
+  html: '<strong>and easy to do anywhere, even with Node.js</strong>',
+};
+//ES6
+sgMail
+  .send(msg)
+  .then(() => {}, error => {
+    console.error(error);
 
-// Set the API key from your SendGrid account
-sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
-
-interface EmailOptions {
-  to: string;
-  subject: string;
-  text?: string;
-  html?: string;
-}
-
-export default async function sendEmail({ to, subject, text, html }: EmailOptions) {
+    if (error.response) {
+      console.error(error.response.body)
+    }
+  });
+//ES8
+(async () => {
   try {
-    const msg = {
-      to,
-      from: 'no-reply@yourdomain.com', // Your verified sender address
-      subject,
-      text,
-      html,
-    };
-
     await sgMail.send(msg);
-    console.log(`Email sent to ${to}`);
   } catch (error) {
-    console.error('Error sending email:', error);
-    throw new Error('Unable to send email');
+    console.error(error);
+
+    if (error.response) {
+      console.error(error.response.body)
+    }
   }
-}
+})();
