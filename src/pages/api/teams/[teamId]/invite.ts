@@ -1,8 +1,8 @@
 // pages/api/teams/invite.ts
 import { NextApiRequest, NextApiResponse } from 'next';
-import prisma from '../../../lib/prisma';
+import prisma from '../../../../lib/prisma';
 import { getSession } from '@auth0/nextjs-auth0';
-import { sendEmail } from '../../../lib/sendgrid'; // Example, if you have this util function
+import sendEmail from '../../../../utils/sendEmail';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
@@ -63,8 +63,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         });
 
         // Optionally, you can send an email notifying that they have been added
-        await sendEmail(
+        await sendEmail
           userEmail,
+          null,
           'You’ve been added to a team!',
           `You have been added to the team ${inviter.team.name}. You can access it by logging in.`,
           `<strong>You have been added to the team ${inviter.team.name}.</strong> You can access it by logging in.`
