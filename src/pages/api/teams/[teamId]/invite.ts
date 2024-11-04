@@ -1,9 +1,9 @@
 // pages/api/teams/invite.ts
 import { NextApiRequest, NextApiResponse } from 'next';
-import prisma from '../../../lib/prisma';
+import prisma from '../../../../lib/prisma';
 import { getSession } from '@auth0/nextjs-auth0';
 import { v4 as uuidv4 } from "uuid";
-import sendEmail from '../../../utils/sendEmail';
+import sendEmail from '../../../../utils/sendEmail';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
