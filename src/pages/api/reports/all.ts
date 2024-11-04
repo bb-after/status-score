@@ -8,6 +8,7 @@ import { getGrokSentiment } from '../../../utils/grok';
 import { searchTwitter } from '../../../utils/twitter';
 import { analyzeSentimentGoogle } from '../../../utils/googleLanguage';
 import { searchReddit } from '../../../utils/reddit';
+import { searchYouTube } from '../../../utils/youtube';  // Import the new YouTube function
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
@@ -78,6 +79,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           case 'reddit':
             result = await searchReddit(keywordRecord.name);
             break;
+          case 'youtube': // New YouTube data source case
+            result = await searchYouTube(keywordRecord.name);
+            break;
+  
           default:
             continue;
         }
@@ -100,6 +105,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         analysisResults.push({
           source: source.name,
           sentiment: sentimentAnalysis.score,
+          magnitude: sentimentAnalysis.magnitude,
           response: result.summary,
           score: weightedScore,
           weight: source.weight

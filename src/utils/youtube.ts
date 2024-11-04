@@ -22,7 +22,7 @@ export async function searchYouTube(keyword: string): Promise<YouTubeSearchResul
       params: {
         part: 'snippet',
         q: keyword,
-        maxResults: 10, // Adjust the number of results as needed
+        maxResults: 15, // Adjust the number of results as needed
         key: YOUTUBE_API_KEY,
       },
     });
@@ -34,11 +34,11 @@ export async function searchYouTube(keyword: string): Promise<YouTubeSearchResul
         title: video.snippet.title,
         description: video.snippet.description,
       }));
-
+      console.log('video results', videoResults);
       // Create a summary by joining the titles and descriptions together
       const summary = videoResults
         .map(video => `${video.title}. ${video.description}`)
-        .join(' ');
+        .join('\n\n');
 
       // Return the formatted result
       return {

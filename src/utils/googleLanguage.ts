@@ -26,8 +26,6 @@ export async function analyzeSentimentGoogle(text: string) {
     console.log("body to analyze", text);
     console.log("and the sentiment is....",sentimentData);
 
-    const { score, magnitude } = sentimentData;
-
     // Define thresholds for classification
     // const magnitudeThreshold = 0.5;  // Adjust based on how strong we want the sentiment to be considered
 
@@ -45,8 +43,8 @@ export async function analyzeSentimentGoogle(text: string) {
       sentiment:
          compositeScore > 0.25
            ? 'positive'
-           : compositeScore < -0.25
-           ? 'negative'
+           : compositeScore < -0.25 || (compositeScore < 0.25 && sentimentData.magnitude >= 5)
+           ? 'negative' 
            : 'neutral', // General sentiment classification based on score
     };
     
