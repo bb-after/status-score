@@ -97,9 +97,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // Send invitation email
         await sendEmail({
           to: userEmail,
-          subject: 'You’ve been invited to join a team!',
-          text: `You have been invited to join the team ${inviter.team.name}. Please click the link below to register and accept your invitation.`,
-          html: `<strong>You have been invited to join the team ${inviter.team.name}</strong>. Please click the link below to register and accept your invitation.`,
+          subject: 'You have been invited to join a team!',
+          text: `You have been invited to join the team ${team.name}. Please click the link below to register and accept your invitation.`,
+          html: `<strong>You have been invited to join the team ${team.name}</strong>. Please click the link below to register and accept your invitation.`,
         });
 
         return res.status(201).json({ message: 'Invitation created successfully', teamInvite });
