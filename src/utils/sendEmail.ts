@@ -1,31 +1,38 @@
-const sgMail = require('@sendgrid/mail');
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-const msg = {
-  to: 'test@example.com',
-  from: 'test@example.com', // Use the email address or domain you verified above
-  subject: 'Sending with Twilio SendGrid is Fun',
-  text: 'and easy to do anywhere, even with Node.js',
-  html: '<strong>and easy to do anywhere, even with Node.js</strong>',
-};
-//ES6
-sgMail
-  .send(msg)
-  .then(() => {}, error => {
-    console.error(error);
+import mailgun from 'mailgun-js';
 
-    if (error.response) {
-      console.error(error.response.body)
-    }
-  });
-//ES8
-(async () => {
+const mailgunApiKey = process.env.MAILGUN_API_KEY;
+const mailgunDomain = process.env.MAILGUN_DOMAIN;
+
+if (!mailgunApiKey || !mailgunDomain) {
+  throw new Error('Missing Mailgun API key or domain in environment variables');
+}
+
+const mg = mailgun({ apiKey: mailgunApiKey, domain: mailgunDomain });
+
+interface EmailOptions {
+  to: string;
+  from?: string; // Make this optional with a default value
+  subject: string;
+  text?: string;
+  html?: string;
+}
+
+export default async function sendEmail({ to, from = 'no-reply@'+mailgunDomain, subject, text, html }: EmailOptions) {
   try {
-    await sgMail.send(msg);
-  } catch (error) {
-    console.error(error);
+    // Build the message object
+    const msg = {
+      from,
+      to,
+      subject,
+      ...(text ? { text } : {}),
+      ...(html ? { html } : {}),
+    };
 
-    if (error.response) {
-      console.error(error.response.body)
-    }
+    // Send the email using Mailgun API
+    await mg.messages().send(msg);
+    console.log(`Email sent to ${to}`);
+  } catch (error: any) {
+    console.error('Error sending email:', error);
+    throw new Error('Unable to send email');
   }
-})();
+}
