@@ -2,6 +2,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import prisma from '../../../../lib/prisma';
 import { getSession } from '@auth0/nextjs-auth0';
+import { v4 as uuidv4 } from "uuid";
 import sendEmail from '../../../../utils/sendEmail';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -47,7 +48,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(403).json({ error: 'Only team admins can invite users' });
       }
 
-      // Step 4: Check if the user to be invited already exists
+    // Step 4: Fetch the team details to get the name
+      const team = await prisma.team.findUnique({
+        where: {
+          id: teamId,
+        },
+      });
+
+      if (!team) {
+        return res.status(404).json({ error: "Team not found" });
+      }
+      // Step 5: Check if the user to be invited already exists
       const existingUser = await prisma.user.findUnique({
         where: { email: userEmail },
       });
@@ -63,32 +74,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         });
 
         // Optionally, you can send an email notifying that they have been added
-        await sendEmail
-          userEmail,
-          null,
-          'You’ve been added to a team!',
-          `You have been added to the team ${inviter.team.name}. You can access it by logging in.`,
-          `<strong>You have been added to the team ${inviter.team.name}.</strong> You can access it by logging in.`
-        );
+        await sendEmail({
+          to: userEmail,
+          subject: 'You have been added to a team!',
+          text: `You have been added to the team ${team.name}. You can access it by logging in.`,
+          html: `<strong>You have been added to the team ${team.name}.</strong> You can access it by logging in.`,
+        });
 
         return res.status(201).json(teamUser);
       } else {
+        const token = uuidv4();
         // Create a new invite for a user who doesn't exist yet
         const teamInvite = await prisma.teamInvite.create({
           data: {
             email: userEmail,
             teamId: teamId,
-            role: 'MEMBER', // default role for invited member
+            token: token,
+            status: 'PENDING',
           },
         });
 
         // Send invitation email
-        await sendEmail(
-          userEmail,
-          'You’ve been invited to join a team!',
-          `You have been invited to join the team ${inviter.team.name}. Please click the link below to register and accept your invitation.`,
-          `<strong>You have been invited to join the team ${inviter.team.name}</strong>. Please click the link below to register and accept your invitation.`
-        );
+        await sendEmail({
+          to: userEmail,
+          subject: 'You have been invited to join a team!',
+          text: `You have been invited to join the team ${team.name}. Please click the link below to register and accept your invitation.`,
+          html: `<strong>You have been invited to join the team ${team.name}</strong>. Please click the link below to register and accept your invitation.`,
+        });
 
         return res.status(201).json({ message: 'Invitation created successfully', teamInvite });
       }
