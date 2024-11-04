@@ -76,7 +76,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // Optionally, you can send an email notifying that they have been added
         await sendEmail({
           to: userEmail,
-          subject: 'You’ve been added to a team!',
+          subject: 'You have been added to a team!',
           text: `You have been added to the team ${team.name}. You can access it by logging in.`,
           html: `<strong>You have been added to the team ${team.name}.</strong> You can access it by logging in.`,
         });
