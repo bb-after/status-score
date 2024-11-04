@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import prisma from '../../../lib/prisma';
+import { getAuthenticatedUserId } from '../../../lib/auth';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
@@ -10,8 +11,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     try {
-      // Hardcoded userId for now (change this to your authenticated user's ID when ready)
-      const userId = 1;
+      const userId = await getAuthenticatedUserId(req, res);
 
       // Step 1: Check if the keyword already exists for the user
       const existingKeyword = await prisma.keyword.findFirst({

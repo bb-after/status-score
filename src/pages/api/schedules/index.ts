@@ -1,8 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import prisma from '../../../lib/prisma';
+import { getAuthenticatedUserId } from '../../../lib/auth';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const userId = 1; // Hardcoded user ID for now
+  const userId = await getAuthenticatedUserId(req, res);
 
   switch (req.method) {
     case 'GET':
