@@ -155,7 +155,14 @@ const KeywordAnalysisPage = () => {
                   <Text fontWeight="bold">Source: {result.source}</Text>
                   <Text>Sentiment: {result.sentiment}</Text>
                   <Text>Score: {result.score}</Text>
-                  <Text mt={2}>Response: {result.response}</Text>
+                  <Text>Magnitude: {result.magnitude}</Text>
+                  <Box mt={2}>
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: result.response.replace(/\n/g, "<br />"),
+                      }}
+                    />
+                  </Box>
                 </Box>
               ))}
             </VStack>
