@@ -28,9 +28,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         where: { token },
         data: {
           status: 'ACCEPTED',
-          user: {
-            connect: { id: invite.userId },
-          },
+          // user: {
+          //   connect: { id: invite.userId },
+          // },
         },
       });
 
