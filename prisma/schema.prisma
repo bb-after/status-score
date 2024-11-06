@@ -108,6 +108,7 @@ model Schedule {
   emails       String    // Comma-separated email addresses
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+  scheduledRuns   ScheduledRun[]   // New relation
 
   @@unique([keywordId, userId]) // Ensures one schedule per keyword per user
 }
@@ -137,4 +138,13 @@ model TeamInvite {
   updatedAt DateTime @updatedAt
 
   team     Team     @relation(fields: [teamId], references: [id])
+}
+
+model ScheduledRun {
+  id          Int          @id @default(autoincrement())
+  scheduleId  Int          // Foreign key to Schedule
+  schedule    Schedule     @relation(fields: [scheduleId], references: [id])
+  runAt       DateTime     @default(now()) // When this run occurred
+  status      String       // Status (e.g., "success", "failure", "in-progress")
+  errorMessage String?     // Optional, to store error messages in case of failures
 }
