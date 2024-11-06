@@ -8,7 +8,7 @@ import { getGrokSentiment } from '../../../utils/grok';
 import { searchTwitter } from '../../../utils/twitter';
 import { analyzeSentimentGoogle } from '../../../utils/googleLanguage';
 import { searchReddit } from '../../../utils/reddit';
-import { searchYouTube } from '../../../utils/youtube';  // Import the new YouTube function
+import { searchYouTube } from '../../../utils/youtube';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
@@ -25,13 +25,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(404).json({ error: 'Keyword not found' });
       }
 
-      // Fetch the specified active data sources
-      const dataSources = await prisma.dataSource.findMany({
-        where: {
-          id: { in: dataSourceIds.map((id) => Number(id)) },
-          active: true,
-        },
-      });
+      // Fetch the specified active data sources, or use all active public data sources if none are provided
+      let dataSources;
+      if (dataSourceIds && dataSourceIds.length > 0) {
+        dataSources = await prisma.dataSource.findMany({
+          where: {
+            id: { in: dataSourceIds.map((id) => Number(id)) },
+            active: true,
+          },
+        });
+      } else {
+        // Default to all active public data sources if dataSourceIds isn't provided
+        dataSources = await prisma.dataSource.findMany({
+          where: {
+            active: true,
+            // isPublic: true, // Assuming `isPublic` is a field that indicates if the data source is public
+          },
+        });
+      }
+
+      if (!dataSources || dataSources.length === 0) {
+        return res.status(404).json({ error: 'No valid data sources found' });
+      }
 
       const analysisResults: any[] = [];
       let totalWeightedSentimentScore = 0;
@@ -79,21 +94,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           case 'reddit':
             result = await searchReddit(keywordRecord.name);
             break;
-          case 'youtube': // New YouTube data source case
+          case 'youtube':
             result = await searchYouTube(keywordRecord.name);
             break;
-  
           default:
             continue;
         }
 
-        let sentimentAnalysis = await analyzeSentimentGoogle(result.summary);
-
-        // Validate the result
         if (!result || !result.summary) {
           console.warn(`Invalid result for source ${source.name}`);
           continue; // Skip to the next data source if the result is invalid
         }
+
+        let sentimentAnalysis = await analyzeSentimentGoogle(result.summary);
 
         // Parse sentiment into a numerical score
         let score = sentimentAnalysis.score;
@@ -108,7 +121,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           magnitude: sentimentAnalysis.magnitude,
           response: result.summary,
           score: weightedScore,
-          weight: source.weight
+          weight: source.weight,
         });
 
         // Sum the weighted sentiment scores
