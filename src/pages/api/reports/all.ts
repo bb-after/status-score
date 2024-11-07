@@ -8,7 +8,7 @@ import { getGrokSentiment } from '../../../utils/grok';
 import { searchTwitter } from '../../../utils/twitter';
 import { analyzeSentimentGoogle } from '../../../utils/googleLanguage';
 import { searchReddit } from '../../../utils/reddit';
-import { searchYouTube } from '../../../utils/youtube';  // Import the new YouTube function
+import { searchYouTube } from '../../../utils/youtube';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
@@ -25,10 +25,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(404).json({ error: 'Keyword not found' });
       }
 
-      // Fetch the specified active data sources
+      // Fetch data sources, use all if dataSourceIds is undefined or empty
       const dataSources = await prisma.dataSource.findMany({
         where: {
-          id: { in: dataSourceIds.map((id) => Number(id)) },
+          id: dataSourceIds && dataSourceIds.length > 0 ? { in: dataSourceIds.map((id) => Number(id)) } : undefined,
           active: true,
         },
       });
@@ -82,7 +82,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           case 'youtube': // New YouTube data source case
             result = await searchYouTube(keywordRecord.name);
             break;
-  
+
           default:
             continue;
         }
