@@ -141,10 +141,11 @@ model TeamInvite {
 }
 
 model ScheduledRun {
-  id          Int          @id @default(autoincrement())
-  scheduleId  Int          // Foreign key to Schedule
-  schedule    Schedule     @relation(fields: [scheduleId], references: [id])
-  runAt       DateTime     @default(now()) // When this run occurred
-  status      String       // Status (e.g., "success", "failure", "in-progress")
-  errorMessage String?     // Optional, to store error messages in case of failures
+  id           Int       @id @default(autoincrement())
+  scheduleId   Int       // Foreign key to Schedule
+  schedule     Schedule  @relation(fields: [scheduleId], references: [id])
+  runAt        DateTime  @default(now()) // When this run started
+  status       String    // Status (e.g., "success", "failure", "in-progress")
+  errorMessage String?   // Optional, to store error messages in case of failures
+  finishedAt   DateTime? // Optional, set when the run is finished
 }
