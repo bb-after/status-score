@@ -52,68 +52,76 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       // Step 2: Iterate through each data source and analyze sentiment
       for (const source of dataSources) {
-        let result;
+        try {
+          let result;
 
-        switch (source.name.toLowerCase()) {
-          case 'gemini':
-            result = await getGeminiSentiment(keywordRecord.name, source.id);
-            break;
-          case 'openai gpt-4':
-            result = await getOpenAISentiment(keywordRecord.name, source.id);
-            break;
-          case 'openai gpt-3.5':
-            result = await getOpenAISentiment(keywordRecord.name, source.id);
-            break;
-          case 'claude':
-            result = await getClaudeSentiment(keywordRecord.name, source.id);
-            break;
-          case 'google news':
-            result = await getGoogleNewsSentiment(keywordRecord.name, source.id);
-            break;
-          case 'grok':
-            result = await getGrokSentiment(keywordRecord.name, source.id);
-            break;
-          case 'twitter':
-            result = await searchTwitter(keywordRecord.name);
-            break;
-          case 'reddit':
-            result = await searchReddit(keywordRecord.name);
-            break;
-          case 'youtube': // New YouTube data source case
-            result = await searchYouTube(keywordRecord.name);
-            break;
+          switch (source.name.toLowerCase()) {
+            case 'gemini':
+              result = await getGeminiSentiment(keywordRecord.name, source.id);
+              break;
+            case 'openai gpt-4':
+              result = await getOpenAISentiment(keywordRecord.name, source.id);
+              break;
+            case 'openai gpt-3.5':
+              result = await getOpenAISentiment(keywordRecord.name, source.id);
+              break;
+            case 'claude':
+              result = await getClaudeSentiment(keywordRecord.name, source.id);
+              break;
+            case 'google news':
+              result = await getGoogleNewsSentiment(keywordRecord.name, source.id);
+              break;
+            case 'grok':
+              result = await getGrokSentiment(keywordRecord.name, source.id);
+              break;
+            case 'twitter':
+              result = await searchTwitter(keywordRecord.name);
+              break;
+            case 'reddit':
+              result = await searchReddit(keywordRecord.name);
+              break;
+            case 'youtube': // New YouTube data source case
+              result = await searchYouTube(keywordRecord.name);
+              break;
 
-          default:
-            continue;
+            default:
+              throw new Error(`Unknown data source: ${source.name}`);
+          }
+
+          // Validate the result
+          if (!result || !result.summary) {
+            throw new Error(`Invalid result for source ${source.name}`);
+          }
+
+          // Perform sentiment analysis
+          let sentimentAnalysis = await analyzeSentimentGoogle(result.summary);
+          let score = sentimentAnalysis.score;
+
+          // Apply the weighting of the data source to the score
+          const weightedScore = score * source.weight;
+
+          // Add the result to the analysisResults array
+          analysisResults.push({
+            source: source.name,
+            sentiment: sentimentAnalysis.score,
+            magnitude: sentimentAnalysis.magnitude,
+            response: result.summary,
+            score: weightedScore,
+            weight: source.weight
+          });
+
+          // Sum the weighted sentiment scores
+          totalWeightedSentimentScore += weightedScore;
+          totalWeight += source.weight;
+        } catch (err) {
+          console.error(`Error processing source ${source.name}:`, err);
+
+          // Log the failure in the results array
+          analysisResults.push({
+            source: source.name,
+            error: err.message,
+          });
         }
-
-        let sentimentAnalysis = await analyzeSentimentGoogle(result.summary);
-
-        // Validate the result
-        if (!result || !result.summary) {
-          console.warn(`Invalid result for source ${source.name}`);
-          continue; // Skip to the next data source if the result is invalid
-        }
-
-        // Parse sentiment into a numerical score
-        let score = sentimentAnalysis.score;
-
-        // Apply the weighting of the data source to the score
-        const weightedScore = score * source.weight;
-
-        // Add the result to the analysisResults array
-        analysisResults.push({
-          source: source.name,
-          sentiment: sentimentAnalysis.score,
-          magnitude: sentimentAnalysis.magnitude,
-          response: result.summary,
-          score: weightedScore,
-          weight: source.weight
-        });
-
-        // Sum the weighted sentiment scores
-        totalWeightedSentimentScore += weightedScore;
-        totalWeight += source.weight;
       }
 
       // Calculate the overall sentiment score
@@ -145,3 +153,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }
+
