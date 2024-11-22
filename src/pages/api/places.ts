@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { DentistResult, SearchResults } from '../types';
+import { DentistResult, SearchResults } from '../../types/types';
 
 export async function searchDentists(city: string, type: string, pageToken?: string, nextPageToken?: string): Promise<SearchResults> {
   try {
