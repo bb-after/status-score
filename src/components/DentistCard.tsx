@@ -16,7 +16,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { FaStar } from 'react-icons/fa';
-import { DentistResult } from '../pages/types';
+import { DentistResult } from '../types/types';
 
 interface DentistCardProps {
   dentist: DentistResult;
