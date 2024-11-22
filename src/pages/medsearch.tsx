@@ -129,12 +129,12 @@ const Home: React.FC = () => {
     <Layout>
       <Box maxW="2xl" mx="auto" py="12" px="6">
         <Heading as="h2" size="xl" textAlign="center" mb={6}>
-          Add a New Keyword
+          Bad RX
         </Heading>
         <div className="max-w-6xl mx-auto">
-          <h1 className="text-3xl font-bold mb-8 text-center">
-            Dentist Review Aggregator
-          </h1>
+          <Heading as="h3" textAlign="center" mb={6}>
+          The unpleasant truths revealed in reviews
+          </Heading>
           <SearchForm onSearch={handleSearch} isLoading={isLoading} />
 
           {isLoading ? (
