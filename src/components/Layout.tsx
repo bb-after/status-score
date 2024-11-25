@@ -1,8 +1,7 @@
-// components/Layout.tsx
 import {
   Box,
   Flex,
-  Link,
+  Link as ChakraLink,
   Image,
   HStack,
   IconButton,
@@ -10,15 +9,19 @@ import {
   Stack,
   Text,
   Button,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Link from "next/link";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [user, setUser] = useState<{ email?: string } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const bgColor = useColorModeValue("white", "gray.800");
+  const textColor = useColorModeValue("gray.800", "white");
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -38,63 +41,62 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <>
-      <Box bg="gray.800" px={4}>
+    <Box minH="100vh" bg="gray.900" color="white">
+      <Box as="header" bg="brand.800" px={4} boxShadow="lg">
         <Flex h={16} alignItems="center" justifyContent="space-between">
-          <Box>
-            <Image
-              src="https://status-score-public.s3.us-east-2.amazonaws.com/logo-1.png"
-              alt="Logo"
-              height={8}
-            />
-          </Box>
+          <ChakraLink as={Link} href="/" _hover={{ textDecoration: "none" }}>
+            <Flex alignItems="center">
+              <Image
+                src="https://status-score-public.s3.us-east-2.amazonaws.com/logo-1.png"
+                alt="Logo"
+                height={8}
+                mr={2}
+              />
+              <Text fontSize="xl" fontWeight="bold" color="accent.neon">
+                StatusScore
+              </Text>
+            </Flex>
+          </ChakraLink>
           <HStack
             spacing={8}
             alignItems="center"
             display={{ base: "none", md: "flex" }}
           >
             {isLoading ? (
-              // Loading state while waiting for the user's data
               <Text color="gray.300">Loading...</Text>
             ) : user ? (
-              // Show these links if the user is logged in
               <>
-                <Link href="/dashboard" color="gray.300">
+                <ChakraLink as={Link} href="/dashboard" color="gray.300" _hover={{ color: "accent.neon" }}>
                   Dashboard
-                </Link>
-                <Link href="/add-keyword" color="gray.300">
+                </ChakraLink>
+                <ChakraLink as={Link} href="/add-keyword" color="gray.300" _hover={{ color: "accent.neon" }}>
                   Add Keyword
-                </Link>
-                <Link href="/keyword-analysis" color="gray.300">
+                </ChakraLink>
+                <ChakraLink as={Link} href="/keyword-analysis" color="gray.300" _hover={{ color: "accent.neon" }}>
                   Keyword Analysis
-                </Link>
-                <Link href="/schedule" color="gray.300">
+                </ChakraLink>
+                <ChakraLink as={Link} href="/schedule" color="gray.300" _hover={{ color: "accent.neon" }}>
                   Schedule
-                </Link>
-                <Link href="/teams" color="gray.300">
+                </ChakraLink>
+                <ChakraLink as={Link} href="/teams" color="gray.300" _hover={{ color: "accent.neon" }}>
                   Teams
-                </Link>
-                <Link
-                  href="/admin/data-sources/weight-management"
-                  color="gray.300"
-                >
+                </ChakraLink>
+                <ChakraLink as={Link} href="/admin/data-sources/weight-management" color="gray.300" _hover={{ color: "accent.neon" }}>
                   Weighting
-                </Link>
-                <Link href="/admin/data-sources" color="gray.300">
+                </ChakraLink>
+                <ChakraLink as={Link} href="/admin/data-sources" color="gray.300" _hover={{ color: "accent.neon" }}>
                   Data Sources
-                </Link>
-
+                </ChakraLink>
                 <Text color="gray.300">
                   Welcome, {user?.email}
-                  &nbsp;
-                  <Link href="/api/auth/logout" color="gray.300" fontSize="xs">
+                  {" "}
+                  <ChakraLink href="/api/auth/logout" color="accent.neon" fontSize="xs" _hover={{ textDecoration: "underline" }}>
                     (Logout)
-                  </Link>
+                  </ChakraLink>
                 </Text>
               </>
             ) : (
-              // Show login button if the user is not logged in
-              <Button as="a" href="/api/auth/login" colorScheme="teal">
+              <Button as="a" href="/api/auth/login" variant="solid">
                 Login
               </Button>
             )}
@@ -105,58 +107,57 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             aria-label="Open Menu"
             display={{ md: "none" }}
             onClick={isOpen ? onClose : onOpen}
+            variant="outline"
+            colorScheme="whiteAlpha"
           />
         </Flex>
 
-        {isOpen ? (
+        {isOpen && (
           <Box pb={4} display={{ md: "none" }}>
             <Stack as="nav" spacing={4}>
               {isLoading ? (
                 <Text color="gray.300">Loading...</Text>
               ) : user ? (
                 <>
-                  <Text color="gray.300">{user?.email}</Text>
-                  <Link href="/dashboard" color="gray.300">
+                  <ChakraLink as={Link} href="/dashboard" color="gray.300" _hover={{ color: "accent.neon" }}>
                     Dashboard
-                  </Link>
-                  <Link href="/add-keyword" color="gray.300">
+                  </ChakraLink>
+                  <ChakraLink as={Link} href="/add-keyword" color="gray.300" _hover={{ color: "accent.neon" }}>
                     Add Keyword
-                  </Link>
-                  <Link href="/keyword-analysis" color="gray.300">
+                  </ChakraLink>
+                  <ChakraLink as={Link} href="/keyword-analysis" color="gray.300" _hover={{ color: "accent.neon" }}>
                     Keyword Analysis
-                  </Link>
-                  <Link href="/schedule" color="gray.300">
+                  </ChakraLink>
+                  <ChakraLink as={Link} href="/schedule" color="gray.300" _hover={{ color: "accent.neon" }}>
                     Schedule
-                  </Link>
-                  <Link
-                    href="/admin/data-sources/weight-management"
-                    color="gray.300"
-                  >
+                  </ChakraLink>
+                  <ChakraLink as={Link} href="/teams" color="gray.300" _hover={{ color: "accent.neon" }}>
+                    Teams
+                  </ChakraLink>
+                  <ChakraLink as={Link} href="/admin/data-sources/weight-management" color="gray.300" _hover={{ color: "accent.neon" }}>
                     Weighting
-                  </Link>
-                  <Link href="/admin/data-sources" color="gray.300">
+                  </ChakraLink>
+                  <ChakraLink as={Link} href="/admin/data-sources" color="gray.300" _hover={{ color: "accent.neon" }}>
                     Data Sources
-                  </Link>
-                  <Link href="/api/auth/logout" color="gray.300">
+                  </ChakraLink>
+                  <ChakraLink href="/api/auth/logout" color="accent.neon" _hover={{ textDecoration: "underline" }}>
                     Logout
-                  </Link>
+                  </ChakraLink>
                 </>
               ) : (
-                <>
-                  <Link href="/" color="gray.300">
-                    Home
-                  </Link>
-                  <Button as="a" href="/api/auth/login" colorScheme="teal">
-                    Login
-                  </Button>
-                </>
+                <Button as="a" href="/api/auth/login" variant="solid">
+                  Login
+                </Button>
               )}
             </Stack>
           </Box>
-        ) : null}
+        )}
       </Box>
 
-      <Box>{children}</Box>
-    </>
+      <Box as="main" py={8} bg={bgColor} color={textColor}>
+        {children}
+      </Box>
+    </Box>
   );
 }
+
