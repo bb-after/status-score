@@ -9,6 +9,9 @@ module.exports = {
     AUTH0_COOKIE_SECURE: process.env.NODE_ENV === 'production' ? 'true' : 'false',
     AUTH0_COOKIE_SAME_SITE: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
   },
+  images: {
+    domains: ['status-score-public.s3.us-east-2.amazonaws.com'],
+  },
   async headers() {
     return [
       {
