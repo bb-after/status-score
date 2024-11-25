@@ -121,7 +121,7 @@ const Home: React.FC = () => {
   
     // Create a downloadable Blob and save the file
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    saveAs(blob, 'dentist_reviews.csv');
+    saveAs(blob, `${type}_reviews.csv`);
   };
   
 

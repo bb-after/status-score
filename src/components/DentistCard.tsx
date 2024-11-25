@@ -71,22 +71,24 @@ export function DentistCard({ dentist }: DentistCardProps) {
         </Text>
 
         {/* Only show the negative reviews button if there are any */}
+        <Flex justifyContent="space-between" alignItems="center" mt={4}>
         {dentist.negativeReviews?.length > 0 && (
-          <Flex justifyContent="space-between" alignItems="center" mt={4}>
             <Button size="sm" colorScheme="red" onClick={onOpen}>
               {dentist.negativeReviews.length} Negative Review{dentist.negativeReviews?.length !== 1 ? 's' : ''}
             </Button>
-            <Button
-              size="sm"
-              as="a"
-              href={`https://www.google.com/maps/place/?q=place_id:${dentist.placeId}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              View on Google
-            </Button>
-          </Flex>
         )}
+        </Flex>
+
+        <Button
+            size="sm"
+            as="a"
+            href={`https://www.google.com/maps/place/?q=place_id:${dentist.placeId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View on Google
+          </Button>
+
       </Box>
 
       {/* Modal to show negative reviews */}

@@ -77,6 +77,7 @@ export const SearchForm: React.FC<SearchFormProps> = ({ onSearch, isLoading }) =
       >
         <option value="dentists">Dentists</option>
         <option value="doctors">Doctors</option>
+        <option value="lawyers">Lawyers</option>
       </Select>
       <Button
         onClick={handleSearch} // Ensure validation here
