@@ -66,31 +66,70 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <Text color="gray.300">Loading...</Text>
             ) : user ? (
               <>
-                <ChakraLink as={Link} href="/dashboard" color="gray.300" _hover={{ color: "accent.neon" }}>
+                <ChakraLink
+                  as={Link}
+                  href="/dashboard"
+                  color="gray.300"
+                  _hover={{ color: "accent.neon" }}
+                >
                   Dashboard
                 </ChakraLink>
-                <ChakraLink as={Link} href="/add-keyword" color="gray.300" _hover={{ color: "accent.neon" }}>
+                <ChakraLink
+                  as={Link}
+                  href="/add-keyword"
+                  color="gray.300"
+                  _hover={{ color: "accent.neon" }}
+                >
                   Add Keyword
                 </ChakraLink>
-                <ChakraLink as={Link} href="/keyword-analysis" color="gray.300" _hover={{ color: "accent.neon" }}>
+                <ChakraLink
+                  as={Link}
+                  href="/keyword-analysis"
+                  color="gray.300"
+                  _hover={{ color: "accent.neon" }}
+                >
                   Keyword Analysis
                 </ChakraLink>
-                <ChakraLink as={Link} href="/schedule" color="gray.300" _hover={{ color: "accent.neon" }}>
+                <ChakraLink
+                  as={Link}
+                  href="/schedule"
+                  color="gray.300"
+                  _hover={{ color: "accent.neon" }}
+                >
                   Schedule
                 </ChakraLink>
-                <ChakraLink as={Link} href="/teams" color="gray.300" _hover={{ color: "accent.neon" }}>
+                <ChakraLink
+                  as={Link}
+                  href="/teams"
+                  color="gray.300"
+                  _hover={{ color: "accent.neon" }}
+                >
                   Teams
                 </ChakraLink>
-                <ChakraLink as={Link} href="/admin/data-sources/weight-management" color="gray.300" _hover={{ color: "accent.neon" }}>
+                <ChakraLink
+                  as={Link}
+                  href="/admin/data-sources/weight-management"
+                  color="gray.300"
+                  _hover={{ color: "accent.neon" }}
+                >
                   Weighting
                 </ChakraLink>
-                <ChakraLink as={Link} href="/admin/data-sources" color="gray.300" _hover={{ color: "accent.neon" }}>
+                <ChakraLink
+                  as={Link}
+                  href="/admin/data-sources"
+                  color="gray.300"
+                  _hover={{ color: "accent.neon" }}
+                >
                   Data Sources
                 </ChakraLink>
                 <Text color="gray.300">
-                  Welcome, {user?.email}
-                  {" "}
-                  <ChakraLink href="/api/auth/logout" color="accent.neon" fontSize="xs" _hover={{ textDecoration: "underline" }}>
+                  Welcome, {user?.email}{" "}
+                  <ChakraLink
+                    href="/api/auth/logout"
+                    color="accent.neon"
+                    fontSize="xs"
+                    _hover={{ textDecoration: "underline" }}
+                  >
                     (Logout)
                   </ChakraLink>
                 </Text>
@@ -119,28 +158,67 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <Text color="gray.300">Loading...</Text>
               ) : user ? (
                 <>
-                  <ChakraLink as={Link} href="/dashboard" color="gray.300" _hover={{ color: "accent.neon" }}>
+                  <ChakraLink
+                    as={Link}
+                    href="/dashboard"
+                    color="gray.300"
+                    _hover={{ color: "accent.neon" }}
+                  >
                     Dashboard
                   </ChakraLink>
-                  <ChakraLink as={Link} href="/add-keyword" color="gray.300" _hover={{ color: "accent.neon" }}>
+                  <ChakraLink
+                    as={Link}
+                    href="/add-keyword"
+                    color="gray.300"
+                    _hover={{ color: "accent.neon" }}
+                  >
                     Add Keyword
                   </ChakraLink>
-                  <ChakraLink as={Link} href="/keyword-analysis" color="gray.300" _hover={{ color: "accent.neon" }}>
+                  <ChakraLink
+                    as={Link}
+                    href="/keyword-analysis"
+                    color="gray.300"
+                    _hover={{ color: "accent.neon" }}
+                  >
                     Keyword Analysis
                   </ChakraLink>
-                  <ChakraLink as={Link} href="/schedule" color="gray.300" _hover={{ color: "accent.neon" }}>
+                  <ChakraLink
+                    as={Link}
+                    href="/schedule"
+                    color="gray.300"
+                    _hover={{ color: "accent.neon" }}
+                  >
                     Schedule
                   </ChakraLink>
-                  <ChakraLink as={Link} href="/teams" color="gray.300" _hover={{ color: "accent.neon" }}>
+                  <ChakraLink
+                    as={Link}
+                    href="/teams"
+                    color="gray.300"
+                    _hover={{ color: "accent.neon" }}
+                  >
                     Teams
                   </ChakraLink>
-                  <ChakraLink as={Link} href="/admin/data-sources/weight-management" color="gray.300" _hover={{ color: "accent.neon" }}>
+                  <ChakraLink
+                    as={Link}
+                    href="/admin/data-sources/weight-management"
+                    color="gray.300"
+                    _hover={{ color: "accent.neon" }}
+                  >
                     Weighting
                   </ChakraLink>
-                  <ChakraLink as={Link} href="/admin/data-sources" color="gray.300" _hover={{ color: "accent.neon" }}>
+                  <ChakraLink
+                    as={Link}
+                    href="/admin/data-sources"
+                    color="gray.300"
+                    _hover={{ color: "accent.neon" }}
+                  >
                     Data Sources
                   </ChakraLink>
-                  <ChakraLink href="/api/auth/logout" color="accent.neon" _hover={{ textDecoration: "underline" }}>
+                  <ChakraLink
+                    href="/api/auth/logout"
+                    color="accent.neon"
+                    _hover={{ textDecoration: "underline" }}
+                  >
                     Logout
                   </ChakraLink>
                 </>
@@ -154,10 +232,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         )}
       </Box>
 
-      <Box as="main" py={8} bg={bgColor} color={textColor}>
+      <Box as="main" py={0} bg={bgColor} color={textColor}>
         {children}
       </Box>
     </Box>
   );
 }
-
