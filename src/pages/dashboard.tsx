@@ -47,7 +47,7 @@ const Dashboard = () => {
     endDate: new Date(), // Defaults to today until data is fetched
   });
 
-  useEffect(() => {
+useEffect(() => {
     if (selectedKeywordId) {
       fetchReports(selectedKeywordId);
     }
