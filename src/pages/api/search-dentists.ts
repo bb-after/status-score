@@ -48,47 +48,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Map results and fetch detailed reviews for each place
       const results = await Promise.all(
         response.data.results.map(async (place: any) => {
-          // Fetch detailed information for each place to get reviews
           const detailedResponse = await axios.get('https://maps.googleapis.com/maps/api/place/details/json', {
             params: {
               place_id: place.place_id,
               key: GOOGLE_PLACES_API_KEY,
-              fields: 'name,rating,user_ratings_total,formatted_address,place_id,photos,reviews',
+              fields: 'name,reviews',
             },
           });
-
+          
           const reviews = detailedResponse.data.result.reviews || [];
           const negativeReviews = reviews.filter((review) => review.rating <= 2); // Filter 1- and 2-star reviews
 
-          // Only return the place if it has negative reviews
-          if (negativeReviews.length > 0) {
-            return {
-              name: place.name,
-              rating: place.rating || 0,
-              totalReviews: place.user_ratings_total || 0,
-              address: place.formatted_address || '',
-              placeId: place.place_id,
-              photoUrl: place.photos?.[0]?.photo_reference
-                ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${place.photos[0].photo_reference}&key=${GOOGLE_PLACES_API_KEY}`
-                : undefined,
-              negativeReviewCount: negativeReviews.length,
-              negativeReviews: negativeReviews.map((review: any) => ({
-                author_name: review.author_name,
-                rating: review.rating,
-                text: review.text,
-                time: review.time,
-              })),
-            } as PlaceResult;
-          }
-
-          return null;
+          return {
+            name: place.name,
+            rating: place.rating || 0,
+            totalReviews: place.user_ratings_total || 0,
+            address: place.formatted_address || '',
+            placeId: place.place_id,
+            photoUrl: place.photos?.[0]?.photo_reference
+              ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${place.photos[0].photo_reference}&key=${GOOGLE_PLACES_API_KEY}`
+              : undefined,
+            negativeReviewCount: negativeReviews.length,
+            negativeReviews: negativeReviews || [], // Ensure it's always an array
+          };
         })
       );
 
-      // Filter out any null results (places without negative reviews)
-      const filteredResults = results.filter((result) => result !== null) as PlaceResult[];
-      allResults.push(...filteredResults);
-
+      allResults.push(...results);
       nextPageToken = response.data.next_page_token;
 
       // Wait a couple of seconds before fetching the next page to ensure the next_page_token becomes valid.
@@ -96,7 +82,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         await new Promise((resolve) => setTimeout(resolve, 2000));
       }
 
-    } while (nextPageToken && allResults.length < 200); // Limit the total number of results
+    } while (nextPageToken && allResults.length < 200); // Fetch a max of 60 results, you can adjust this number
 
     res.status(200).json({
       results: allResults,
