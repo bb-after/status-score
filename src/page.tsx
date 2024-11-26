@@ -113,7 +113,7 @@ export default function Home() {
           <Box position="relative" zIndex={20}>
             <Button
               as={ChakraLink}
-              href="/dashboard"
+              href="/onboarding"
               size="lg"
               rightIcon={<ArrowRight />}
               bg={aquamarineColors[4]}

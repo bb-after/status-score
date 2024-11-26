@@ -1,199 +1,190 @@
 "use client";
 
+import React, { ReactNode, useEffect, useState } from "react";
 import {
   Box,
   Flex,
-  Link as ChakraLink,
-  Image,
+  Avatar,
   HStack,
   IconButton,
+  Button,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  MenuDivider,
   useDisclosure,
+  useColorModeValue,
   Stack,
   Text,
-  Button,
-  useColorModeValue,
+  Image,
+  Link,
+  Spinner,
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
-import { useEffect, useState } from "react";
+import NextLink from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+const Links = [
+  { name: "Dashboard", href: "/dashboard" },
+  { name: "Keywords", href: "/keywords" },
+  { name: "Schedule", href: "/schedule" },
+  { name: "Team", href: "/teams" },
+];
+
+const NavLink = ({ children, href }: { children: ReactNode; href: string }) => (
+  <Link
+    as={NextLink}
+    px={2}
+    py={1}
+    // rounded={"md"}
+    _hover={{
+      textDecoration: "underline",
+      // bg: "gray.200",
+    }}
+    href={href}
+  >
+    {children}
+  </Link>
+);
+
+export default function Layout({ children }: { children: ReactNode }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [user, setUser] = useState<{ email?: string } | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const bgColor = useColorModeValue("white", "gray.800");
-  const textColor = useColorModeValue("gray.800", "white");
+  const router = useRouter();
   const pathname = usePathname();
-  const isHomePage = pathname === "/";
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const checkAuth = async () => {
       try {
         const response = await axios.get("/api/auth/me", {
           withCredentials: true,
         });
-        setUser(response.data);
+        if (response.data) {
+          setIsAuthenticated(true);
+        } else {
+          router.push("/");
+        }
       } catch (error) {
-        console.error("Failed to fetch user session", error);
+        console.error("Authentication check failed:", error);
+        router.push("/");
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchUser();
-  }, []);
-
-  const renderNavLinks = () => {
-    if (isLoading) {
-      return <Text color="gray.300">Loading...</Text>;
+    if (pathname === "/") {
+      setIsLoading(false);
+      setIsAuthenticated(true);
+    } else {
+      checkAuth();
     }
+  }, [pathname, router]);
 
-    if (!user) {
-      return (
-        <Button as="a" href="/api/auth/login" variant="solid">
-          Login
-        </Button>
-      );
-    }
-
-    if (isHomePage) {
-      return (
-        <Text color="gray.300">
-          Welcome, {user.email}{" "}
-          <ChakraLink
-            href="/api/auth/logout"
-            color="accent.neon"
-            fontSize="xs"
-            _hover={{ textDecoration: "underline" }}
-          >
-            (Logout)
-          </ChakraLink>
-        </Text>
-      );
-    }
-
+  if (isLoading) {
     return (
-      <>
-        <ChakraLink
-          as={Link}
-          href="/dashboard"
-          color="gray.300"
-          _hover={{ color: "accent.neon" }}
-        >
-          Dashboard
-        </ChakraLink>
-        <ChakraLink
-          as={Link}
-          href="/add-keyword"
-          color="gray.300"
-          _hover={{ color: "accent.neon" }}
-        >
-          Add Keyword
-        </ChakraLink>
-        <ChakraLink
-          as={Link}
-          href="/keyword-analysis"
-          color="gray.300"
-          _hover={{ color: "accent.neon" }}
-        >
-          Keyword Analysis
-        </ChakraLink>
-        <ChakraLink
-          as={Link}
-          href="/schedule"
-          color="gray.300"
-          _hover={{ color: "accent.neon" }}
-        >
-          Schedule
-        </ChakraLink>
-        <ChakraLink
-          as={Link}
-          href="/teams"
-          color="gray.300"
-          _hover={{ color: "accent.neon" }}
-        >
-          Teams
-        </ChakraLink>
-        <ChakraLink
-          as={Link}
-          href="/admin/data-sources/weight-management"
-          color="gray.300"
-          _hover={{ color: "accent.neon" }}
-        >
-          Weighting
-        </ChakraLink>
-        <ChakraLink
-          as={Link}
-          href="/admin/data-sources"
-          color="gray.300"
-          _hover={{ color: "accent.neon" }}
-        >
-          Data Sources
-        </ChakraLink>
-        <Text color="gray.300">
-          Welcome, {user.email}{" "}
-          <ChakraLink
-            href="/api/auth/logout"
-            color="accent.neon"
-            fontSize="xs"
-            _hover={{ textDecoration: "underline" }}
-          >
-            (Logout)
-          </ChakraLink>
-        </Text>
-      </>
+      <Flex height="100vh" alignItems="center" justifyContent="center">
+        <Spinner size="xl" />
+      </Flex>
     );
-  };
+  }
+
+  if (!isAuthenticated && pathname !== "/") {
+    return null;
+  }
 
   return (
-    <Box minH="100vh" bg="gray.900" color="white">
-      <Box as="header" bg="brand.800" px={4} boxShadow="lg">
-        <Flex h={16} alignItems="center" justifyContent="space-between">
-          <ChakraLink as={Link} href="/" _hover={{ textDecoration: "none" }}>
-            <Flex alignItems="center">
-              <Image
-                src="https://status-score-public.s3.us-east-2.amazonaws.com/logo-1.png"
-                alt="Logo"
-                height={8}
-                mr={2}
-              />
-              <Text fontSize="xl" fontWeight="bold" color="accent.neon">
-                Status Score
-              </Text>
-            </Flex>
-          </ChakraLink>
-          <HStack
-            spacing={8}
-            alignItems="center"
-            display={{ base: "none", md: "flex" }}
-          >
-            {renderNavLinks()}
-          </HStack>
+    <Flex flexDirection="column" minHeight="100vh">
+      <Box bg={"gray.900"} px={4}>
+        <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
           <IconButton
-            size="md"
+            size={"md"}
             icon={isOpen ? <CloseIcon /> : <HamburgerIcon />}
-            aria-label="Open Menu"
+            aria-label={"Open Menu"}
             display={{ md: "none" }}
             onClick={isOpen ? onClose : onOpen}
-            variant="outline"
-            colorScheme="whiteAlpha"
           />
+          <HStack spacing={8} alignItems={"center"}>
+            <Box>
+              <Image
+                src="https://status-score-public.s3.us-east-2.amazonaws.com/SL_S+emblem_white-01.png"
+                alt="Status Labs Logo"
+                h="20px"
+                objectFit="contain"
+              />
+            </Box>
+            <HStack
+              as={"nav"}
+              spacing={4}
+              color={"white"}
+              display={{ base: "none", md: "flex" }}
+            >
+              {Links.map((link) => (
+                <NavLink key={link.name} href={link.href}>
+                  {link.name}
+                </NavLink>
+              ))}
+            </HStack>
+          </HStack>
+          <Flex alignItems={"center"}>
+            <Menu>
+              <MenuButton
+                as={Button}
+                rounded={"full"}
+                variant={"link"}
+                cursor={"pointer"}
+                minW={0}
+              >
+                <Avatar
+                  size={"sm"}
+                  src={
+                    "https://images.unsplash.com/photo-1493666438817-866a91353ca9?ixlib=rb-0.3.5&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&s=b616b2c5b373a80ffc9636ba24f7a4a9"
+                  }
+                />
+              </MenuButton>
+              <MenuList>
+                <MenuItem>Profile</MenuItem>
+                <MenuItem>Settings</MenuItem>
+                <MenuDivider />
+                <MenuItem as={NextLink} href="/api/auth/logout">
+                  Logout
+                </MenuItem>
+              </MenuList>
+            </Menu>
+          </Flex>
         </Flex>
 
-        {isOpen && (
+        {isOpen ? (
           <Box pb={4} display={{ md: "none" }}>
-            <Stack as="nav" spacing={4}>
-              {renderNavLinks()}
+            <Stack as={"nav"} spacing={4}>
+              {Links.map((link) => (
+                <NavLink key={link.name} href={link.href}>
+                  {link.name}
+                </NavLink>
+              ))}
             </Stack>
           </Box>
-        )}
+        ) : null}
       </Box>
 
-      <Box as="main" py={0} bg={bgColor} color={textColor}>
+      <Box as="main" flex="1" py={0}>
         {children}
       </Box>
-    </Box>
+
+      <Box
+        as="footer"
+        bg="brand.800"
+        py={4}
+        px={4}
+        textAlign="center"
+        mt="auto"
+      >
+        <Text color="gray.300" fontSize="sm">
+          © {new Date().getFullYear()} Status Labs. All rights reserved.
+        </Text>
+      </Box>
+    </Flex>
   );
 }

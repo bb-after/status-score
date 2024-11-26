@@ -66,7 +66,7 @@ const FeatureModal = ({ isOpen, onClose, feature }) => {
         <ModalFooter justifyContent="center">
           <Button
             as={NextLink}
-            href="/"
+            href="/onboarding"
             size="lg"
             bg={aquamarineColors[4]}
             color="gray.900"
