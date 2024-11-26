@@ -1,72 +1,220 @@
-import Link from "next/link"
-import { ArrowRight } from 'lucide-react'
-import Image from 'next/image'
-import MathBackground from "../components/MathBackground"
+"use client";
+
+import { ArrowRight } from "lucide-react";
+import { FaGlobe, FaChartLine, FaComments } from "react-icons/fa";
+import MathBackground from "../components/MathBackground";
+import FeatureModal from "../components/FeatureModal";
+import {
+  Button,
+  Box,
+  Heading,
+  Text,
+  VStack,
+  Grid,
+  GridItem,
+  Link as ChakraLink,
+  Image,
+  useDisclosure,
+  Flex,
+  Icon,
+} from "@chakra-ui/react";
+import { useState } from "react";
+import NextLink from "next/link";
+
+const aquamarineColors = {
+  4: "#00f8ba",
+  300: "#00e5aa",
+  500: "#00d299",
+  700: "#00bf88",
+};
+
+const features = [
+  {
+    title: "Multi-Platform Monitoring",
+    description:
+      "Track keywords across Google, Claude, ChatGPT, YouTube, Reddit, X and more",
+    modalContent:
+      "Our Multi-Platform Monitoring feature allows you to keep track of your keywords across a wide range of platforms. From search engines like Google to social media giants like YouTube and X, and even AI platforms like Claude and ChatGPT, we've got you covered. This comprehensive approach ensures that you never miss a mention, allowing you to stay on top of your online presence across the entire digital landscape.",
+    icon: FaGlobe,
+  },
+  {
+    title: "Sentiment Analysis",
+    description:
+      "Understand the overall tone of discussions about your keywords",
+    modalContent:
+      "Our advanced Sentiment Analysis tool goes beyond just tracking mentions. It delves deep into the context and tone of the conversations surrounding your keywords. By analyzing the sentiment - whether positive, negative, or neutral - you'll gain valuable insights into public perception. This feature helps you gauge the emotional response to your brand or topics, allowing you to respond proactively and shape the narrative around your online presence.",
+    icon: FaComments,
+  },
+  {
+    title: "Trend Visualization",
+    description: "See how sentiment changes over time with interactive charts",
+    modalContent:
+      "Our Trend Visualization feature brings your data to life. Through interactive and intuitive charts, you can visualize how sentiment and mentions of your keywords evolve over time. This powerful tool allows you to identify patterns, track the impact of your campaigns, and predict future trends. By transforming complex data into clear, visual insights, we empower you to make data-driven decisions and stay ahead of the curve in managing your online reputation.",
+    icon: FaChartLine,
+  },
+];
 
 export default function Home() {
+  const [selectedFeature, setSelectedFeature] = useState(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const handleFeatureClick = (feature) => {
+    setSelectedFeature(feature);
+    onOpen();
+  };
+
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <Box minH="100vh" bg="gray.900" color="white">
       {/* Hero Section */}
-      <section className="relative py-20 px-4 bg-gradient-to-r from-blue-900 to-purple-900 overflow-hidden">
-        <div className="absolute inset-0 z-0">
+      <Box
+        as="section"
+        position="relative"
+        py={20}
+        px={4}
+        // bgGradient="linear(to-r, #052c25, #109b82)"
+        bgGradient="linear(to-r, #052c25 10%, #109b82 50%, #052c25 90%)"
+        overflow="hidden"
+      >
+        <Box position="absolute" inset={0} zIndex={0}>
           <MathBackground />
-        </div>
-        <div className="container mx-auto max-w-6xl relative z-10">
-          <div className="text-center space-y-8">
-            <h1 className="text-5xl font-bold">StatusScore</h1>
-            <div className="flex justify-center">
+        </Box>
+        <VStack
+          maxW="6xl"
+          mx="auto"
+          spacing={8}
+          position="relative"
+          zIndex={10}
+        >
+          <Flex direction="column" align="center" textAlign="center">
+            <Heading
+              as="h1"
+              fontSize={{ base: "4xl", md: "5xl" }}
+              fontWeight="bold"
+              mb={2}
+            >
+              Status Score
+            </Heading>
+            <Flex align="center" justify="center">
+              <Text fontSize="lg" mr={2}>
+                By
+              </Text>
               <Image
-                src="https://status-score-public.s3.us-east-2.amazonaws.com/logo-1.png"
-                alt="Logo"
-                width={180}
-                height={180}
+                src="https://cdn.prod.website-files.com/6233ad14a49d0f3183132b4d/6233c49d2b153953c3ad5836_logo-2%20(2).png"
+                alt="Status Labs Logo"
+                h="20px"
+                objectFit="contain"
               />
-            </div>
-            <p className="text-xl max-w-2xl mx-auto">
-              Monitor your online presence with AI-powered sentiment analysis across multiple platforms.
-            </p>
-            <div className="relative z-20">
-              <Link href="/dashboard" className="inline-flex items-center px-6 py-3 text-lg font-medium text-gray-900 bg-cyan-400 rounded-md hover:bg-cyan-300 transition-colors">
-                Get Started
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+            </Flex>
+          </Flex>
+          <Text fontSize="xl" maxW="2xl" textAlign="center">
+            Monitor your online presence with AI-powered sentiment analysis
+            across multiple platforms.
+          </Text>
+          <Box position="relative" zIndex={20}>
+            <Button
+              as={ChakraLink}
+              href="/dashboard"
+              size="lg"
+              rightIcon={<ArrowRight />}
+              bg={aquamarineColors[4]}
+              color="gray.900"
+              _hover={{ bg: aquamarineColors[300] }}
+            >
+              Get Started
+            </Button>
+          </Box>
+        </VStack>
+      </Box>
 
       {/* Features Section */}
-      <section className="py-20 px-4">
-        <div className="container mx-auto max-w-6xl">
-          <h2 className="text-4xl font-bold text-center mb-16">Key Features</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { title: "Multi-Platform Monitoring", description: "Track keywords across Google, YouTube, Reddit, and X" },
-              { title: "Sentiment Analysis", description: "Understand the overall tone of discussions about your keywords" },
-              { title: "Trend Visualization", description: "See how sentiment changes over time with interactive charts" },
-            ].map((feature, index) => (
-              <div key={index} className="bg-gray-800 p-6 rounded-lg shadow-md border-t-4 border-cyan-400 transition-all duration-300 ease-in-out hover:bg-gray-700 hover:shadow-xl hover:scale-105 hover:border-accent-300">
-                <h3 className="text-2xl font-bold mb-4">{feature.title}</h3>
-                <p>{feature.description}</p>
-              </div>
+      <Box as="section" py={20} px={4}>
+        <VStack maxW="6xl" mx="auto" spacing={16}>
+          <Heading as="h2" fontSize="4xl" fontWeight="bold" textAlign="center">
+            Key Features
+          </Heading>
+          <Grid
+            templateColumns={{ base: "repeat(1, 1fr)", md: "repeat(3, 1fr)" }}
+            gap={8}
+          >
+            {features.map((feature, index) => (
+              <GridItem
+                key={index}
+                bg="gray.800"
+                p={6}
+                rounded="lg"
+                shadow="md"
+                borderTop="4px solid"
+                borderColor={aquamarineColors[4]}
+                transition="all 0.3s"
+                _hover={{
+                  bg: "gray.700",
+                  shadow: "xl",
+                  transform: "scale(1.05)",
+                  borderColor: aquamarineColors[300],
+                }}
+                onClick={() => handleFeatureClick(feature)}
+                cursor="pointer"
+              >
+                <VStack spacing={4} align="stretch">
+                  <Icon
+                    as={feature.icon}
+                    w={10}
+                    h={10}
+                    color={aquamarineColors[4]}
+                  />
+                  <Heading as="h3" fontSize="2xl" fontWeight="bold">
+                    {feature.title}
+                  </Heading>
+                  <Text>{feature.description}</Text>
+                </VStack>
+              </GridItem>
             ))}
-          </div>
-        </div>
-      </section>
+          </Grid>
+        </VStack>
+      </Box>
 
       {/* Call to Action Section */}
-      <section className="py-20 px-4 bg-gray-800">
-        <div className="container mx-auto max-w-6xl text-center">
-          <h2 className="text-4xl font-bold mb-8">Ready to boost your online presence?</h2>
-          <p className="text-xl max-w-2xl mx-auto mb-8">
+      <Box as="section" py={20} px={4} bg="gray.800">
+        <VStack maxW="6xl" mx="auto" spacing={8} textAlign="center">
+          <Heading as="h2" fontSize="4xl" fontWeight="bold">
+            Ready to boost your online presence?
+          </Heading>
+          <Text fontSize="xl" maxW="2xl">
             Start monitoring your keywords and get valuable insights today.
-          </p>
-          <Link href="/add-keyword" className="inline-flex items-center px-6 py-3 text-lg font-medium text-gray-900 bg-cyan-400 rounded-md hover:bg-cyan-300 transition-colors">
+          </Text>
+          <Button
+            as={ChakraLink}
+            href="/add-keyword"
+            size="lg"
+            bg={aquamarineColors[4]}
+            color="gray.900"
+            _hover={{ bg: aquamarineColors[300] }}
+          >
             Add Your First Keyword
-          </Link>
-        </div>
-      </section>
-    </div>
-  )
-}
+          </Button>
+        </VStack>
+      </Box>
 
+      {/* Status Labs Logo */}
+      <Box as="footer" py={8} bg="gray.900" textAlign="center">
+        <Text fontSize="sm" mb={2}>
+          Status Score is created by
+        </Text>
+        <Image
+          src="https://cdn.prod.website-files.com/6233ad14a49d0f3183132b4d/6233c49d2b153953c3ad5836_logo-2%20(2).png"
+          alt="Status Labs Logo"
+          mx="auto"
+          h="30px"
+          objectFit="contain"
+        />
+      </Box>
+
+      {/* Feature Modal */}
+      <FeatureModal
+        isOpen={isOpen}
+        onClose={onClose}
+        feature={selectedFeature}
+      />
+    </Box>
+  );
+}
