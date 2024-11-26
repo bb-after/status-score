@@ -1,6 +1,6 @@
 import { createMockRequestResponse } from './setup';
 import handler from '../teams';
-import { prisma } from '../../../lib/prisma';
+import prisma from '../../../lib/prisma';
 import { getSession } from '@auth0/nextjs-auth0';
 
 jest.mock('@auth0/nextjs-auth0');
