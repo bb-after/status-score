@@ -58,7 +58,7 @@ describe('Teams API', () => {
 
       expect(res._getStatusCode()).toBe(401);
       expect(JSON.parse(res._getData())).toEqual({
-        error: 'Not authenticated',
+        error: 'Unauthorized',
       });
     });
   });
