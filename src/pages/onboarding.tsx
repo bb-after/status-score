@@ -117,7 +117,7 @@ const OnboardingPage = () => {
             Welcome to Status Score
           </Heading>
           <Text fontSize="xl" textAlign="center">
-            Let's get you started with these simple steps:
+            Let&apos;s get you started with these simple steps:
           </Text>
           <Progress value={(currentStep + 1) * 25} colorScheme="cyan" mb={8} />
           {steps.map((step, index) => (

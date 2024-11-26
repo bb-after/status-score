@@ -149,8 +149,8 @@ const SchedulePage = () => {
               Schedule a Keyword Report
             </Heading>
             <Text fontSize="lg" textAlign="center">
-              It looks like you haven't added any keywords yet. Let's start by
-              adding your first keyword!
+              It looks like you haven&apos;t added any keywords yet. Let&apos;s
+              start by adding your first keyword!
             </Text>
             <Button
               as={NextLink}
