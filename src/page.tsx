@@ -2,8 +2,8 @@
 
 import { ArrowRight } from "lucide-react";
 import { FaGlobe, FaChartLine, FaComments } from "react-icons/fa";
-import MathBackground from "../components/MathBackground";
-import FeatureModal from "../components/FeatureModal";
+import FeatureModal from "./components/FeatureModal";
+import MathBackground from "./components/MathBackground";
 import {
   Button,
   Box,
@@ -19,7 +19,6 @@ import {
   Icon,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import NextLink from "next/link";
 
 const aquamarineColors = {
   4: "#00f8ba",
