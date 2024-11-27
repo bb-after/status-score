@@ -20,11 +20,15 @@ import {
   Image,
   Link,
   Spinner,
+  AvatarBadge,
+  AvatarProps,
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import NextLink from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
+import { createAvatar } from "@dicebear/core";
+import { initials } from "@dicebear/collection";
 
 const Links = [
   { name: "Dashboard", href: "/dashboard" },
@@ -38,10 +42,9 @@ const NavLink = ({ children, href }: { children: ReactNode; href: string }) => (
     as={NextLink}
     px={2}
     py={1}
-    // rounded={"md"}
+    color={"white"}
     _hover={{
       textDecoration: "underline",
-      // bg: "gray.200",
     }}
     href={href}
   >
@@ -49,12 +52,48 @@ const NavLink = ({ children, href }: { children: ReactNode; href: string }) => (
   </Link>
 );
 
+const generateDiceBearAvatar = (name: string) => {
+  const avatar = createAvatar(initials, {
+    seed: name,
+    backgroundColor: ["#00f8ba"],
+    fontFamily: ["Arial"],
+  });
+  return avatar.toDataUri();
+};
+
+const UserAvatar: React.FC<
+  AvatarProps & { name: string; email: string; avatar?: string }
+> = ({ name, email, avatar, ...props }) => {
+  const initials = name
+    ? name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+    : email.substring(0, 2).toUpperCase();
+
+  return (
+    <Avatar
+      name={name || email}
+      src={avatar || generateDiceBearAvatar(name || email)}
+      {...props}
+    >
+      {props.children}
+    </Avatar>
+  );
+};
+
 export default function Layout({ children }: { children: ReactNode }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
   const pathname = usePathname();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<{
+    name?: string;
+    email?: string;
+    picture?: string;
+  } | null>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -63,24 +102,23 @@ export default function Layout({ children }: { children: ReactNode }) {
           withCredentials: true,
         });
         if (response.data) {
+          console.log("user!", response.data);
           setIsAuthenticated(true);
+          setUser(response.data);
         } else {
-          router.push("/");
+          setIsAuthenticated(false);
+          setUser(null);
         }
       } catch (error) {
         console.error("Authentication check failed:", error);
-        router.push("/");
+        setIsAuthenticated(false);
+        setUser(null);
       } finally {
         setIsLoading(false);
       }
     };
 
-    if (pathname === "/") {
-      setIsLoading(false);
-      setIsAuthenticated(true);
-    } else {
-      checkAuth();
-    }
+    checkAuth();
   }, [pathname, router]);
 
   if (isLoading) {
@@ -91,21 +129,22 @@ export default function Layout({ children }: { children: ReactNode }) {
     );
   }
 
-  if (!isAuthenticated && pathname !== "/") {
-    return null;
-  }
+  const isHomePage = pathname === "/";
+  const showFullNav = isAuthenticated || !isHomePage;
 
   return (
     <Flex flexDirection="column" minHeight="100vh">
       <Box bg={"gray.900"} px={4}>
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
-          <IconButton
-            size={"md"}
-            icon={isOpen ? <CloseIcon /> : <HamburgerIcon />}
-            aria-label={"Open Menu"}
-            display={{ md: "none" }}
-            onClick={isOpen ? onClose : onOpen}
-          />
+          {showFullNav && (
+            <IconButton
+              size={"md"}
+              icon={isOpen ? <CloseIcon /> : <HamburgerIcon />}
+              aria-label={"Open Menu"}
+              display={{ md: "none" }}
+              onClick={isOpen ? onClose : onOpen}
+            />
+          )}
           <HStack spacing={8} alignItems={"center"}>
             <Box>
               <Image
@@ -115,48 +154,63 @@ export default function Layout({ children }: { children: ReactNode }) {
                 objectFit="contain"
               />
             </Box>
-            <HStack
-              as={"nav"}
-              spacing={4}
-              color={"white"}
-              display={{ base: "none", md: "flex" }}
-            >
-              {Links.map((link) => (
-                <NavLink key={link.name} href={link.href}>
-                  {link.name}
-                </NavLink>
-              ))}
-            </HStack>
+            <Text color="white" fontWeight="bold">
+              Status Score
+            </Text>
+            {showFullNav && (
+              <HStack
+                as={"nav"}
+                spacing={4}
+                color={"white"}
+                display={{ base: "none", md: "flex" }}
+              >
+                {Links.map((link) => (
+                  <NavLink key={link.name} href={link.href}>
+                    {link.name}
+                  </NavLink>
+                ))}
+              </HStack>
+            )}
           </HStack>
           <Flex alignItems={"center"}>
-            <Menu>
-              <MenuButton
-                as={Button}
-                rounded={"full"}
-                variant={"link"}
-                cursor={"pointer"}
-                minW={0}
-              >
-                <Avatar
-                  size={"sm"}
-                  src={
-                    "https://images.unsplash.com/photo-1493666438817-866a91353ca9?ixlib=rb-0.3.5&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&s=b616b2c5b373a80ffc9636ba24f7a4a9"
-                  }
-                />
-              </MenuButton>
-              <MenuList>
-                <MenuItem>Profile</MenuItem>
-                <MenuItem>Settings</MenuItem>
-                <MenuDivider />
-                <MenuItem as={NextLink} href="/api/auth/logout">
-                  Logout
-                </MenuItem>
-              </MenuList>
-            </Menu>
+            {showFullNav ? (
+              <Menu>
+                <MenuButton
+                  as={Button}
+                  rounded={"full"}
+                  variant={"link"}
+                  cursor={"pointer"}
+                  minW={0}
+                >
+                  <UserAvatar
+                    size="sm"
+                    name={user?.name || ""}
+                    email={user?.email || ""}
+                    avatar={user?.picture}
+                  ></UserAvatar>
+                </MenuButton>
+                <MenuList>
+                  <MenuItem as={NextLink} href="/profile">
+                    Profile
+                  </MenuItem>
+                  <MenuItem as={NextLink} href="/settings">
+                    Settings
+                  </MenuItem>
+                  <MenuDivider />
+                  <MenuItem as={NextLink} href="/api/auth/logout">
+                    Logout
+                  </MenuItem>
+                </MenuList>
+              </Menu>
+            ) : (
+              <Button as={NextLink} href="/api/auth/login" colorScheme="teal">
+                Login
+              </Button>
+            )}
           </Flex>
         </Flex>
 
-        {isOpen ? (
+        {isOpen && showFullNav ? (
           <Box pb={4} display={{ md: "none" }}>
             <Stack as={"nav"} spacing={4}>
               {Links.map((link) => (
