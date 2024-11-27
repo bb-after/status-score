@@ -55,6 +55,7 @@ model Keyword {
   dataSources KeywordToDataSource[]  // Reference the join table
   schedules   Schedule[]
   createdAt   DateTime     @default(now())
+  deletedAt DateTime? // Nullable field to track soft deletion
 }
 
 model DataSource {

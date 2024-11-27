@@ -9,9 +9,12 @@ import {
   Heading,
   Textarea,
   useToast,
+  VStack,
+  Text,
 } from "@chakra-ui/react";
 import axios from "axios";
 import Layout from "../components/Layout";
+import NextLink from "next/link";
 
 const SchedulePage = () => {
   const [keywords, setKeywords] = useState<any[]>([]);
@@ -19,7 +22,15 @@ const SchedulePage = () => {
   const [frequency, setFrequency] = useState("daily");
   const [emails, setEmails] = useState("");
   const [schedules, setSchedules] = useState<any[]>([]);
+  const [hasKeywords, setHasKeywords] = useState(true);
   const toast = useToast();
+
+  const aquamarineColors = {
+    4: "#00f8ba",
+    300: "#00e5aa",
+    500: "#00d299",
+    700: "#00bf88",
+  };
 
   useEffect(() => {
     fetchKeywords();
@@ -31,8 +42,10 @@ const SchedulePage = () => {
     try {
       const response = await axios.get("/api/keywords");
       setKeywords(response.data);
+      setHasKeywords(response.data.length > 0);
     } catch (error) {
       console.error("Failed to fetch keywords", error);
+      setHasKeywords(false);
     }
   };
 
@@ -126,6 +139,34 @@ const SchedulePage = () => {
       });
     }
   };
+
+  if (!hasKeywords) {
+    return (
+      <Layout>
+        <Box maxW="2xl" mx="auto" py="12" px="6">
+          <VStack spacing={8} align="center">
+            <Heading as="h2" size="xl" textAlign="center">
+              Schedule a Keyword Report
+            </Heading>
+            <Text fontSize="lg" textAlign="center">
+              It looks like you haven&apos;t added any keywords yet. Let&apos;s
+              start by adding your first keyword!
+            </Text>
+            <Button
+              as={NextLink}
+              href="/add-keyword"
+              size="lg"
+              bg={aquamarineColors[4]}
+              color="gray.900"
+              _hover={{ bg: aquamarineColors[300] }}
+            >
+              Add Your First Keyword
+            </Button>
+          </VStack>
+        </Box>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
