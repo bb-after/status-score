@@ -12,6 +12,7 @@ model User {
   email     String    @unique
   name      String?
   remoteAuth0ID String?
+  avatar    String?
   keywords  Keyword[]
   reports   Report[]
   schedules Schedule[]

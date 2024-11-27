@@ -9,17 +9,23 @@ export default handleAuth({
           const { user } = session;
 
           if (user) {
+            console.log("userrrr", user);
+            // Extract the avatar URL if the user chose to use a social source
+            const avatarUrl = user.picture ?? null;
+
             // Upsert the user into your database after authentication
             await prisma.user.upsert({
               where: { email: user.email },
               update: {
                 name: user.name ?? undefined,
                 remoteAuth0ID: user.sub,
+                avatar: avatarUrl, // Update avatar URL
               },
               create: {
                 email: user.email,
                 name: user.name ?? '', // Optional default value
                 remoteAuth0ID: user.sub,
+                avatar: avatarUrl, // Update avatar URL
               },
             });
           }

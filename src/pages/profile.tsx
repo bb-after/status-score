@@ -1,0 +1,163 @@
+import { useState, useEffect, useCallback } from "react";
+import {
+  Box,
+  Button,
+  Container,
+  FormControl,
+  FormLabel,
+  Heading,
+  Input,
+  VStack,
+  useToast,
+  Avatar,
+  Flex,
+  Text,
+  useColorModeValue,
+} from "@chakra-ui/react";
+import { useDropzone } from "react-dropzone";
+import Layout from "../components/Layout";
+import { useRouter } from "next/router";
+import axios from "axios";
+
+const ProfilePage = () => {
+  const [name, setName] = useState("");
+  const [avatar, setAvatar] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const toast = useToast();
+  const router = useRouter();
+
+  const bgColor = useColorModeValue("gray.50", "gray.700");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get("/api/user/profile");
+        const userData = response.data;
+        setName(userData.name || "");
+        setAvatarPreview(userData.avatar || "");
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        toast({
+          title: "Error",
+          description: "Unable to fetch user data. Please try again.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      }
+    };
+
+    fetchUserData();
+  }, [toast]);
+
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    setAvatar(file);
+    setAvatarPreview(URL.createObjectURL(file));
+  }, []);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: { "image/*": [] },
+    multiple: false,
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    const formData = new FormData();
+    formData.append("name", name);
+    if (avatar) {
+      formData.append("avatar", avatar);
+    }
+
+    try {
+      await axios.put("/api/user/profile", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      toast({
+        title: "Profile updated.",
+        description: "Your profile has been successfully updated.",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+      router.push("/dashboard");
+    } catch (error) {
+      toast({
+        title: "An error occurred.",
+        description: "Unable to update your profile. Please try again.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <Layout>
+      <Container maxW="container.md" py={8}>
+        <VStack spacing={8} align="stretch">
+          <Heading>Edit Profile</Heading>
+          <form onSubmit={handleSubmit}>
+            <VStack spacing={6} align="stretch">
+              <FormControl>
+                <FormLabel>Name</FormLabel>
+                <Input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Enter your name"
+                />
+              </FormControl>
+              <FormControl>
+                <FormLabel>Avatar</FormLabel>
+                <Flex direction="column" align="center">
+                  <Avatar size="2xl" name={name} src={avatarPreview} mb={4} />
+                  <Box
+                    {...getRootProps()}
+                    p={6}
+                    borderWidth={2}
+                    borderStyle="dashed"
+                    borderColor={borderColor}
+                    borderRadius="md"
+                    bg={bgColor}
+                    cursor="pointer"
+                    transition="all 0.2s"
+                    _hover={{ bg: useColorModeValue("gray.100", "gray.600") }}
+                  >
+                    <input {...getInputProps()} />
+                    {isDragActive ? (
+                      <Text textAlign="center">Drop the image here</Text>
+                    ) : (
+                      <Text textAlign="center">
+                        Drag and drop an image here, or click to select a file
+                      </Text>
+                    )}
+                  </Box>
+                </Flex>
+              </FormControl>
+              <Button
+                type="submit"
+                colorScheme="teal"
+                isLoading={isLoading}
+                loadingText="Updating"
+              >
+                Update Profile
+              </Button>
+            </VStack>
+          </form>
+        </VStack>
+      </Container>
+    </Layout>
+  );
+};
+
+export default ProfilePage;
