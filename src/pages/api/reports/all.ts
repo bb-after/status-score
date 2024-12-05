@@ -110,7 +110,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             weight: source.weight
           });
 
-          // Sum the weighted sentiment scores
+          // Step 3: Create the DataSourceResult linked to the report
+          await prisma.dataSourceResult.create({
+            data: {
+              prompt: source.prompt, // Store the prompt used
+              payload: result, // Store the entire AI response as JSON
+              report: { connect: { id: newReport.id } },
+              dataSource: { connect: { id: source.id } },
+              sentiment: sentimentAnalysis.sentiment,
+              response: result.summary,
+              score,
+            }});
+
+            // Sum the weighted sentiment scores
           totalWeightedSentimentScore += weightedScore;
           totalWeight += source.weight;
         } catch (err) {
