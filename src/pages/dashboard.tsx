@@ -106,7 +106,9 @@ const Dashboard = () => {
     setError(null);
     try {
       const response = await axios.get(`/api/reports/${keywordId}`);
+      console.log("hi....", response.data);
       setReports(response.data);
+      setFilteredReports(response.data); // Set the initial filtered reports to all reports
     } catch (error) {
       console.error("Error fetching reports:", error);
       setError("Failed to fetch reports. Please try again.");
@@ -116,7 +118,60 @@ const Dashboard = () => {
   };
 
   const applyFilters = () => {
-    // ... (existing filter logic remains unchanged)
+    console.log("Starting applyFilters. Initial reports:", reports);
+
+    const filtered = reports.map((report) => {
+      console.log(`Processing report ${report.id}:`, report);
+
+      // If dataSourceResults is null or undefined, keep the entire report
+      if (!report.dataSourceResults) {
+        console.log(
+          `Report ${report.id} has no dataSourceResults. Keeping entire report.`
+        );
+        return report;
+      }
+
+      // Filter `dataSourceResults` within each `report` to match selected criteria
+      const filteredResults = report.dataSourceResults.filter((result) => {
+        const matchesDataSource =
+          selectedDataSource === "ALL" ||
+          result.dataSource?.name === selectedDataSource;
+        const matchesSentiment =
+          selectedSentiment === "ALL" || result.sentiment === selectedSentiment;
+        const reportDate = new Date(report.createdAt);
+        const matchesDateRange =
+          reportDate >= dateRange.startDate && reportDate <= dateRange.endDate;
+
+        console.log(`Result for report ${report.id}:`, {
+          matchesDataSource,
+          matchesSentiment,
+          matchesDateRange,
+          dataSource: result.dataSource?.name,
+          sentiment: result.sentiment,
+          reportDate,
+          dateRange,
+        });
+
+        return matchesDataSource && matchesSentiment && matchesDateRange;
+      });
+
+      console.log(`Filtered results for report ${report.id}:`, filteredResults);
+
+      return {
+        ...report,
+        dataSourceResults: filteredResults,
+      };
+    });
+    // .filter((report) => {
+    //   const keepReport =
+    //     !report.dataSourceResults || report.dataSourceResults.length > 0;
+    //   console.log(`Keeping report ${report.id}:`, keepReport);
+    //   return keepReport;
+    // });
+
+    console.log("Final filtered reports:", filtered);
+
+    setFilteredReports(filtered);
   };
 
   const chartData = {
