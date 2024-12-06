@@ -9,20 +9,24 @@ type Keyword = {
 
 interface KeywordDropdownProps {
   onSelectKeyword: (id: number, name: string) => void;
+  defaultValue?: number | null;
+  loadingText?: string; // Added loading text prop
 }
 
-const KeywordDropdown = ({ onSelectKeyword }: KeywordDropdownProps) => {
+const KeywordDropdown = ({
+  onSelectKeyword,
+  defaultValue,
+  loadingText = "Loading keywords...",
+}: KeywordDropdownProps) => {
   const [keywords, setKeywords] = useState<Keyword[]>([]);
-  const [loading, setLoading] = useState<boolean>(true); // Loading state
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    // Fetch the list of keywords from the backend
     async function fetchKeywords() {
       try {
         const response = await axios.get("/api/keywords");
         console.log("Fetched keywords:", response.data);
 
-        // Ensure all keywords have valid data, or log them if they don't
         const validKeywords = response.data.filter(
           (keyword: Keyword) => keyword.id !== undefined && keyword.name
         );
@@ -38,6 +42,17 @@ const KeywordDropdown = ({ onSelectKeyword }: KeywordDropdownProps) => {
     fetchKeywords();
   }, []);
 
+  useEffect(() => {
+    if (defaultValue && keywords.length > 0) {
+      const defaultKeyword = keywords.find(
+        (keyword) => keyword.id === defaultValue
+      );
+      if (defaultKeyword) {
+        onSelectKeyword(defaultKeyword.id, defaultKeyword.name);
+      }
+    }
+  }, [defaultValue, keywords, onSelectKeyword]);
+
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedKeywordId = parseInt(e.target.value, 10);
     const selectedKeyword = keywords.find(
@@ -45,7 +60,6 @@ const KeywordDropdown = ({ onSelectKeyword }: KeywordDropdownProps) => {
     );
 
     if (selectedKeyword) {
-      // Call the callback with both ID and name
       onSelectKeyword(selectedKeyword.id, selectedKeyword.name);
     }
   };
@@ -55,12 +69,14 @@ const KeywordDropdown = ({ onSelectKeyword }: KeywordDropdownProps) => {
       {loading ? (
         <Box textAlign="center" py={4}>
           <Spinner size="lg" />
+          {loadingText && <p>{loadingText}</p>}{" "}
+          {/* Display loading text if provided */}
         </Box>
       ) : (
         <Select
           placeholder="Select a keyword"
           onChange={handleChange}
-          value={keywords.length ? undefined : ""}
+          value={defaultValue || undefined}
         >
           {keywords.length > 0 ? (
             keywords.map((keyword) => (

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import axios from "axios";
 import Layout from "../components/Layout";
 import KeywordDropdown from "../components/KeywordDropdown";
@@ -17,6 +18,7 @@ import {
 import Loader from "../components/Loader";
 
 const KeywordAnalysisPage = () => {
+  const router = useRouter();
   const [selectedKeywordId, setSelectedKeywordId] = useState<number | null>(
     null
   );
@@ -47,6 +49,16 @@ const KeywordAnalysisPage = () => {
     };
     fetchDataSources();
   }, []);
+
+  useEffect(() => {
+    const { keywordId } = router.query;
+    if (keywordId && typeof keywordId === "string") {
+      const parsedKeywordId = parseInt(keywordId, 10);
+      if (!isNaN(parsedKeywordId)) {
+        setSelectedKeywordId(parsedKeywordId);
+      }
+    }
+  }, [router.query]);
 
   const handleKeywordSelection = (keywordId: number) => {
     setSelectedKeywordId(keywordId);
@@ -88,7 +100,10 @@ const KeywordAnalysisPage = () => {
         </Heading>
 
         {/* Keyword Selection */}
-        <KeywordDropdown onSelectKeyword={handleKeywordSelection} />
+        <KeywordDropdown
+          onSelectKeyword={handleKeywordSelection}
+          defaultValue={selectedKeywordId}
+        />
 
         {/* Source Selection Mode */}
         <Box mt={4}>

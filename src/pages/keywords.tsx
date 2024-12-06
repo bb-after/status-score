@@ -128,7 +128,7 @@ const KeywordsPage = () => {
                       <HStack spacing={2}>
                         <Button
                           as={NextLink}
-                          href={`/keyword-analysis?id=${keyword.id}`}
+                          href={`/keyword-analysis?keywordId=${keyword.id}`}
                           size="sm"
                           leftIcon={<SearchIcon />}
                           colorScheme="blue"

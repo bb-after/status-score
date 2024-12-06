@@ -106,13 +106,12 @@ model Schedule {
   keywordId    Int
   user         User      @relation(fields: [userId], references: [id])
   userId       Int
-  frequency    String    // Options: "daily", "weekly", "monthly"
-  emails       String    // Comma-separated email addresses
+  frequency    String    
+  emails       String    
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
-  scheduledRuns   ScheduledRun[]   // New relation
-
-  @@unique([keywordId, userId]) // Ensures one schedule per keyword per user
+  deletedAt    DateTime?
+  scheduledRuns   ScheduledRun[]
 }
 
 model DataSourceResult {

@@ -39,7 +39,7 @@ const AddKeywordForm = () => {
 
       // Redirect or reset after successful submission
       setKeyword("");
-      router.push("/dashboard");
+      router.push("/keywords");
     } catch (error) {
       console.error("Failed to add keyword", error);
       setError("Failed to add keyword. Please try again.");

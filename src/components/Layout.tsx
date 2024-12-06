@@ -38,18 +38,20 @@ const Links = [
 ];
 
 const NavLink = ({ children, href }: { children: ReactNode; href: string }) => (
-  <Link
-    as={NextLink}
-    px={2}
-    py={1}
-    color={"white"}
-    _hover={{
-      textDecoration: "underline",
-    }}
-    href={href}
-  >
-    {children}
-  </Link>
+  <NextLink href={href}>
+    <Link
+      as={NextLink}
+      px={2}
+      py={1}
+      color={"white"}
+      _hover={{
+        textDecoration: "underline",
+      }}
+      href={href}
+    >
+      {children}
+    </Link>
+  </NextLink>
 );
 
 const generateDiceBearAvatar = (name: string) => {
@@ -93,6 +95,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     name?: string;
     email?: string;
     picture?: string;
+    admin?: boolean;
   } | null>(null);
 
   useEffect(() => {
@@ -197,6 +200,20 @@ export default function Layout({ children }: { children: ReactNode }) {
                     Settings
                   </MenuItem>
                   <MenuDivider />
+                  {user?.admin && (
+                    <>
+                      <MenuItem as={NextLink} href="/admin/data-sources">
+                        Admin: Data Sources
+                      </MenuItem>
+                      <MenuItem
+                        as={NextLink}
+                        href="/admin/data-sources/weight-management"
+                      >
+                        Admin: Data Source Weighting
+                      </MenuItem>
+                      <MenuDivider />
+                    </>
+                  )}
                   <MenuItem as={NextLink} href="/api/auth/logout">
                     Logout
                   </MenuItem>
