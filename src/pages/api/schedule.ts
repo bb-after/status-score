@@ -15,7 +15,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     // Step 1: Get all schedules that match the frequency from the database
     const schedules = await prisma.schedule.findMany({
-      where: { frequency: scheduleFrequency },
+      where: { 
+        frequency: scheduleFrequency,
+        deletedAt: null,
+      },
       include: { keyword: true } // Include keyword for email reference
     });
 

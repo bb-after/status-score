@@ -40,6 +40,7 @@ const Dashboard = () => {
   const [selectedKeywordId, setSelectedKeywordId] = useState<number | null>(
     null
   );
+  const [chartData, setChartData] = useState({ labels: [], datasets: [] });
   const [selectedKeywordName, setSelectedKeywordName] = useState("");
   const [reports, setReports] = useState<any[]>([]);
   const [filteredReports, setFilteredReports] = useState<any[]>([]);
@@ -162,42 +163,47 @@ const Dashboard = () => {
         dataSourceResults: filteredResults,
       };
     });
-    // .filter((report) => {
-    //   const keepReport =
-    //     !report.dataSourceResults || report.dataSourceResults.length > 0;
-    //   console.log(`Keeping report ${report.id}:`, keepReport);
-    //   return keepReport;
-    // });
 
     console.log("Final filtered reports:", filtered);
 
     setFilteredReports(filtered);
+    updateChartData(filtered);
   };
 
-  const chartData = {
-    labels: reports.map((report) =>
+  const updateChartData = (filteredReports) => {
+    const labels = filteredReports.map((report) =>
       new Date(report.createdAt).toLocaleDateString()
-    ),
-    datasets: [
-      {
-        label: `Sentiment Analysis for Keyword: ${selectedKeywordName}`,
-        data: reports.map((report) => {
-          switch (report.sentiment) {
-            case "positive":
-              return 3;
-            case "neutral":
-              return 2;
-            case "negative":
-              return 1;
-            default:
-              return 0;
-          }
-        }),
-        fill: false,
-        borderColor: "rgba(75, 192, 192, 1)",
-        tension: 0.1,
-      },
-    ],
+    );
+
+    const datasets =
+      selectedDataSource === "ALL"
+        ? [
+            {
+              label: `Overall Sentiment for Keyword: ${selectedKeywordName}`,
+              data: filteredReports.map((report) =>
+                parseFloat(report.sentiment)
+              ),
+              fill: false,
+              borderColor: "rgba(75, 192, 192, 1)",
+              tension: 0.1,
+            },
+          ]
+        : filteredReports[0]?.dataSourceResults
+            .filter((result) => result.dataSource?.name === selectedDataSource)
+            .map((result) => ({
+              label: `Sentiment for ${result.dataSource.name}`,
+              data: filteredReports.map(
+                (report) =>
+                  report.dataSourceResults.find(
+                    (r) => r.dataSource?.name === result.dataSource.name
+                  )?.score || null
+              ),
+              fill: false,
+              borderColor: `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 1)`,
+              tension: 0.1,
+            }));
+
+    setChartData({ labels, datasets });
   };
 
   const chartOptions = {
@@ -206,13 +212,9 @@ const Dashboard = () => {
       tooltip: {
         callbacks: {
           label: function (context) {
-            const index = context.dataIndex;
-            const report = reports[index];
-            const score = report.sentiment;
-            return [
-              `Score: ${score}`,
-              `Summary: ${report.payload?.summary || "No summary available"}`,
-            ];
+            const datasetLabel = context.dataset.label || "";
+            const value = context.parsed.y;
+            return `${datasetLabel}: ${value.toFixed(2)}`;
           },
         },
       },
@@ -220,20 +222,9 @@ const Dashboard = () => {
     scales: {
       y: {
         beginAtZero: true,
-        ticks: {
-          stepSize: 1,
-          callback: function (value) {
-            switch (value) {
-              case 3:
-                return "Positive";
-              case 2:
-                return "Neutral";
-              case 1:
-                return "Negative";
-              default:
-                return "";
-            }
-          },
+        title: {
+          display: true,
+          text: "Sentiment Score",
         },
       },
     },

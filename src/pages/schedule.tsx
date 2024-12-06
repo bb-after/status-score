@@ -118,21 +118,23 @@ const SchedulePage = () => {
   // Delete an existing schedule
   const handleDeleteSchedule = async (id: number) => {
     try {
-      await axios.delete("/api/schedules", {
-        data: { scheduleId: id },
-      });
-      toast({
-        title: "Schedule deleted.",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-      });
-      fetchSchedules(); // Refresh the list of schedules
+      const response = await axios.delete(`/api/schedules/${id}`);
+      if (response.status === 200) {
+        toast({
+          title: "Schedule deleted.",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
+        fetchSchedules();
+      } else {
+        throw new Error("Failed to delete schedule");
+      }
     } catch (error) {
       console.error("Failed to delete schedule", error);
       toast({
         title: "Error",
-        description: "Failed to delete schedule",
+        description: error.response?.data?.error || "Failed to delete schedule",
         status: "error",
         duration: 5000,
         isClosable: true,
