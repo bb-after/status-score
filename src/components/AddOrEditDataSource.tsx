@@ -28,12 +28,6 @@ const AddOrEditDataSource = ({
   });
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (dataSourceId) {
-      fetchDataSource();
-    }
-  }, [dataSourceId]);
-
   const fetchDataSource = async () => {
     setIsLoading(true);
     try {
@@ -45,6 +39,12 @@ const AddOrEditDataSource = ({
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (dataSourceId) {
+      fetchDataSource();
+    }
+  }, [dataSourceId, fetchDataSource]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
