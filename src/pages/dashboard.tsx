@@ -311,8 +311,6 @@ const Dashboard = () => {
             <>
               {filteredReports.length > 0 ? (
                 <Box mt={8}>
-                  <Line data={chartData} options={chartOptions} />
-
                   <FiltersPanel
                     selectedDataSource={selectedDataSource}
                     setSelectedDataSource={setSelectedDataSource}
@@ -322,6 +320,8 @@ const Dashboard = () => {
                     setDateRange={setDateRange}
                     reports={reports}
                   />
+
+                  <Line data={chartData} options={chartOptions} />
 
                   <ReportsTable filteredReports={filteredReports} />
                 </Box>

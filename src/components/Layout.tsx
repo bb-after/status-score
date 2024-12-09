@@ -130,9 +130,6 @@ export default function Layout({ children }: { children: ReactNode }) {
                       console.log("Avatar image failed to load:", user?.picture)
                     }
                     referrerPolicy="no-referrer"
-                    fallback={
-                      <span>{console.log("Avatar fallback triggered")}</span>
-                    }
                   />
                 </MenuButton>
                 <MenuList>
