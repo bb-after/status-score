@@ -108,59 +108,57 @@ const OnboardingPage = () => {
   }
 
   return (
-    <Layout>
-      <Container maxW="4xl" py={10}>
-        <VStack spacing={8} align="stretch">
-          <Heading as="h1" size="2xl" textAlign="center">
-            Welcome to Status Score
-          </Heading>
-          <Text fontSize="xl" textAlign="center">
-            Let&apos;s get you started with these simple steps:
-          </Text>
-          <Progress value={(currentStep + 1) * 25} colorScheme="cyan" mb={8} />
-          {steps.map((step, index) => (
-            <Box
-              key={index}
-              p={6}
-              borderWidth={1}
-              borderColor={borderColor}
-              borderRadius="lg"
-              bg={bgColor}
-              boxShadow={index === currentStep ? "lg" : "none"}
-              opacity={index > currentStep ? 0.5 : 1}
+    <Container maxW="4xl" py={10}>
+      <VStack spacing={8} align="stretch">
+        <Heading as="h1" size="2xl" textAlign="center">
+          Welcome to Status Score
+        </Heading>
+        <Text fontSize="xl" textAlign="center">
+          Let&apos;s get you started with these simple steps:
+        </Text>
+        <Progress value={(currentStep + 1) * 25} colorScheme="cyan" mb={8} />
+        {steps.map((step, index) => (
+          <Box
+            key={index}
+            p={6}
+            borderWidth={1}
+            borderColor={borderColor}
+            borderRadius="lg"
+            bg={bgColor}
+            boxShadow={index === currentStep ? "lg" : "none"}
+            opacity={index > currentStep ? 0.5 : 1}
+          >
+            <Flex align="center" mb={4}>
+              <Icon
+                as={step.icon}
+                boxSize={8}
+                color={aquamarineColors[4]}
+                mr={4}
+              />
+              <Heading as="h3" size="lg">
+                {step.title}
+              </Heading>
+            </Flex>
+            <Text mb={4}>{step.description}</Text>
+            <Button
+              as={NextLink}
+              href={step.link}
+              bg={aquamarineColors[4]}
+              color="gray.900"
+              _hover={{ bg: aquamarineColors[300] }}
+              isDisabled={index > currentStep}
             >
-              <Flex align="center" mb={4}>
-                <Icon
-                  as={step.icon}
-                  boxSize={8}
-                  color={aquamarineColors[4]}
-                  mr={4}
-                />
-                <Heading as="h3" size="lg">
-                  {step.title}
-                </Heading>
-              </Flex>
-              <Text mb={4}>{step.description}</Text>
-              <Button
-                as={NextLink}
-                href={step.link}
-                bg={aquamarineColors[4]}
-                color="gray.900"
-                _hover={{ bg: aquamarineColors[300] }}
-                isDisabled={index > currentStep}
-              >
-                {step.linkText}
-              </Button>
-            </Box>
-          ))}
-          {currentStep < steps.length - 1 && (
-            <Button onClick={handleNextStep} alignSelf="center" mt={4}>
-              Next Step
+              {step.linkText}
             </Button>
-          )}
-        </VStack>
-      </Container>
-    </Layout>
+          </Box>
+        ))}
+        {currentStep < steps.length - 1 && (
+          <Button onClick={handleNextStep} alignSelf="center" mt={4}>
+            Next Step
+          </Button>
+        )}
+      </VStack>
+    </Container>
   );
 };
 
