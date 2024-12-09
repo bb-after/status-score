@@ -83,7 +83,7 @@ const SettingsPage = () => {
   };
 
   return (
-    <Layout>
+    <>
       <Container maxW="container.md" py={8}>
         <Heading mb={6}>Settings</Heading>
         <VStack spacing={6} align="stretch">
@@ -128,7 +128,7 @@ const SettingsPage = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </Layout>
+    </>
   );
 };
 

@@ -2,7 +2,6 @@
 import { Box, Button, Heading, Stack, Text, Link } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Layout from "../../components/Layout";
 
 export default function TeamList() {
   const [teams, setTeams] = useState<any[]>([]);
@@ -26,34 +25,32 @@ export default function TeamList() {
   }, []);
 
   return (
-    <Layout>
-      <Box maxW="6xl" mx="auto" py="12" px="6">
-        <Heading as="h2" size="xl" mb={6}>
-          My Teams
-        </Heading>
-        {isLoading ? (
-          <Text>Loading teams...</Text>
-        ) : error ? (
-          <Text color="red.500">{error}</Text>
-        ) : teams.length > 0 ? (
-          <Stack spacing={4}>
-            {teams.map((team) => (
-              <Box key={team.id} p={5} shadow="md" borderWidth="1px">
-                <Heading fontSize="xl">{team.name}</Heading>
-                <Text mt={4}>Members: {team.members.length}</Text>
-                <Link href={`/teams/${team.id}`} color="teal.500" mt={2}>
-                  View Team
-                </Link>
-              </Box>
-            ))}
-          </Stack>
-        ) : (
-          <Text>You are not a member of any teams yet.</Text>
-        )}
-        <Button mt={8} colorScheme="teal" as={Link} href="/teams/create">
-          Create a New Team
-        </Button>
-      </Box>
-    </Layout>
+    <Box maxW="6xl" mx="auto" py="12" px="6">
+      <Heading as="h2" size="xl" mb={6}>
+        My Teams
+      </Heading>
+      {isLoading ? (
+        <Text>Loading teams...</Text>
+      ) : error ? (
+        <Text color="red.500">{error}</Text>
+      ) : teams.length > 0 ? (
+        <Stack spacing={4}>
+          {teams.map((team) => (
+            <Box key={team.id} p={5} shadow="md" borderWidth="1px">
+              <Heading fontSize="xl">{team.name}</Heading>
+              <Text mt={4}>Members: {team.members.length}</Text>
+              <Link href={`/teams/${team.id}`} color="teal.500" mt={2}>
+                View Team
+              </Link>
+            </Box>
+          ))}
+        </Stack>
+      ) : (
+        <Text>You are not a member of any teams yet.</Text>
+      )}
+      <Button mt={8} colorScheme="teal" as={Link} href="/teams/create">
+        Create a New Team
+      </Button>
+    </Box>
   );
 }

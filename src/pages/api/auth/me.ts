@@ -6,7 +6,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const session = await getSession(req, res);
 
   if (!session) {
-    return res.status(401).json({ error: 'Unauthorized' });
+    return res.status(200).json({ isAuthenticated: false });
   }
 
   try {
@@ -28,6 +28,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.status(200).json({
       ...session.user,
       admin: user.admin,
+      isAuthenticated: true,
     });
   } catch (error) {
     console.error('Error fetching user data:', error);

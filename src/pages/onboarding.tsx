@@ -97,11 +97,9 @@ const OnboardingPage = () => {
 
   if (isLoading) {
     return (
-      <Layout>
-        <Container maxW="4xl" py={10}>
-          <Text>Loading...</Text>
-        </Container>
-      </Layout>
+      <Container maxW="4xl" py={10}>
+        <Text>Loading...</Text>
+      </Container>
     );
   }
 

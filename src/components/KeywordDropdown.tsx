@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Select, Spinner, Box } from "@chakra-ui/react";
 import axios from "axios";
+import { useAuth } from "../contexts/AuthContext";
 
 type Keyword = {
   id: number;
@@ -18,29 +19,32 @@ const KeywordDropdown = ({
   defaultValue,
   loadingText = "Loading keywords...",
 }: KeywordDropdownProps) => {
+  const { isAuthenticated, isLoading } = useAuth();
   const [keywords, setKeywords] = useState<Keyword[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [setIsLoading] = useState(isLoading);
 
   useEffect(() => {
-    async function fetchKeywords() {
-      try {
-        const response = await axios.get("/api/keywords");
-        console.log("Fetched keywords:", response.data);
+    if (isAuthenticated) {
+      async function fetchKeywords() {
+        try {
+          const response = await axios.get("/api/keywords");
+          console.log("Fetched keywords:", response.data);
 
-        const validKeywords = response.data.filter(
-          (keyword: Keyword) => keyword.id !== undefined && keyword.name
-        );
+          const validKeywords = response.data.filter(
+            (keyword: Keyword) => keyword.id !== undefined && keyword.name
+          );
 
-        setKeywords(validKeywords);
-      } catch (error) {
-        console.error("Failed to fetch keywords", error);
-      } finally {
-        setLoading(false);
+          setKeywords(validKeywords);
+        } catch (error) {
+          console.error("Failed to fetch keywords", error);
+        } finally {
+          // setIsLoading = false;
+        }
       }
-    }
 
-    fetchKeywords();
-  }, []);
+      fetchKeywords();
+    }
+  }, [isAuthenticated]);
 
   useEffect(() => {
     if (defaultValue && keywords.length > 0) {
@@ -66,7 +70,7 @@ const KeywordDropdown = ({
 
   return (
     <>
-      {loading ? (
+      {isLoading ? (
         <Box textAlign="center" py={4}>
           <Spinner size="lg" />
           {loadingText && <p>{loadingText}</p>}{" "}

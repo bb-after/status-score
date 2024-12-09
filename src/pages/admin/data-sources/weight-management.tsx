@@ -59,42 +59,40 @@ const AdminDataSources = () => {
   };
 
   return (
-    <Layout>
-      <Box maxW="2xl" mx="auto" py="12" px="6">
-        <Heading as="h2" size="xl" textAlign="center" mb={6}>
-          Admin: Manage Data Source Weights
-        </Heading>
+    <Box maxW="2xl" mx="auto" py="12" px="6">
+      <Heading as="h2" size="xl" textAlign="center" mb={6}>
+        Admin: Manage Data Source Weights
+      </Heading>
 
-        <Table variant="striped" colorScheme="gray">
-          <Tbody>
-            {dataSources.map((source) => (
-              <Tr key={source.id}>
-                <Td>{source.name}</Td>
-                <Td>
-                  <Input
-                    type="number"
-                    step="0.1"
-                    value={source.weight}
-                    onChange={(e) =>
-                      handleWeightChange(source.id, parseFloat(e.target.value))
-                    }
-                    width="100px"
-                    mr={4}
-                  />
-                  <Button
-                    colorScheme="teal"
-                    onClick={() => handleSaveWeight(source.id, source.weight)}
-                    isDisabled={isLoading}
-                  >
-                    Save
-                  </Button>
-                </Td>
-              </Tr>
-            ))}
-          </Tbody>
-        </Table>
-      </Box>
-    </Layout>
+      <Table variant="striped" colorScheme="gray">
+        <Tbody>
+          {dataSources.map((source) => (
+            <Tr key={source.id}>
+              <Td>{source.name}</Td>
+              <Td>
+                <Input
+                  type="number"
+                  step="0.1"
+                  value={source.weight}
+                  onChange={(e) =>
+                    handleWeightChange(source.id, parseFloat(e.target.value))
+                  }
+                  width="100px"
+                  mr={4}
+                />
+                <Button
+                  colorScheme="teal"
+                  onClick={() => handleSaveWeight(source.id, source.weight)}
+                  isDisabled={isLoading}
+                >
+                  Save
+                </Button>
+              </Td>
+            </Tr>
+          ))}
+        </Tbody>
+      </Table>
+    </Box>
   );
 };
 

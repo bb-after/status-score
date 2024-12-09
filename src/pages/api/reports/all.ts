@@ -110,6 +110,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             weight: source.weight
           });
 
+        
           // Step 3: Create the DataSourceResult linked to the report
           await prisma.dataSourceResult.create({
             data: {
@@ -119,7 +120,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               dataSource: { connect: { id: source.id } },
               sentiment: sentimentAnalysis.sentiment,
               response: result.summary,
-              score,
+              score: weightedScore,
             }});
 
             // Sum the weighted sentiment scores
