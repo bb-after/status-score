@@ -12,21 +12,20 @@ export const SearchForm: React.FC<SearchFormProps> = ({
 }) => {
   const [city, setCity] = useState("");
   const [type, setType] = useState("dentists");
-
+  const typeRef = useRef(type);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Update ref when type changes
+  typeRef.current = type;
+
   const handleSearch = () => {
     if (inputRef.current?.value.trim()) {
-      // Only call onSearch if the city is not empty
       onSearch(inputRef.current.value.trim(), type);
     } else {
       console.error("City is required to perform a search");
     }
   };
-
-  const typeRef = useRef(type);
-  typeRef.current = type;
 
   useEffect(() => {
     const loadGoogleMapsScript = () => {
@@ -47,15 +46,15 @@ export const SearchForm: React.FC<SearchFormProps> = ({
         autocompleteRef.current = new google.maps.places.Autocomplete(
           inputRef.current,
           {
-            types: ["(cities)"], // Restrict to cities
+            types: ["(cities)"],
           }
         );
 
         autocompleteRef.current.addListener("place_changed", () => {
           const place = autocompleteRef.current?.getPlace();
           if (place?.formatted_address) {
-            setCity(place.formatted_address); // Set the city in the state
-            onSearch(place.formatted_address, type); // Trigger search
+            setCity(place.formatted_address);
+            onSearch(place.formatted_address, typeRef.current);
           }
         });
       }
@@ -64,9 +63,11 @@ export const SearchForm: React.FC<SearchFormProps> = ({
     loadGoogleMapsScript();
 
     return () => {
-      autocompleteRef.current?.unbindAll();
+      if (autocompleteRef.current) {
+        google.maps.event.clearInstanceListeners(autocompleteRef.current);
+      }
     };
-  }, [onSearch, type]);
+  }, [onSearch]); // Only re-run if onSearch changes
 
   return (
     <Box as="form" mb={8} onSubmit={(e) => e.preventDefault()}>
@@ -89,7 +90,7 @@ export const SearchForm: React.FC<SearchFormProps> = ({
         <option value="lawyers">Lawyers</option>
       </Select>
       <Button
-        onClick={handleSearch} // Ensure validation here
+        onClick={handleSearch}
         isLoading={isLoading}
         colorScheme="blue"
         size="lg"
