@@ -140,12 +140,6 @@ const ProfilePage = () => {
                   name={name}
                   src={avatarPreview}
                   referrerPolicy="no-referrer"
-                  onError={(e) => {
-                    console.error("Avatar load error:", {
-                      url: avatarPreview,
-                      error: e,
-                    });
-                  }}
                   mb={4}
                 />
                 <Box
