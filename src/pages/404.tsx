@@ -38,7 +38,7 @@ const Custom404 = () => {
           404 - Page Not Found
         </Heading>
         <Text fontSize="xl" textAlign="center">
-          Oops! It seems the page you're looking for has vanished into the
+          Oops! It seems the page you&apos;re looking for has vanished into the
           digital ether.
         </Text>
         <Box as="form" onSubmit={handleSearch} width="100%" maxW="md">
