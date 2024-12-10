@@ -21,7 +21,6 @@ const KeywordDropdown = ({
 }: KeywordDropdownProps) => {
   const { isAuthenticated, isLoading } = useAuth();
   const [keywords, setKeywords] = useState<Keyword[]>([]);
-  const [setIsLoading] = useState(isLoading);
 
   useEffect(() => {
     if (isAuthenticated) {
