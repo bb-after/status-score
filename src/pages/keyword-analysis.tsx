@@ -24,15 +24,6 @@ import Loader from "../components/Loader";
 const KeywordAnalysisPage = () => {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return null; // or a loading spinner
-  }
-
   const [selectedKeywordId, setSelectedKeywordId] = useState<number | null>(
     null
   );
@@ -46,6 +37,10 @@ const KeywordAnalysisPage = () => {
   const [dataSources, setDataSources] = useState<any[]>([]); // Holds the list of data sources
   const [sourceSelectionMode, setSourceSelectionMode] = useState<string>("all"); // "all" or "specific"
   const [selectedSources, setSelectedSources] = useState<string[]>([]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     // Fetch available data sources
@@ -85,6 +80,10 @@ const KeywordAnalysisPage = () => {
     },
     []
   ); // Empty dependency array since it doesn't depend on any values
+
+  if (!mounted) {
+    return null; // or a loading spinner
+  }
 
   const runAnalysis = async () => {
     if (!selectedKeywordId) {
