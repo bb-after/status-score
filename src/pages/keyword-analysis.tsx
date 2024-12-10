@@ -1,8 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
-import Layout from "../components/Layout";
-import KeywordDropdown from "../components/KeywordDropdown";
+import dynamic from "next/dynamic";
+
+const KeywordDropdown = dynamic(() => import("../components/KeywordDropdown"), {
+  ssr: false,
+});
+
 import {
   Box,
   Heading,
@@ -19,6 +23,16 @@ import Loader from "../components/Loader";
 
 const KeywordAnalysisPage = () => {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null; // or a loading spinner
+  }
+
   const [selectedKeywordId, setSelectedKeywordId] = useState<number | null>(
     null
   );
@@ -191,4 +205,6 @@ const KeywordAnalysisPage = () => {
   );
 };
 
-export default KeywordAnalysisPage;
+export default dynamic(() => Promise.resolve(KeywordAnalysisPage), {
+  ssr: false,
+});
