@@ -7,11 +7,11 @@ const AdminEditDataSourcePage = () => {
   const { id } = router.query;
 
   return (
-    <Layout>
+    <>
       {id && typeof id === "string" && (
         <AddOrEditDataSource dataSourceId={id} />
       )}
-    </Layout>
+    </>
   );
 };
 

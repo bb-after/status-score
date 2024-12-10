@@ -24,6 +24,8 @@ import {
 } from "chart.js";
 import Layout from "../components/Layout";
 import NextLink from "next/link";
+import { useAuth } from "../contexts/AuthContext";
+import { useRouter } from "next/router";
 
 // Registering the necessary components and scales for Chart.js
 ChartJS.register(
@@ -37,6 +39,8 @@ ChartJS.register(
 );
 
 const Dashboard = () => {
+  const { isAuthenticated, isLoading, user } = useAuth();
+  const router = useRouter();
   const [selectedKeywordId, setSelectedKeywordId] = useState<number | null>(
     null
   );
@@ -44,7 +48,7 @@ const Dashboard = () => {
   const [selectedKeywordName, setSelectedKeywordName] = useState("");
   const [reports, setReports] = useState<any[]>([]);
   const [filteredReports, setFilteredReports] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [setIsLoading] = useState(isLoading);
   const [error, setError] = useState<string | null>(null);
   const [selectedDataSource, setSelectedDataSource] = useState<string>("ALL");
   const [selectedSentiment, setSelectedSentiment] = useState<string>("ALL");
@@ -68,14 +72,22 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    checkForKeywords();
-  }, []);
+    if (!isLoading && !isAuthenticated) {
+      router.push("/login");
+    }
+  }, [isLoading, isAuthenticated, router]);
 
   useEffect(() => {
-    if (selectedKeywordId) {
+    if (isAuthenticated) {
+      checkForKeywords();
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (isAuthenticated && selectedKeywordId) {
       fetchReports(selectedKeywordId);
     }
-  }, [selectedKeywordId]);
+  }, [isAuthenticated, selectedKeywordId]);
 
   useEffect(() => {
     if (reports.length > 0) {
@@ -103,7 +115,7 @@ const Dashboard = () => {
   };
 
   const fetchReports = async (keywordId: number) => {
-    setIsLoading(true);
+    // isLoading(true);
     setError(null);
     try {
       const response = await axios.get(`/api/reports/${keywordId}`);
@@ -114,7 +126,7 @@ const Dashboard = () => {
       console.error("Error fetching reports:", error);
       setError("Failed to fetch reports. Please try again.");
     } finally {
-      setIsLoading(false);
+      // setIsLoading(false);
     }
   };
 
@@ -192,12 +204,16 @@ const Dashboard = () => {
             .filter((result) => result.dataSource?.name === selectedDataSource)
             .map((result) => ({
               label: `Sentiment for ${result.dataSource.name}`,
-              data: filteredReports.map(
-                (report) =>
-                  report.dataSourceResults.find(
-                    (r) => r.dataSource?.name === result.dataSource.name
-                  )?.score || null
-              ),
+              data: filteredReports.map((report) => {
+                const score = report.dataSourceResults.find(
+                  (r) => r.dataSource?.name === result.dataSource.name
+                )?.score;
+                console.log(
+                  `YOOOO Score for ${result.dataSource.name}:`,
+                  score
+                );
+                return score || null;
+              }),
               fill: false,
               borderColor: `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 1)`,
               tension: 0.1,
@@ -221,10 +237,20 @@ const Dashboard = () => {
     },
     scales: {
       y: {
-        beginAtZero: true,
+        beginAtZero: false,
+        suggestedMin: -1,
+        suggestedMax: 1,
         title: {
           display: true,
           text: "Sentiment Score",
+        },
+        ticks: {
+          callback: function (value) {
+            console.log("value", value);
+            if (value === -1) return "Very Negative";
+            if (value === 1) return "Very Positive";
+            return "";
+          },
         },
       },
     },
@@ -237,85 +263,81 @@ const Dashboard = () => {
 
   if (!hasKeywords) {
     return (
-      <Layout>
-        <Box maxW="6xl" mx="auto" py="12" px="6" bg={bgColor} color={textColor}>
-          <VStack spacing={8} align="center">
-            <Heading as="h2" size="xl" textAlign="center">
-              Welcome to Your Dashboard
-            </Heading>
-            <Text fontSize="lg" textAlign="center">
-              It looks like you haven&apos;t added any keywords yet. Let&apos;s
-              get started by adding your first keyword!
-            </Text>
-            <Button
-              as={NextLink}
-              href="/add-keyword"
-              size="lg"
-              bg={aquamarineColors[4]}
-              color="gray.900"
-              _hover={{ bg: aquamarineColors[300] }}
-            >
-              Add Your First Keyword
-            </Button>
-          </VStack>
-        </Box>
-      </Layout>
+      <Box maxW="6xl" mx="auto" py="12" px="6" bg={bgColor} color={textColor}>
+        <VStack spacing={8} align="center">
+          <Heading as="h2" size="xl" textAlign="center">
+            Welcome to Your Dashboard
+          </Heading>
+          <Text fontSize="lg" textAlign="center">
+            It looks like you haven&apos;t added any keywords yet. Let&apos;s
+            get started by adding your first keyword!
+          </Text>
+          <Button
+            as={NextLink}
+            href="/add-keyword"
+            size="lg"
+            bg={aquamarineColors[4]}
+            color="gray.900"
+            _hover={{ bg: aquamarineColors[300] }}
+          >
+            Add Your First Keyword
+          </Button>
+        </VStack>
+      </Box>
     );
   }
 
   return (
-    <Layout>
-      <Box maxW="6xl" mx="auto" py="12" px="6" bg={bgColor} color={textColor}>
-        <Heading as="h2" size="xl" textAlign="center" mb={6}>
-          Dashboard
-        </Heading>
+    <Box maxW="6xl" mx="auto" py="12" px="6" bg={bgColor} color={textColor}>
+      <Heading as="h2" size="xl" textAlign="center" mb={6}>
+        Dashboard
+      </Heading>
 
-        <KeywordDropdown onSelectKeyword={handleKeywordSelection} />
+      <KeywordDropdown onSelectKeyword={handleKeywordSelection} />
 
-        {selectedKeywordId && (
-          <Box mt={6}>
-            <Heading as="h2" size="lg">
-              Reports for &quot;{selectedKeywordName}&quot;
-            </Heading>
+      {selectedKeywordId && (
+        <Box mt={6}>
+          <Heading as="h2" size="lg">
+            Reports for &quot;{selectedKeywordName}&quot;
+          </Heading>
 
-            {isLoading ? (
-              <Box mt={4}>Loading...</Box>
-            ) : error ? (
-              <Box mt={4} color="red.500">
-                {error}
-              </Box>
-            ) : (
-              <>
-                {filteredReports.length > 0 ? (
-                  <Box mt={8}>
-                    <Line data={chartData} options={chartOptions} />
+          {isLoading ? (
+            <Box mt={4}>Loading...</Box>
+          ) : error ? (
+            <Box mt={4} color="red.500">
+              {error}
+            </Box>
+          ) : (
+            <>
+              {filteredReports.length > 0 ? (
+                <Box mt={8}>
+                  <FiltersPanel
+                    selectedDataSource={selectedDataSource}
+                    setSelectedDataSource={setSelectedDataSource}
+                    selectedSentiment={selectedSentiment}
+                    setSelectedSentiment={setSelectedSentiment}
+                    dateRange={dateRange}
+                    setDateRange={setDateRange}
+                    reports={reports}
+                  />
 
-                    <FiltersPanel
-                      selectedDataSource={selectedDataSource}
-                      setSelectedDataSource={setSelectedDataSource}
-                      selectedSentiment={selectedSentiment}
-                      setSelectedSentiment={setSelectedSentiment}
-                      dateRange={dateRange}
-                      setDateRange={setDateRange}
-                      reports={reports}
-                    />
+                  <Line data={chartData} options={chartOptions} />
 
-                    <ReportsTable filteredReports={filteredReports} />
-                  </Box>
-                ) : (
-                  <Box mt={8}>
-                    <p>
-                      No reports available for the selected keyword. Please
-                      select a different keyword.
-                    </p>
-                  </Box>
-                )}
-              </>
-            )}
-          </Box>
-        )}
-      </Box>
-    </Layout>
+                  <ReportsTable filteredReports={filteredReports} />
+                </Box>
+              ) : (
+                <Box mt={8}>
+                  <p>
+                    No reports available for the selected keyword. Please select
+                    a different keyword.
+                  </p>
+                </Box>
+              )}
+            </>
+          )}
+        </Box>
+      )}
+    </Box>
   );
 };
 

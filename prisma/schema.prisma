@@ -124,7 +124,8 @@ model DataSourceResult {
   prompt       String      @db.Text // The prompt used for the AI request
   response     String    @db.Text // The response text from this data source
   payload      Json        // The full payload received from the AI
-  score        Int       // Numerical representation of the sentiment
+  score        Float       // Numerical representation of the sentiment
+  magnitude    Float       // Numerical representation of the magnitude of the sentiment
   createdAt    DateTime  @default(now())
 }
 

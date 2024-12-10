@@ -19,7 +19,6 @@ import {
   useDisclosure,
   Text,
 } from "@chakra-ui/react";
-import Layout from "../components/Layout";
 import { useRouter } from "next/router";
 import axios from "axios";
 
@@ -83,7 +82,7 @@ const SettingsPage = () => {
   };
 
   return (
-    <Layout>
+    <>
       <Container maxW="container.md" py={8}>
         <Heading mb={6}>Settings</Heading>
         <VStack spacing={6} align="stretch">
@@ -128,7 +127,7 @@ const SettingsPage = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </Layout>
+    </>
   );
 };
 

@@ -1,5 +1,3 @@
-"use client";
-
 import { ArrowRight } from "lucide-react";
 import { FaGlobe, FaChartLine, FaComments } from "react-icons/fa";
 import FeatureModal from "../components/FeatureModal";
@@ -19,6 +17,7 @@ import {
   Icon,
 } from "@chakra-ui/react";
 import { useState } from "react";
+import Layout from "../components/Layout";
 
 const aquamarineColors = {
   4: "#00f8ba",
