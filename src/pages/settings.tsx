@@ -19,7 +19,6 @@ import {
   useDisclosure,
   Text,
 } from "@chakra-ui/react";
-import Layout from "../components/Layout";
 import { useRouter } from "next/router";
 import axios from "axios";
 
