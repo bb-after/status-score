@@ -37,8 +37,6 @@ const KeywordDropdown = ({
           setKeywords(validKeywords);
         } catch (error) {
           console.error("Failed to fetch keywords", error);
-        } finally {
-          // setIsLoading = false;
         }
       }
 
@@ -55,7 +53,7 @@ const KeywordDropdown = ({
         onSelectKeyword(defaultKeyword.id, defaultKeyword.name);
       }
     }
-  }, [defaultValue, keywords]);
+  }, [defaultValue, keywords, onSelectKeyword]); // Added onSelectKeyword to dependency array
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedKeywordId = parseInt(e.target.value, 10);
@@ -73,8 +71,7 @@ const KeywordDropdown = ({
       {isLoading ? (
         <Box textAlign="center" py={4}>
           <Spinner size="lg" />
-          {loadingText && <p>{loadingText}</p>}{" "}
-          {/* Display loading text if provided */}
+          {loadingText && <p>{loadingText}</p>}
         </Box>
       ) : (
         <Select
