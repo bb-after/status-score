@@ -35,6 +35,8 @@ const ReportsTable: React.FC<ReportsTableProps> = ({ filteredReports }) => {
             <Th>Date</Th>
             <Th>Data Source</Th>
             <Th>Sentiment</Th>
+            <Th>Score</Th>
+            <Th>Magnitude</Th>
             <Th>Response</Th>
           </Tr>
         </Thead>
@@ -48,6 +50,8 @@ const ReportsTable: React.FC<ReportsTableProps> = ({ filteredReports }) => {
                 <Td>{new Date(report.createdAt).toLocaleDateString()}</Td>
                 <Td>{result.dataSource?.name || "Unknown"}</Td>
                 <Td>{result.sentiment}</Td>
+                <Td>{result.score}</Td>
+                <Td>{result.magnitude}</Td>
                 <Td>{result.response}</Td>
               </Tr>
             ))

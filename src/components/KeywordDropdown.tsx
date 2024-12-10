@@ -55,7 +55,7 @@ const KeywordDropdown = ({
         onSelectKeyword(defaultKeyword.id, defaultKeyword.name);
       }
     }
-  }, [defaultValue, keywords, onSelectKeyword]);
+  }, [defaultValue, keywords]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedKeywordId = parseInt(e.target.value, 10);

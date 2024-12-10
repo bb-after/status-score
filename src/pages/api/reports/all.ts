@@ -9,6 +9,7 @@ import { searchTwitter } from '../../../utils/twitter';
 import { analyzeSentimentGoogle } from '../../../utils/googleLanguage';
 import { searchReddit } from '../../../utils/reddit';
 import { searchYouTube } from '../../../utils/youtube';
+import { searchPerplexity } from '../../../utils/perplexity';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
@@ -83,6 +84,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             case 'youtube': // New YouTube data source case
               result = await searchYouTube(keywordRecord.name);
               break;
+            case 'perplexity': // New YouTube data source case
+              result = await searchPerplexity(keywordRecord.name, source.id);
+              break;
 
             default:
               throw new Error(`Unknown data source: ${source.name}`);
@@ -95,6 +99,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
           // Perform sentiment analysis
           let sentimentAnalysis = await analyzeSentimentGoogle(result.summary);
+          console.log('result.summary for ' + source.name, sentimentAnalysis)
           let score = sentimentAnalysis.score;
 
           // Apply the weighting of the data source to the score
@@ -120,7 +125,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               dataSource: { connect: { id: source.id } },
               sentiment: sentimentAnalysis.sentiment,
               response: result.summary,
-              score: weightedScore,
+              score: weightedScore || 0,
+              magnitude: sentimentAnalysis.magnitude|| 0,
             }});
 
             // Sum the weighted sentiment scores

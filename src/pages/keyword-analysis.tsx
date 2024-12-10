@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import Layout from "../components/Layout";
@@ -23,7 +23,9 @@ const KeywordAnalysisPage = () => {
     null
   );
   const [analysisResults, setAnalysisResults] = useState<any[]>([]);
-  const [overallSentiment, setOverallSentiment] = useState<string | null>(null);
+  const [overallSentiment, setOverallSentiment] = useState<
+    string | number | null
+  >(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -60,12 +62,15 @@ const KeywordAnalysisPage = () => {
     }
   }, [router.query]);
 
-  const handleKeywordSelection = (keywordId: number) => {
-    setSelectedKeywordId(keywordId);
-    setAnalysisResults([]);
-    setOverallSentiment(null);
-    setError(null);
-  };
+  const handleKeywordSelection = useCallback(
+    (keywordId: number, name: string) => {
+      setSelectedKeywordId(keywordId);
+      setAnalysisResults([]);
+      setOverallSentiment(null);
+      setError(null);
+    },
+    []
+  ); // Empty dependency array since it doesn't depend on any values
 
   const runAnalysis = async () => {
     if (!selectedKeywordId) {
@@ -80,9 +85,9 @@ const KeywordAnalysisPage = () => {
         keywordId: selectedKeywordId,
         dataSourceIds: sourceSelectionMode === "all" ? [] : selectedSources,
       });
-
+      debugger;
       const { overallSentiment, analysisResults } = response.data;
-      setOverallSentiment(overallSentiment);
+      setOverallSentiment(String(overallSentiment)); // Convert number to string
       setAnalysisResults(analysisResults);
     } catch (err) {
       setError("Failed to run analysis. Please try again.");
@@ -158,7 +163,7 @@ const KeywordAnalysisPage = () => {
       )}
 
       {/* Analysis Results */}
-      {overallSentiment && (
+      {overallSentiment !== null && overallSentiment !== undefined && (
         <Box mt={8}>
           <Heading as="h3" size="lg" mb={4}>
             Overall Sentiment: {overallSentiment}
