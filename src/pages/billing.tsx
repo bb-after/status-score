@@ -12,12 +12,11 @@ const BillingPage = () => {
   const handleSubscribe = async (priceId: string) => {
     try {
       setIsLoading(true);
+
       const response = await axios.post("/api/stripe/create-checkout-session", {
         priceId,
-        userId: "current-user-id", // Replace with actual user ID
       });
 
-      // Redirect to Stripe Checkout
       window.location.href = response.data.url;
     } catch (error) {
       console.error("Error:", error);

@@ -15,7 +15,6 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react";
 import { useDropzone } from "react-dropzone";
-import Layout from "../components/Layout";
 import { useRouter } from "next/router";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";

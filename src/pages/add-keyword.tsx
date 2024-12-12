@@ -1,7 +1,6 @@
 // pages/add-keyword.tsx
 import { Box, Heading, Text } from "@chakra-ui/react";
 import AddKeywordForm from "../components/AddKeywordForm";
-import Layout from "../components/Layout";
 
 const AddKeywordPage = () => {
   return (

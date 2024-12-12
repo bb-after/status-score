@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import Layout from "../components/Layout";
 import {
   Box,
   Heading,

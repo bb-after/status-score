@@ -22,7 +22,6 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import Layout from "../components/Layout";
 import NextLink from "next/link";
 import { useAuth } from "../contexts/AuthContext";
 import { useRouter } from "next/router";
@@ -183,7 +182,12 @@ const Dashboard = () => {
   };
 
   const updateChartData = (filteredReports) => {
-    const labels = filteredReports.map((report) =>
+    const sortedReports = [...filteredReports].sort(
+      (a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    );
+
+    const labels = sortedReports.map((report) =>
       new Date(report.createdAt).toLocaleDateString()
     );
 

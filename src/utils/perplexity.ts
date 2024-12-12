@@ -35,7 +35,6 @@ export async function searchPerplexity(keyword: string, dataSourceId: number) {
     const result = response.data?.choices?.[0]?.message?.content || 'No response available';
 
     return {
-      sentiment: 'positive', // Placeholder sentiment until parsing logic is added
       summary: result,
     };
   } catch (error) {

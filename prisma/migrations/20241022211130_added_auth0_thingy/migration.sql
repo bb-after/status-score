@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE `User` ADD COLUMN `remoteAuth0ID` VARCHAR(191) NULL;
