@@ -1,6 +1,4 @@
-"use client";
-
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState, useCallback } from "react";
 import {
   Box,
   Flex,
@@ -20,15 +18,12 @@ import {
   Image,
   Link,
   Spinner,
-  AvatarBadge,
-  AvatarProps,
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import NextLink from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
-import { createAvatar } from "@dicebear/core";
-import { initials } from "@dicebear/collection";
+import { AuthProvider, useAuth } from "../contexts/AuthContext";
 
 const Links = [
   { name: "Dashboard", href: "/dashboard" },
@@ -54,75 +49,17 @@ const NavLink = ({ children, href }: { children: ReactNode; href: string }) => (
   </NextLink>
 );
 
-const generateDiceBearAvatar = (name: string) => {
-  const avatar = createAvatar(initials, {
-    seed: name,
-    backgroundColor: ["#00f8ba"],
-    fontFamily: ["Arial"],
-  });
-  return avatar.toDataUri();
-};
-
-const UserAvatar: React.FC<
-  AvatarProps & { name: string; email: string; avatar?: string }
-> = ({ name, email, avatar, ...props }) => {
-  const initials = name
-    ? name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-    : email.substring(0, 2).toUpperCase();
-
-  return (
-    <Avatar
-      name={name || email}
-      src={avatar || generateDiceBearAvatar(name || email)}
-      {...props}
-    >
-      {props.children}
-    </Avatar>
-  );
-};
-
 export default function Layout({ children }: { children: ReactNode }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
   const pathname = usePathname();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState<{
-    name?: string;
-    email?: string;
-    picture?: string;
-    admin?: boolean;
-  } | null>(null);
+  const { isAuthenticated, user, isLoading } = useAuth();
+  console.log("Auth state in Layout:", { isAuthenticated, user, isLoading });
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const response = await axios.get("/api/auth/me", {
-          withCredentials: true,
-        });
-        if (response.data) {
-          console.log("user!", response.data);
-          setIsAuthenticated(true);
-          setUser(response.data);
-        } else {
-          setIsAuthenticated(false);
-          setUser(null);
-        }
-      } catch (error) {
-        console.error("Authentication check failed:", error);
-        setIsAuthenticated(false);
-        setUser(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkAuth();
-  }, [pathname, router]);
+  const handleSignOut = async () => {
+    await axios.post("/api/auth/logout", {}, { withCredentials: true });
+    router.push("/");
+  };
 
   if (isLoading) {
     return (
@@ -185,12 +122,15 @@ export default function Layout({ children }: { children: ReactNode }) {
                   cursor={"pointer"}
                   minW={0}
                 >
-                  <UserAvatar
+                  <Avatar
                     size="sm"
-                    name={user?.name || ""}
-                    email={user?.email || ""}
-                    avatar={user?.picture}
-                  ></UserAvatar>
+                    name={user?.name || user?.email || ""}
+                    src={user?.picture}
+                    onError={() =>
+                      console.log("Avatar image failed to load:", user?.picture)
+                    }
+                    referrerPolicy="no-referrer"
+                  />
                 </MenuButton>
                 <MenuList>
                   <MenuItem as={NextLink} href="/profile">
@@ -214,7 +154,11 @@ export default function Layout({ children }: { children: ReactNode }) {
                       <MenuDivider />
                     </>
                   )}
-                  <MenuItem as={NextLink} href="/api/auth/logout">
+                  <MenuItem
+                    as={NextLink}
+                    href="/api/auth/logout"
+                    onClick={handleSignOut}
+                  >
                     Logout
                   </MenuItem>
                 </MenuList>

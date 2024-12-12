@@ -29,22 +29,22 @@ const AddOrEditDataSource = ({
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    const fetchDataSource = async () => {
+      setIsLoading(true);
+      try {
+        const response = await axios.get(`/api/datasources/${dataSourceId}`);
+        setDataSource(response.data);
+      } catch (error) {
+        console.error("Failed to fetch data source", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     if (dataSourceId) {
       fetchDataSource();
     }
   }, [dataSourceId]);
-
-  const fetchDataSource = async () => {
-    setIsLoading(true);
-    try {
-      const response = await axios.get(`/api/datasources/${dataSourceId}`);
-      setDataSource(response.data);
-    } catch (error) {
-      console.error("Failed to fetch data source", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();

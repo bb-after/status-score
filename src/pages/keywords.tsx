@@ -86,79 +86,77 @@ const KeywordsPage = () => {
   };
 
   return (
-    <Layout>
-      <Box maxW="6xl" mx="auto" py="12" px="6">
-        <VStack spacing={8} align="stretch">
-          <HStack justifyContent="space-between">
-            <Heading as="h2" size="xl">
-              Keywords
-            </Heading>
-            <Button
-              as={NextLink}
-              href="/add-keyword"
-              leftIcon={<AddIcon />}
-              bg={aquamarineColors[4]}
-              color="gray.900"
-              _hover={{ bg: aquamarineColors[300] }}
-            >
-              Add New Keyword
-            </Button>
-          </HStack>
+    <Box maxW="6xl" mx="auto" py="12" px="6">
+      <VStack spacing={8} align="stretch">
+        <HStack justifyContent="space-between">
+          <Heading as="h2" size="xl">
+            Keywords
+          </Heading>
+          <Button
+            as={NextLink}
+            href="/add-keyword"
+            leftIcon={<AddIcon />}
+            bg={aquamarineColors[4]}
+            color="gray.900"
+            _hover={{ bg: aquamarineColors[300] }}
+          >
+            Add New Keyword
+          </Button>
+        </HStack>
 
-          {loading && <Text>Loading keywords...</Text>}
-          {error && <Text color="red.500">{error}</Text>}
+        {loading && <Text>Loading keywords...</Text>}
+        {error && <Text color="red.500">{error}</Text>}
 
-          {!loading && !error && (
-            <Table variant="simple">
-              <Thead>
-                <Tr>
-                  <Th>Keyword</Th>
-                  <Th>Created At</Th>
-                  <Th>Total Reports</Th>
-                  <Th>Actions</Th>
+        {!loading && !error && (
+          <Table variant="simple">
+            <Thead>
+              <Tr>
+                <Th>Keyword</Th>
+                <Th>Created At</Th>
+                <Th>Total Reports</Th>
+                <Th>Actions</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {keywords.map((keyword) => (
+                <Tr key={keyword.id}>
+                  <Td>{keyword.name}</Td>
+                  <Td>{new Date(keyword.createdAt).toLocaleDateString()}</Td>
+                  <Td>{keyword.reportCount}</Td>
+                  <Td>
+                    <HStack spacing={2}>
+                      <Button
+                        as={NextLink}
+                        href={`/keyword-analysis?keywordId=${keyword.id}`}
+                        size="sm"
+                        leftIcon={<SearchIcon />}
+                        colorScheme="blue"
+                      >
+                        Analyze
+                      </Button>
+                      <Button
+                        size="sm"
+                        leftIcon={<DeleteIcon />}
+                        colorScheme="red"
+                        onClick={() => handleDelete(keyword.id)}
+                      >
+                        Delete
+                      </Button>
+                    </HStack>
+                  </Td>
                 </Tr>
-              </Thead>
-              <Tbody>
-                {keywords.map((keyword) => (
-                  <Tr key={keyword.id}>
-                    <Td>{keyword.name}</Td>
-                    <Td>{new Date(keyword.createdAt).toLocaleDateString()}</Td>
-                    <Td>{keyword.reportCount}</Td>
-                    <Td>
-                      <HStack spacing={2}>
-                        <Button
-                          as={NextLink}
-                          href={`/keyword-analysis?keywordId=${keyword.id}`}
-                          size="sm"
-                          leftIcon={<SearchIcon />}
-                          colorScheme="blue"
-                        >
-                          Analyze
-                        </Button>
-                        <Button
-                          size="sm"
-                          leftIcon={<DeleteIcon />}
-                          colorScheme="red"
-                          onClick={() => handleDelete(keyword.id)}
-                        >
-                          Delete
-                        </Button>
-                      </HStack>
-                    </Td>
-                  </Tr>
-                ))}
-              </Tbody>
-            </Table>
-          )}
+              ))}
+            </Tbody>
+          </Table>
+        )}
 
-          {!loading && !error && keywords.length === 0 && (
-            <Text textAlign="center">
-              No keywords found. Add your first keyword to get started!
-            </Text>
-          )}
-        </VStack>
-      </Box>
-    </Layout>
+        {!loading && !error && keywords.length === 0 && (
+          <Text textAlign="center">
+            No keywords found. Add your first keyword to get started!
+          </Text>
+        )}
+      </VStack>
+    </Box>
   );
 };
 

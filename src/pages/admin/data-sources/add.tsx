@@ -2,11 +2,7 @@ import Layout from "../../../components/Layout";
 import AddOrEditDataSource from "../../../components/AddOrEditDataSource";
 
 const AdminAddDataSourcePage = () => {
-  return (
-    <Layout>
-      <AddOrEditDataSource />
-    </Layout>
-  );
+  return <AddOrEditDataSource />;
 };
 
 export default AdminAddDataSourcePage;

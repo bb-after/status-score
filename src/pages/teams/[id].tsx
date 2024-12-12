@@ -12,7 +12,6 @@ import {
   Select,
   Stack,
 } from "@chakra-ui/react";
-import Layout from "../../components/Layout";
 
 interface TeamPageProps {
   team: {
@@ -152,77 +151,75 @@ const TeamPage = ({ team }: TeamPageProps) => {
   };
 
   return (
-    <Layout>
-      <Box maxW="6xl" mx="auto" py="12" px="6">
-        <Heading as="h2" size="xl" mb={6}>
-          Team: {team.name}
+    <Box maxW="6xl" mx="auto" py="12" px="6">
+      <Heading as="h2" size="xl" mb={6}>
+        Team: {team.name}
+      </Heading>
+
+      <Box mt={8}>
+        <Heading as="h3" size="md" mb={4}>
+          Team Members
         </Heading>
-
-        <Box mt={8}>
-          <Heading as="h3" size="md" mb={4}>
-            Team Members
-          </Heading>
-          {members.length === 0 ? (
-            <Text>No members yet.</Text>
-          ) : (
-            <Stack spacing={4}>
-              {members.map((member) => (
-                <Box key={member.id} p={4} borderWidth="1px" borderRadius="lg">
-                  <Text>
-                    <strong>Name:</strong> {member.user.name || "Unnamed User"}
-                  </Text>
-                  <Text>
-                    <strong>Email:</strong> {member.user.email}
-                  </Text>
-                  <Text>
-                    <strong>Role:</strong>
-                    <Select
-                      value={member.role}
-                      onChange={(e) =>
-                        updateTeamMemberRole(member.id, e.target.value)
-                      }
-                      size="sm"
-                      mt={2}
-                    >
-                      <option value="STANDARD">Standard Member</option>
-                      <option value="ADMIN">Admin Member</option>
-                    </Select>
-                  </Text>
-                  <Button
-                    mt={4}
-                    colorScheme="red"
+        {members.length === 0 ? (
+          <Text>No members yet.</Text>
+        ) : (
+          <Stack spacing={4}>
+            {members.map((member) => (
+              <Box key={member.id} p={4} borderWidth="1px" borderRadius="lg">
+                <Text>
+                  <strong>Name:</strong> {member.user.name || "Unnamed User"}
+                </Text>
+                <Text>
+                  <strong>Email:</strong> {member.user.email}
+                </Text>
+                <Text>
+                  <strong>Role:</strong>
+                  <Select
+                    value={member.role}
+                    onChange={(e) =>
+                      updateTeamMemberRole(member.id, e.target.value)
+                    }
                     size="sm"
-                    onClick={() => deleteTeamMember(member.id)}
+                    mt={2}
                   >
-                    Remove Member
-                  </Button>
-                </Box>
-              ))}
-            </Stack>
-          )}
-        </Box>
-
-        <Box mt={10}>
-          <Heading as="h3" size="md" mb={4}>
-            Add a New Team Member
-          </Heading>
-          <Stack spacing={4} mb={4}>
-            <Input
-              placeholder="Email of the new member"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <Select value={role} onChange={(e) => setRole(e.target.value)}>
-              <option value="STANDARD">Standard Member</option>
-              <option value="ADMIN">Admin Member</option>
-            </Select>
-            <Button onClick={addTeamMember} colorScheme="teal">
-              Send Invitation
-            </Button>
+                    <option value="STANDARD">Standard Member</option>
+                    <option value="ADMIN">Admin Member</option>
+                  </Select>
+                </Text>
+                <Button
+                  mt={4}
+                  colorScheme="red"
+                  size="sm"
+                  onClick={() => deleteTeamMember(member.id)}
+                >
+                  Remove Member
+                </Button>
+              </Box>
+            ))}
           </Stack>
-        </Box>
+        )}
       </Box>
-    </Layout>
+
+      <Box mt={10}>
+        <Heading as="h3" size="md" mb={4}>
+          Add a New Team Member
+        </Heading>
+        <Stack spacing={4} mb={4}>
+          <Input
+            placeholder="Email of the new member"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <Select value={role} onChange={(e) => setRole(e.target.value)}>
+            <option value="STANDARD">Standard Member</option>
+            <option value="ADMIN">Admin Member</option>
+          </Select>
+          <Button onClick={addTeamMember} colorScheme="teal">
+            Send Invitation
+          </Button>
+        </Stack>
+      </Box>
+    </Box>
   );
 };
 

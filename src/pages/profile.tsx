@@ -18,11 +18,14 @@ import { useDropzone } from "react-dropzone";
 import Layout from "../components/Layout";
 import { useRouter } from "next/router";
 import axios from "axios";
+import { useAuth } from "../contexts/AuthContext";
 
 const ProfilePage = () => {
+  const { isAuthenticated, user } = useAuth();
   const [name, setName] = useState("");
   const [avatar, setAvatar] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState("");
+
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
   const router = useRouter();
@@ -30,27 +33,40 @@ const ProfilePage = () => {
   const bgColor = useColorModeValue("gray.50", "gray.700");
   const borderColor = useColorModeValue("gray.200", "gray.600");
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await axios.get("/api/user/profile");
-        const userData = response.data;
-        setName(userData.name || "");
-        setAvatarPreview(userData.avatar || "");
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        toast({
-          title: "Error",
-          description: "Unable to fetch user data. Please try again.",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
-      }
-    };
+  //   useEffect(() => {
+  //     console.log("is i am authed", user);
+  //     if (isAuthenticated) {
+  //     }
+  //     console.log(isAuthenticated);
+  //     const fetchUserData = async () => {
+  //       try {
+  //         const response = await axios.get("/api/user/profile");
+  //         const userData = response.data;
+  //         setName(userData.name || "");
+  //         setAvatarPreview(userData.avatar || "");
+  //       } catch (error) {
+  //         console.error("Error fetching user data:", error);
+  //         toast({
+  //           title: "Error",
+  //           description: "Unable to fetch user data. Please try again.",
+  //           status: "error",
+  //           duration: 5000,
+  //           isClosable: true,
+  //         });
+  //       }
+  //     };
 
-    fetchUserData();
-  }, [toast]);
+  //     fetchUserData();
+  //   }, [isAuthenticated]);
+
+  useEffect(() => {
+    debugger;
+    if (user) {
+      // Check for user instead of isAuthenticated
+      setName(user.name || "");
+      setAvatarPreview(user.picture || "");
+    }
+  }, [user]); // Only depend on user
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -102,61 +118,65 @@ const ProfilePage = () => {
   };
 
   return (
-    <Layout>
-      <Container maxW="container.md" py={8}>
-        <VStack spacing={8} align="stretch">
-          <Heading>Edit Profile</Heading>
-          <form onSubmit={handleSubmit}>
-            <VStack spacing={6} align="stretch">
-              <FormControl>
-                <FormLabel>Name</FormLabel>
-                <Input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Enter your name"
+    <Container maxW="container.md" py={8}>
+      <VStack spacing={8} align="stretch">
+        <Heading>Edit Profile</Heading>
+        <form onSubmit={handleSubmit}>
+          <VStack spacing={6} align="stretch">
+            <FormControl>
+              <FormLabel>Name</FormLabel>
+              <Input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Enter your name"
+              />
+            </FormControl>
+            <FormControl>
+              <FormLabel>Avatar</FormLabel>
+              <Flex direction="column" align="center">
+                <Avatar
+                  size="2xl"
+                  name={name}
+                  src={avatarPreview}
+                  referrerPolicy="no-referrer"
+                  mb={4}
                 />
-              </FormControl>
-              <FormControl>
-                <FormLabel>Avatar</FormLabel>
-                <Flex direction="column" align="center">
-                  <Avatar size="2xl" name={name} src={avatarPreview} mb={4} />
-                  <Box
-                    {...getRootProps()}
-                    p={6}
-                    borderWidth={2}
-                    borderStyle="dashed"
-                    borderColor={borderColor}
-                    borderRadius="md"
-                    bg={bgColor}
-                    cursor="pointer"
-                    transition="all 0.2s"
-                    _hover={{ bg: useColorModeValue("gray.100", "gray.600") }}
-                  >
-                    <input {...getInputProps()} />
-                    {isDragActive ? (
-                      <Text textAlign="center">Drop the image here</Text>
-                    ) : (
-                      <Text textAlign="center">
-                        Drag and drop an image here, or click to select a file
-                      </Text>
-                    )}
-                  </Box>
-                </Flex>
-              </FormControl>
-              <Button
-                type="submit"
-                colorScheme="teal"
-                isLoading={isLoading}
-                loadingText="Updating"
-              >
-                Update Profile
-              </Button>
-            </VStack>
-          </form>
-        </VStack>
-      </Container>
-    </Layout>
+                <Box
+                  {...getRootProps()}
+                  p={6}
+                  borderWidth={2}
+                  borderStyle="dashed"
+                  borderColor={borderColor}
+                  borderRadius="md"
+                  bg={bgColor}
+                  cursor="pointer"
+                  transition="all 0.2s"
+                  _hover={{ bg: useColorModeValue("gray.100", "gray.600") }}
+                >
+                  <input {...getInputProps()} />
+                  {isDragActive ? (
+                    <Text textAlign="center">Drop the image here</Text>
+                  ) : (
+                    <Text textAlign="center">
+                      Drag and drop an image here, or click to select a file
+                    </Text>
+                  )}
+                </Box>
+              </Flex>
+            </FormControl>
+            <Button
+              type="submit"
+              colorScheme="teal"
+              isLoading={isLoading}
+              loadingText="Updating"
+            >
+              Update Profile
+            </Button>
+          </VStack>
+        </form>
+      </VStack>
+    </Container>
   );
 };
 
