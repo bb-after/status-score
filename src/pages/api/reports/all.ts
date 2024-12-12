@@ -119,7 +119,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               dataSource: { connect: { id: source.id } },
               sentiment: sentimentAnalysis.sentiment,
               response: result.summary,
-              score,
+              score: score,
+              magnitude: sentimentAnalysis.magnitude || 0,
             }});
 
             // Sum the weighted sentiment scores
