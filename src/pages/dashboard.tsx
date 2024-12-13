@@ -21,13 +21,14 @@ import {
   Title,
   Tooltip,
   Legend,
+  ChartData,
+  ChartOptions,
 } from "chart.js";
-import Layout from "../components/Layout";
 import NextLink from "next/link";
 import { useAuth } from "../contexts/AuthContext";
 import { useRouter } from "next/router";
 
-// Registering the necessary components and scales for Chart.js
+// Register ChartJS components
 ChartJS.register(
   LineElement,
   PointElement,
@@ -38,24 +39,50 @@ ChartJS.register(
   Legend
 );
 
+// Define interfaces for your data structures
+interface DataSource {
+  name: string;
+}
+
+interface DataSourceResult {
+  dataSource: DataSource;
+  score: number;
+  sentiment: string;
+}
+
+interface Report {
+  id: number;
+  createdAt: string;
+  sentiment: string;
+  dataSourceResults: DataSourceResult[];
+}
+
+interface DateRange {
+  startDate: Date;
+  endDate: Date;
+}
+
+// Define the chart data type
+type DashboardChartData = ChartData<"line", (number | null)[], string>;
+
 const Dashboard = () => {
   const { isAuthenticated, isLoading, user } = useAuth();
   const router = useRouter();
   const [selectedKeywordId, setSelectedKeywordId] = useState<number | null>(
     null
   );
-  const [chartData, setChartData] = useState({ labels: [], datasets: [] });
+  const [chartData, setChartData] = useState<DashboardChartData>({
+    labels: [],
+    datasets: [],
+  });
   const [selectedKeywordName, setSelectedKeywordName] = useState("");
-  const [reports, setReports] = useState<any[]>([]);
-  const [filteredReports, setFilteredReports] = useState<any[]>([]);
+  const [reports, setReports] = useState<Report[]>([]);
+  const [filteredReports, setFilteredReports] = useState<Report[]>([]);
   const [setIsLoading] = useState(isLoading);
   const [error, setError] = useState<string | null>(null);
   const [selectedDataSource, setSelectedDataSource] = useState<string>("ALL");
   const [selectedSentiment, setSelectedSentiment] = useState<string>("ALL");
-  const [dateRange, setDateRange] = useState<{
-    startDate: Date;
-    endDate: Date;
-  }>({
+  const [dateRange, setDateRange] = useState<DateRange>({
     startDate: new Date(),
     endDate: new Date(),
   });
@@ -115,36 +142,23 @@ const Dashboard = () => {
   };
 
   const fetchReports = async (keywordId: number) => {
-    // isLoading(true);
     setError(null);
     try {
-      const response = await axios.get(`/api/reports/${keywordId}`);
-      console.log("hi....", response.data);
+      const response = await axios.get<Report[]>(`/api/reports/${keywordId}`);
       setReports(response.data);
-      setFilteredReports(response.data); // Set the initial filtered reports to all reports
+      setFilteredReports(response.data);
     } catch (error) {
       console.error("Error fetching reports:", error);
       setError("Failed to fetch reports. Please try again.");
-    } finally {
-      // setIsLoading(false);
     }
   };
 
   const applyFilters = () => {
-    console.log("Starting applyFilters. Initial reports:", reports);
-
     const filtered = reports.map((report) => {
-      console.log(`Processing report ${report.id}:`, report);
-
-      // If dataSourceResults is null or undefined, keep the entire report
       if (!report.dataSourceResults) {
-        console.log(
-          `Report ${report.id} has no dataSourceResults. Keeping entire report.`
-        );
         return report;
       }
 
-      // Filter `dataSourceResults` within each `report` to match selected criteria
       const filteredResults = report.dataSourceResults.filter((result) => {
         const matchesDataSource =
           selectedDataSource === "ALL" ||
@@ -155,20 +169,8 @@ const Dashboard = () => {
         const matchesDateRange =
           reportDate >= dateRange.startDate && reportDate <= dateRange.endDate;
 
-        console.log(`Result for report ${report.id}:`, {
-          matchesDataSource,
-          matchesSentiment,
-          matchesDateRange,
-          dataSource: result.dataSource?.name,
-          sentiment: result.sentiment,
-          reportDate,
-          dateRange,
-        });
-
         return matchesDataSource && matchesSentiment && matchesDateRange;
       });
-
-      console.log(`Filtered results for report ${report.id}:`, filteredResults);
 
       return {
         ...report,
@@ -176,14 +178,17 @@ const Dashboard = () => {
       };
     });
 
-    console.log("Final filtered reports:", filtered);
-
     setFilteredReports(filtered);
     updateChartData(filtered);
   };
 
-  const updateChartData = (filteredReports) => {
-    const labels = filteredReports.map((report) =>
+  const updateChartData = (filteredReports: Report[]) => {
+    const sortedReports = [...filteredReports].sort(
+      (a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    );
+
+    const labels = sortedReports.map((report) =>
       new Date(report.createdAt).toLocaleDateString()
     );
 
@@ -208,11 +213,7 @@ const Dashboard = () => {
                 const score = report.dataSourceResults.find(
                   (r) => r.dataSource?.name === result.dataSource.name
                 )?.score;
-                console.log(
-                  `YOOOO Score for ${result.dataSource.name}:`,
-                  score
-                );
-                return score || null;
+                return score ?? null;
               }),
               fill: false,
               borderColor: `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 1)`,
@@ -222,7 +223,7 @@ const Dashboard = () => {
     setChartData({ labels, datasets });
   };
 
-  const chartOptions = {
+  const chartOptions: ChartOptions<"line"> = {
     responsive: true,
     plugins: {
       tooltip: {
@@ -246,7 +247,6 @@ const Dashboard = () => {
         },
         ticks: {
           callback: function (value) {
-            console.log("value", value);
             if (value === -1) return "Very Negative";
             if (value === 1) return "Very Positive";
             return "";

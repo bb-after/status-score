@@ -13,7 +13,6 @@ import {
   Text,
 } from "@chakra-ui/react";
 import axios from "axios";
-import Layout from "../components/Layout";
 import NextLink from "next/link";
 
 const SchedulePage = () => {

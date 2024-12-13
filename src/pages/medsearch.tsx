@@ -3,7 +3,6 @@ import { DentistCard } from "../components/DentistCard";
 import { searchDentists } from "./api/places";
 import { SearchForm } from "../components/SearchForm";
 import { useQuery } from "@tanstack/react-query";
-import Layout from "../components/Layout";
 import { Box, Heading, Button, Flex } from "@chakra-ui/react";
 import { saveAs } from "file-saver"; // For downloading the CSV
 import { DentistResult } from "../types/types";

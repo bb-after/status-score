@@ -30,9 +30,9 @@ const features = [
   {
     title: "Multi-Platform Monitoring",
     description:
-      "Track keywords across Google, Claude, ChatGPT, YouTube, Reddit, X and more",
+      "Track keywords across Google, Claude, ChatGPT, YouTube, Perplexity, Reddit, X and more",
     modalContent:
-      "Our Multi-Platform Monitoring feature allows you to keep track of your keywords across a wide range of platforms. From search engines like Google to social media giants like YouTube and X, and even AI platforms like Claude and ChatGPT, we've got you covered. This comprehensive approach ensures that you never miss a mention, allowing you to stay on top of your online presence across the entire digital landscape.",
+      "Our Multi-Platform Monitoring feature allows you to keep track of your keywords across a wide range of platforms. From search engines like Google to social media giants like YouTube and X, and even AI platforms like Claude, Perplexity and ChatGPT, we've got you covered. This comprehensive approach ensures that you never miss a mention, allowing you to stay on top of your online presence across the entire digital landscape.",
     icon: FaGlobe,
   },
   {

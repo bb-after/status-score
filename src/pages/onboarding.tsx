@@ -15,7 +15,6 @@ import { FaPlus, FaUsers, FaClock, FaChartBar } from "react-icons/fa";
 import { useRouter } from "next/router";
 import NextLink from "next/link";
 import axios from "axios";
-import Layout from "../components/Layout";
 
 const steps = [
   {

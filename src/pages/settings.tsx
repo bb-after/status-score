@@ -19,6 +19,8 @@ import {
   useDisclosure,
   Text,
 } from "@chakra-ui/react";
+import NextLink from "next/link";
+
 import { useRouter } from "next/router";
 import axios from "axios";
 
@@ -103,7 +105,7 @@ const SettingsPage = () => {
           >
             Save Settings
           </Button>
-          <Button onClick={onOpen} colorScheme="blue">
+          <Button as={NextLink} href="/billing" size="lg" colorScheme="blue">
             Update Billing
           </Button>
           <Button onClick={handleDeleteAccount} colorScheme="red">
