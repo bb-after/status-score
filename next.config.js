@@ -1,5 +1,13 @@
 module.exports = {
   reactStrictMode: true,
+  // Exclude readdy folder from compilation
+  webpack: (config) => {
+    config.watchOptions = {
+      ...config.watchOptions,
+      ignored: ['**/readdy/**', '**/node_modules/**']
+    };
+    return config;
+  },
   env: {
     AUTH0_BASE_URL: process.env.AUTH0_BASE_URL,
     AUTH0_ISSUER_BASE_URL: process.env.AUTH0_ISSUER_BASE_URL,

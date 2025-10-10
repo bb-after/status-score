@@ -1,7 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import { FaGlobe, FaChartLine, FaComments } from "react-icons/fa";
 import FeatureModal from "../components/FeatureModal";
-import MathBackground from "../components/MathBackground";
+import { MathBackground } from "../components/MathBackground";
 import {
   Button,
   Box,
