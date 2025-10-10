@@ -20,6 +20,7 @@ model User {
   createdAt DateTime  @default(now())
   teams TeamUser[]
   stripeCustomer StripeCustomer?
+  reputationSearches ReputationSearch[]
 }
 
 model Team {
@@ -177,5 +178,35 @@ model Subscription {
   cancelAtPeriodEnd Boolean @default(false)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+}
+
+// Reputation Analysis Models
+model ReputationSearch {
+  id                Int      @id @default(autoincrement())
+  user              User     @relation(fields: [userId], references: [id])
+  userId            Int
+  keyword           String   
+  entityType        EntityType
+  score             Int      // 0-100 reputation score
+  positiveArticles  Int      @default(0)
+  wikipediaPresence Int      @default(0)
+  ownedAssets       Int      @default(0)  
+  negativeLinks     Int      @default(0)
+  socialPresence    Int      @default(0)
+  aiOverviews       Int      @default(0)
+  geoPresence       Int      @default(0)
+  searchResults     Json     // Store search results as JSON
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([userId])
+  @@index([keyword])
+  @@index([entityType])
+}
+
+enum EntityType {
+  INDIVIDUAL
+  COMPANY
+  PUBLIC_FIGURE
 }
 
