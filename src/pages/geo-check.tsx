@@ -157,10 +157,24 @@ interface GEOFormData {
 }
 
 interface GEOResult {
-  results: boolean;
-  success: boolean;
+  results: Array<{
+    source: string;
+    content: string;
+    sentiment?: string;
+    [key: string]: any;
+  }>;
+  keyword: string;
+  analysisId?: string;
+  aggregatedInsights?: {
+    overallSentiment?: string;
+    [key: string]: any;
+  };
+  metadata?: {
+    analysisType?: string;
+    [key: string]: any;
+  };
+  success?: boolean;
   message?: string;
-  data?: any;
   error?: string;
 }
 
