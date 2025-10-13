@@ -68,26 +68,10 @@ const OnboardingPage = () => {
   };
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const response = await axios.get("/api/auth/me", {
-          withCredentials: true,
-        });
-        if (response.data) {
-          setIsAuthenticated(true);
-        } else {
-          router.push("/api/auth/login");
-        }
-      } catch (error) {
-        console.error("Authentication check failed:", error);
-        router.push("/api/auth/login");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkAuth();
-  }, [router]);
+    if (!authLoading && !isAuthenticated) {
+      router.push("/api/auth/login");
+    }
+  }, [authLoading, isAuthenticated, router]);
 
   const handleNextStep = () => {
     if (currentStep < steps.length - 1) {
