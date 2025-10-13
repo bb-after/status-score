@@ -125,7 +125,7 @@ const Dashboard = () => {
       setDateRange({ startDate: earliestDate, endDate: latestDate });
       applyFilters();
     }
-  }, [reports]);
+  }, [applyFilters, reports]);
 
   useEffect(() => {
     applyFilters();

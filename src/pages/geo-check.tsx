@@ -27,7 +27,6 @@ import {
   Textarea,
 } from "@chakra-ui/react";
 import { useUser } from "@auth0/nextjs-auth0/client";
-import Layout from "../components/Layout";
 
 const BRAND_INTENT_CATEGORIES = [
   {
@@ -158,6 +157,7 @@ interface GEOFormData {
 }
 
 interface GEOResult {
+  results: boolean;
   success: boolean;
   message?: string;
   data?: any;
@@ -233,9 +233,21 @@ function GEOCheck() {
   const [loadingVerb, setLoadingVerb] = useState("");
 
   const loadingVerbs = [
-    "Analyzing", "Processing", "Scanning", "Investigating", "Examining", 
-    "Evaluating", "Exploring", "Discovering", "Researching", "Calculating",
-    "Synthesizing", "Cross-referencing", "Correlating", "Interpreting", "Decoding"
+    "Analyzing",
+    "Processing",
+    "Scanning",
+    "Investigating",
+    "Examining",
+    "Evaluating",
+    "Exploring",
+    "Discovering",
+    "Researching",
+    "Calculating",
+    "Synthesizing",
+    "Cross-referencing",
+    "Correlating",
+    "Interpreting",
+    "Decoding",
   ];
 
   const loadingMessages = [
@@ -248,30 +260,33 @@ function GEOCheck() {
     "Performing deep context analysis...",
     "Validating information accuracy...",
     "Generating aggregated insights...",
-    "Finalizing comprehensive report..."
+    "Finalizing comprehensive report...",
   ];
 
   const simulateProgress = () => {
     setProgress(0);
     setLoadingMessage(loadingMessages[0]);
     setLoadingVerb(loadingVerbs[0]);
-    
+
     // More realistic progress for 30+ second operation
     // Stop at 95% to avoid getting stuck at 100% before API completes
     const steps = [8, 16, 28, 45, 62, 75, 85, 92, 95];
     const delays = [1000, 2000, 3000, 4000, 5000, 6000, 4000, 3000, 2000];
 
     steps.forEach((step, index) => {
-      setTimeout(() => {
-        setProgress(step);
-        if (index < loadingMessages.length) {
-          setLoadingMessage(loadingMessages[index]);
-        }
-        
-        // Rotate through verbs more frequently for animation
-        const verbIndex = Math.floor(Math.random() * loadingVerbs.length);
-        setLoadingVerb(loadingVerbs[verbIndex]);
-      }, delays.slice(0, index + 1).reduce((sum, delay) => sum + delay, 0));
+      setTimeout(
+        () => {
+          setProgress(step);
+          if (index < loadingMessages.length) {
+            setLoadingMessage(loadingMessages[index]);
+          }
+
+          // Rotate through verbs more frequently for animation
+          const verbIndex = Math.floor(Math.random() * loadingVerbs.length);
+          setLoadingVerb(loadingVerbs[verbIndex]);
+        },
+        delays.slice(0, index + 1).reduce((sum, delay) => sum + delay, 0)
+      );
     });
 
     // Additional verb rotation during long waits
@@ -311,12 +326,12 @@ function GEOCheck() {
       if (!response.ok) throw new Error("GEO check failed");
 
       const result: GEOResult = await response.json();
-      
+
       // Complete the progress and show results
       setProgress(100);
       setLoadingMessage("Analysis complete!");
       setLoadingVerb("Completed");
-      
+
       // Small delay to show completion, then clear loading and show results
       setTimeout(() => {
         clearInterval(verbInterval);
@@ -376,8 +391,8 @@ function GEOCheck() {
             Sign in to access GEO Analysis
           </Text>
           <Text color="gray.600">
-            Run comprehensive GEO analysis to understand how AI-powered search engines 
-            perceive and present information about your brand or name.
+            Run comprehensive GEO analysis to understand how AI-powered search
+            engines perceive and present information about your brand or name.
           </Text>
           <Button as="a" href="/api/auth/login" colorScheme="teal" size="lg">
             Sign In
@@ -540,9 +555,9 @@ function GEOCheck() {
                       borderTopColor="teal.500"
                       borderRadius="full"
                     />
-                    <Text 
-                      fontSize="lg" 
-                      fontWeight="semibold" 
+                    <Text
+                      fontSize="lg"
+                      fontWeight="semibold"
                       color="teal.600"
                       key={loadingVerb} // Key change triggers re-render animation
                       animation="fadeIn 0.5s ease-in-out"
@@ -550,10 +565,10 @@ function GEOCheck() {
                       {loadingVerb}...
                     </Text>
                   </HStack>
-                  
-                  <Text 
-                    textAlign="center" 
-                    fontSize="md" 
+
+                  <Text
+                    textAlign="center"
+                    fontSize="md"
                     color="gray.600"
                     key={loadingMessage} // Key change triggers re-render animation
                   >
@@ -578,28 +593,30 @@ function GEOCheck() {
                 <HStack justify="space-between" fontSize="sm" color="gray.500">
                   <Text>{Math.round(progress)}% complete</Text>
                   <Text>
-                    {progress < 50 
-                      ? "Usually takes 20-30 seconds" 
-                      : progress < 90 
-                      ? "Almost there..." 
-                      : "Just a few more moments..."}
+                    {progress < 50
+                      ? "Usually takes 20-30 seconds"
+                      : progress < 90
+                        ? "Almost there..."
+                        : "Just a few more moments..."}
                   </Text>
                 </HStack>
 
                 {/* Tip Box */}
                 {progress > 30 && progress < 90 && (
-                  <Box 
-                    mt={6} 
-                    p={4} 
-                    bg="blue.50" 
-                    rounded="lg" 
-                    border="1px" 
+                  <Box
+                    mt={6}
+                    p={4}
+                    bg="blue.50"
+                    rounded="lg"
+                    border="1px"
                     borderColor="blue.200"
                     animation="slideIn 0.5s ease-out"
                   >
                     <Text fontSize="sm" color="blue.700" textAlign="center">
-                      💡 <strong>Pro tip:</strong> We're analyzing responses from multiple AI engines 
-                      including GPT-5, Claude, Gemini, and more to give you the most comprehensive insights.
+                      💡 <strong>Pro tip:</strong> We&apos;re analyzing
+                      responses from multiple AI engines including GPT-5,
+                      Claude, Gemini, and more to give you the most
+                      comprehensive insights.
                     </Text>
                   </Box>
                 )}
@@ -630,26 +647,44 @@ function GEOCheck() {
                     <VStack spacing={4} align="stretch">
                       {/* Analysis Overview */}
                       <Box>
-                        <Text fontSize="lg" fontWeight="semibold" mb={3} color="gray.900">
+                        <Text
+                          fontSize="lg"
+                          fontWeight="semibold"
+                          mb={3}
+                          color="gray.900"
+                        >
                           Analysis Overview
                         </Text>
                         <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
                           <Card size="sm">
                             <CardBody>
-                              <Text fontSize="sm" color="gray.600">Keyword</Text>
+                              <Text fontSize="sm" color="gray.600">
+                                Keyword
+                              </Text>
                               <Text fontWeight="bold">{results.keyword}</Text>
                             </CardBody>
                           </Card>
                           <Card size="sm">
                             <CardBody>
-                              <Text fontSize="sm" color="gray.600">Engines Used</Text>
-                              <Text fontWeight="bold">{results.results.length}</Text>
+                              <Text fontSize="sm" color="gray.600">
+                                Engines Used
+                              </Text>
+                              <Text fontWeight="bold">
+                                {results.results.length}
+                              </Text>
                             </CardBody>
                           </Card>
                           <Card size="sm">
                             <CardBody>
-                              <Text fontSize="sm" color="gray.600">Analysis Type</Text>
-                              <Text fontWeight="bold" textTransform="capitalize">{results.metadata?.analysisType || 'Unknown'}</Text>
+                              <Text fontSize="sm" color="gray.600">
+                                Analysis Type
+                              </Text>
+                              <Text
+                                fontWeight="bold"
+                                textTransform="capitalize"
+                              >
+                                {results.metadata?.analysisType || "Unknown"}
+                              </Text>
                             </CardBody>
                           </Card>
                         </SimpleGrid>
@@ -657,32 +692,41 @@ function GEOCheck() {
 
                       {/* AI Engine Responses */}
                       <Box>
-                        <Text fontSize="lg" fontWeight="semibold" mb={3} color="gray.900">
+                        <Text
+                          fontSize="lg"
+                          fontWeight="semibold"
+                          mb={3}
+                          color="gray.900"
+                        >
                           AI Engine Responses ({results.results.length})
                         </Text>
                         <VStack spacing={4} align="stretch">
                           {results.results.map((result: any, index: number) => (
-                            <Box 
-                              key={index} 
-                              p={4} 
-                              bg="gray.50" 
-                              rounded="md" 
-                              border="1px" 
+                            <Box
+                              key={index}
+                              p={4}
+                              bg="gray.50"
+                              rounded="md"
+                              border="1px"
                               borderColor="gray.200"
                             >
                               <HStack justify="space-between" mb={3}>
-                                <Badge colorScheme="purple" variant="subtle" fontSize="sm">
+                                <Badge
+                                  colorScheme="purple"
+                                  variant="subtle"
+                                  fontSize="sm"
+                                >
                                   {result.engine || `Engine ${index + 1}`}
                                 </Badge>
-                                <Badge 
-                                  colorScheme={result.error ? "red" : "green"} 
+                                <Badge
+                                  colorScheme={result.error ? "red" : "green"}
                                   variant="outline"
                                   fontSize="xs"
                                 >
                                   {result.error ? "Error" : "Success"}
                                 </Badge>
                               </HStack>
-                              
+
                               {result.error ? (
                                 <Alert status="warning" size="sm">
                                   <AlertIcon />
@@ -690,26 +734,63 @@ function GEOCheck() {
                                 </Alert>
                               ) : (
                                 <>
-                                  <Text color="gray.700" whiteSpace="pre-wrap" fontSize="sm" lineHeight="1.6">
-                                    {result.summary || result.response || result.content || 'No response content'}
+                                  <Text
+                                    color="gray.700"
+                                    whiteSpace="pre-wrap"
+                                    fontSize="sm"
+                                    lineHeight="1.6"
+                                  >
+                                    {result.summary ||
+                                      result.response ||
+                                      result.content ||
+                                      "No response content"}
                                   </Text>
-                                  
-                                  {result.sources && result.sources.length > 0 && (
-                                    <Box mt={4} pt={3} borderTop="1px" borderColor="gray.300">
-                                      <Text fontSize="xs" fontWeight="medium" color="gray.600" mb={2}>
-                                        Sources ({result.sources.length}):
-                                      </Text>
-                                      <VStack spacing={1} align="stretch">
-                                        {result.sources.map((source: any, sourceIndex: number) => (
-                                          <Text key={sourceIndex} fontSize="xs" color="blue.600">
-                                            • <Text as="span" textDecoration="underline" cursor="pointer">
-                                              {typeof source === 'string' ? source : source.url || source.title || 'Source'}
-                                            </Text>
-                                          </Text>
-                                        ))}
-                                      </VStack>
-                                    </Box>
-                                  )}
+
+                                  {result.sources &&
+                                    result.sources.length > 0 && (
+                                      <Box
+                                        mt={4}
+                                        pt={3}
+                                        borderTop="1px"
+                                        borderColor="gray.300"
+                                      >
+                                        <Text
+                                          fontSize="xs"
+                                          fontWeight="medium"
+                                          color="gray.600"
+                                          mb={2}
+                                        >
+                                          Sources ({result.sources.length}):
+                                        </Text>
+                                        <VStack spacing={1} align="stretch">
+                                          {result.sources.map(
+                                            (
+                                              source: any,
+                                              sourceIndex: number
+                                            ) => (
+                                              <Text
+                                                key={sourceIndex}
+                                                fontSize="xs"
+                                                color="blue.600"
+                                              >
+                                                •{" "}
+                                                <Text
+                                                  as="span"
+                                                  textDecoration="underline"
+                                                  cursor="pointer"
+                                                >
+                                                  {typeof source === "string"
+                                                    ? source
+                                                    : source.url ||
+                                                      source.title ||
+                                                      "Source"}
+                                                </Text>
+                                              </Text>
+                                            )
+                                          )}
+                                        </VStack>
+                                      </Box>
+                                    )}
                                 </>
                               )}
                             </Box>
@@ -720,38 +801,83 @@ function GEOCheck() {
                       {/* Aggregated Insights */}
                       {results.aggregatedInsights && (
                         <Box>
-                          <Text fontSize="lg" fontWeight="semibold" mb={3} color="gray.900">
+                          <Text
+                            fontSize="lg"
+                            fontWeight="semibold"
+                            mb={3}
+                            color="gray.900"
+                          >
                             Aggregated Insights
                           </Text>
-                          <Box p={4} bg="blue.50" rounded="md" border="1px" borderColor="blue.200">
+                          <Box
+                            p={4}
+                            bg="blue.50"
+                            rounded="md"
+                            border="1px"
+                            borderColor="blue.200"
+                          >
                             <VStack spacing={3} align="stretch">
                               {results.aggregatedInsights.overallSentiment && (
                                 <Text fontSize="sm">
-                                  <Text as="span" fontWeight="medium">Overall Sentiment:</Text> {results.aggregatedInsights.overallSentiment}
+                                  <Text as="span" fontWeight="medium">
+                                    Overall Sentiment:
+                                  </Text>{" "}
+                                  {results.aggregatedInsights.overallSentiment}
                                 </Text>
                               )}
-                              
-                              {results.aggregatedInsights.commonInsights && results.aggregatedInsights.commonInsights.length > 0 && (
-                                <Box>
-                                  <Text fontSize="sm" fontWeight="medium" mb={1}>Common Insights:</Text>
-                                  {results.aggregatedInsights.commonInsights.map((insight: string, idx: number) => (
-                                    <Text key={idx} fontSize="xs" color="gray.700">• {insight}</Text>
-                                  ))}
-                                </Box>
-                              )}
 
-                              {results.aggregatedInsights.topTags && results.aggregatedInsights.topTags.length > 0 && (
-                                <Box>
-                                  <Text fontSize="sm" fontWeight="medium" mb={2}>Top Tags:</Text>
-                                  <HStack spacing={2} flexWrap="wrap">
-                                    {results.aggregatedInsights.topTags.slice(0, 10).map((tag: any, idx: number) => (
-                                      <Badge key={idx} colorScheme="gray" variant="subtle" fontSize="xs">
-                                        {tag.tag} ({tag.count})
-                                      </Badge>
-                                    ))}
-                                  </HStack>
-                                </Box>
-                              )}
+                              {results.aggregatedInsights.commonInsights &&
+                                results.aggregatedInsights.commonInsights
+                                  .length > 0 && (
+                                  <Box>
+                                    <Text
+                                      fontSize="sm"
+                                      fontWeight="medium"
+                                      mb={1}
+                                    >
+                                      Common Insights:
+                                    </Text>
+                                    {results.aggregatedInsights.commonInsights.map(
+                                      (insight: string, idx: number) => (
+                                        <Text
+                                          key={idx}
+                                          fontSize="xs"
+                                          color="gray.700"
+                                        >
+                                          • {insight}
+                                        </Text>
+                                      )
+                                    )}
+                                  </Box>
+                                )}
+
+                              {results.aggregatedInsights.topTags &&
+                                results.aggregatedInsights.topTags.length >
+                                  0 && (
+                                  <Box>
+                                    <Text
+                                      fontSize="sm"
+                                      fontWeight="medium"
+                                      mb={2}
+                                    >
+                                      Top Tags:
+                                    </Text>
+                                    <HStack spacing={2} flexWrap="wrap">
+                                      {results.aggregatedInsights.topTags
+                                        .slice(0, 10)
+                                        .map((tag: any, idx: number) => (
+                                          <Badge
+                                            key={idx}
+                                            colorScheme="gray"
+                                            variant="subtle"
+                                            fontSize="xs"
+                                          >
+                                            {tag.tag} ({tag.count})
+                                          </Badge>
+                                        ))}
+                                    </HStack>
+                                  </Box>
+                                )}
                             </VStack>
                           </Box>
                         </Box>
@@ -759,14 +885,19 @@ function GEOCheck() {
 
                       {/* Raw Data (Collapsed) */}
                       <Box>
-                        <Text fontSize="lg" fontWeight="semibold" mb={3} color="gray.900">
+                        <Text
+                          fontSize="lg"
+                          fontWeight="semibold"
+                          mb={3}
+                          color="gray.900"
+                        >
                           Raw Response Data
                         </Text>
-                        <Box 
-                          p={4} 
-                          bg="gray.50" 
-                          rounded="md" 
-                          border="1px" 
+                        <Box
+                          p={4}
+                          bg="gray.50"
+                          rounded="md"
+                          border="1px"
                           borderColor="gray.200"
                           maxH="300px"
                           overflowY="auto"
