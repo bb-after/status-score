@@ -15,10 +15,13 @@ import {
   Td,
   useToast,
   Link as ChakraLink,
+  Spinner,
+  Container,
 } from "@chakra-ui/react";
 import { AddIcon, DeleteIcon, SearchIcon } from "@chakra-ui/icons";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
+import { useAuth } from "../contexts/AuthContext";
 
 interface Keyword {
   id: number;
@@ -28,6 +31,7 @@ interface Keyword {
 }
 
 const KeywordsPage = () => {
+  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
   const [keywords, setKeywords] = useState<Keyword[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -83,6 +87,33 @@ const KeywordsPage = () => {
       });
     }
   };
+
+  if (authLoading) {
+    return (
+      <Container maxW="6xl" py={8}>
+        <VStack spacing={4}>
+          <Spinner size="xl" color="teal.500" />
+          <Text>Loading...</Text>
+        </VStack>
+      </Container>
+    );
+  }
+
+  if (!isAuthenticated || !user) {
+    return (
+      <Container maxW="6xl" py={8}>
+        <VStack spacing={6} textAlign="center">
+          <Heading>Sign in to manage keywords</Heading>
+          <Text color="gray.600">
+            Please sign in to view and manage your keywords for AI analysis.
+          </Text>
+          <Button as="a" href="/api/auth/login" colorScheme="teal" size="lg">
+            Sign In
+          </Button>
+        </VStack>
+      </Container>
+    );
+  }
 
   return (
     <Box maxW="6xl" mx="auto" py="12" px="6">

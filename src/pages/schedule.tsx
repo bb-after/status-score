@@ -11,11 +11,15 @@ import {
   useToast,
   VStack,
   Text,
+  Container,
+  Spinner,
 } from "@chakra-ui/react";
 import axios from "axios";
 import NextLink from "next/link";
+import { useAuth } from "../contexts/AuthContext";
 
 const SchedulePage = () => {
+  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
   const [keywords, setKeywords] = useState<any[]>([]);
   const [selectedKeyword, setSelectedKeyword] = useState("");
   const [frequency, setFrequency] = useState("daily");
@@ -140,6 +144,33 @@ const SchedulePage = () => {
       });
     }
   };
+
+  if (authLoading) {
+    return (
+      <Container maxW="4xl" py={8}>
+        <VStack spacing={4}>
+          <Spinner size="xl" color="teal.500" />
+          <Text>Loading...</Text>
+        </VStack>
+      </Container>
+    );
+  }
+
+  if (!isAuthenticated || !user) {
+    return (
+      <Container maxW="4xl" py={8}>
+        <VStack spacing={6} textAlign="center">
+          <Heading>Sign in to manage schedules</Heading>
+          <Text color="gray.600">
+            Please sign in to schedule automated keyword analysis reports.
+          </Text>
+          <Button as="a" href="/api/auth/login" colorScheme="teal" size="lg">
+            Sign In
+          </Button>
+        </VStack>
+      </Container>
+    );
+  }
 
   if (!hasKeywords) {
     return (

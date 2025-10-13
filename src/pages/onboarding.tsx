@@ -10,11 +10,13 @@ import {
   Icon,
   Progress,
   useColorModeValue,
+  Spinner,
 } from "@chakra-ui/react";
 import { FaPlus, FaUsers, FaClock, FaChartBar } from "react-icons/fa";
 import { useRouter } from "next/router";
 import NextLink from "next/link";
 import axios from "axios";
+import { useAuth } from "../contexts/AuthContext";
 
 const steps = [
   {
@@ -52,9 +54,8 @@ const steps = [
 ];
 
 const OnboardingPage = () => {
+  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.700");
@@ -94,16 +95,31 @@ const OnboardingPage = () => {
     }
   };
 
-  if (isLoading) {
+  if (authLoading) {
     return (
       <Container maxW="4xl" py={10}>
-        <Text>Loading...</Text>
+        <VStack spacing={4}>
+          <Spinner size="xl" color="teal.500" />
+          <Text>Loading...</Text>
+        </VStack>
       </Container>
     );
   }
 
-  if (!isAuthenticated) {
-    return null; // This will never render as unauthenticated users are redirected
+  if (!isAuthenticated || !user) {
+    return (
+      <Container maxW="4xl" py={8}>
+        <VStack spacing={6} textAlign="center">
+          <Heading>Sign in to get started</Heading>
+          <Text color="gray.600">
+            Please sign in to begin your onboarding process.
+          </Text>
+          <Button as="a" href="/api/auth/login" colorScheme="teal" size="lg">
+            Sign In
+          </Button>
+        </VStack>
+      </Container>
+    );
   }
 
   return (

@@ -2,9 +2,11 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
-import { Box, Button, Heading, Text, Stack, useToast } from "@chakra-ui/react";
+import { Box, Button, Heading, Text, Stack, useToast, Container, VStack, Spinner } from "@chakra-ui/react";
+import { useAuth } from "../contexts/AuthContext";
 
 const BillingPage = () => {
+  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
   const router = useRouter();
@@ -29,6 +31,33 @@ const BillingPage = () => {
       setIsLoading(false);
     }
   };
+
+  if (authLoading) {
+    return (
+      <Container maxW="4xl" py={8}>
+        <VStack spacing={4}>
+          <Spinner size="xl" color="teal.500" />
+          <Text>Loading...</Text>
+        </VStack>
+      </Container>
+    );
+  }
+
+  if (!isAuthenticated || !user) {
+    return (
+      <Container maxW="4xl" py={8}>
+        <VStack spacing={6} textAlign="center">
+          <Heading>Sign in to manage billing</Heading>
+          <Text color="gray.600">
+            Please sign in to view and manage your subscription plans.
+          </Text>
+          <Button as="a" href="/api/auth/login" colorScheme="teal" size="lg">
+            Sign In
+          </Button>
+        </VStack>
+      </Container>
+    );
+  }
 
   return (
     <Box maxW="4xl" mx="auto" py={8} px={4}>

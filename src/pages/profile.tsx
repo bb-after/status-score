@@ -13,6 +13,7 @@ import {
   Flex,
   Text,
   useColorModeValue,
+  Spinner,
 } from "@chakra-ui/react";
 import { useDropzone } from "react-dropzone";
 import { useRouter } from "next/router";
@@ -20,43 +21,16 @@ import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
 
 const ProfilePage = () => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
   const [name, setName] = useState("");
   const [avatar, setAvatar] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState("");
 
-  const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
   const router = useRouter();
 
   const bgColor = useColorModeValue("gray.50", "gray.700");
   const borderColor = useColorModeValue("gray.200", "gray.600");
-
-  //   useEffect(() => {
-  //     console.log("is i am authed", user);
-  //     if (isAuthenticated) {
-  //     }
-  //     console.log(isAuthenticated);
-  //     const fetchUserData = async () => {
-  //       try {
-  //         const response = await axios.get("/api/user/profile");
-  //         const userData = response.data;
-  //         setName(userData.name || "");
-  //         setAvatarPreview(userData.avatar || "");
-  //       } catch (error) {
-  //         console.error("Error fetching user data:", error);
-  //         toast({
-  //           title: "Error",
-  //           description: "Unable to fetch user data. Please try again.",
-  //           status: "error",
-  //           duration: 5000,
-  //           isClosable: true,
-  //         });
-  //       }
-  //     };
-
-  //     fetchUserData();
-  //   }, [isAuthenticated]);
 
   useEffect(() => {
     debugger;
@@ -115,6 +89,33 @@ const ProfilePage = () => {
       setIsLoading(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <Container maxW="container.md" py={8}>
+        <VStack spacing={4}>
+          <Spinner size="xl" color="teal.500" />
+          <Text>Loading...</Text>
+        </VStack>
+      </Container>
+    );
+  }
+
+  if (!isAuthenticated || !user) {
+    return (
+      <Container maxW="container.md" py={8}>
+        <VStack spacing={6} textAlign="center">
+          <Heading>Sign in to access your profile</Heading>
+          <Text color="gray.600">
+            Please sign in to view and edit your profile information.
+          </Text>
+          <Button as="a" href="/api/auth/login" colorScheme="teal" size="lg">
+            Sign In
+          </Button>
+        </VStack>
+      </Container>
+    );
+  }
 
   return (
     <Container maxW="container.md" py={8}>

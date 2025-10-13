@@ -27,6 +27,7 @@ import {
   Spinner,
   useColorModeValue,
 } from '@chakra-ui/react';
+import { useAuth } from "../contexts/AuthContext";
 import { SearchIcon, InfoIcon } from '@chakra-ui/icons';
 import { DentistCard } from "../components/DentistCard";
 import { MathBackground } from '../components/MathBackground';
@@ -102,6 +103,7 @@ const calculateIndustryBenchmark = () => {
 };
 
 export default function MedicalPracticeReputationDashboard() {
+  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
   const [city, setCity] = useState<string>("");
   const [type, setType] = useState("dentists");
   const [results, setResults] = useState<DentistResult[]>([]);
@@ -242,6 +244,33 @@ export default function MedicalPracticeReputationDashboard() {
     (sum, dentist) => sum + (dentist.negativeReviews?.length || 0), 
     0
   );
+
+  if (authLoading) {
+    return (
+      <Container maxW="7xl" py={8}>
+        <VStack spacing={4}>
+          <Spinner size="xl" color="teal.500" />
+          <Text>Loading...</Text>
+        </VStack>
+      </Container>
+    );
+  }
+
+  if (!isAuthenticated || !user) {
+    return (
+      <Container maxW="7xl" py={8}>
+        <VStack spacing={6} textAlign="center">
+          <Heading>Sign in to access medical practice reputation dashboard</Heading>
+          <Text color="gray.600">
+            Please sign in to search and analyze medical practice reputations.
+          </Text>
+          <Button as="a" href="/api/auth/login" colorScheme="teal" size="lg">
+            Sign In
+          </Button>
+        </VStack>
+      </Container>
+    );
+  }
 
   return (
     <Box position="relative" minHeight="100vh" pb={20}>
