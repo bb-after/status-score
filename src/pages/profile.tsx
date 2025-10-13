@@ -25,15 +25,16 @@ const ProfilePage = () => {
   const [name, setName] = useState("");
   const [avatar, setAvatar] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState("");
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const toast = useToast();
   const router = useRouter();
 
   const bgColor = useColorModeValue("gray.50", "gray.700");
   const borderColor = useColorModeValue("gray.200", "gray.600");
+  const hoverBgColor = useColorModeValue("gray.100", "gray.600");
 
   useEffect(() => {
-    debugger;
     if (user) {
       // Check for user instead of isAuthenticated
       setName(user.name || "");
@@ -55,7 +56,7 @@ const ProfilePage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    setIsUpdating(true);
 
     const formData = new FormData();
     formData.append("name", name);
@@ -86,7 +87,7 @@ const ProfilePage = () => {
         isClosable: true,
       });
     } finally {
-      setIsLoading(false);
+      setIsUpdating(false);
     }
   };
 
@@ -152,7 +153,7 @@ const ProfilePage = () => {
                   bg={bgColor}
                   cursor="pointer"
                   transition="all 0.2s"
-                  _hover={{ bg: useColorModeValue("gray.100", "gray.600") }}
+                  _hover={{ bg: hoverBgColor }}
                 >
                   <input {...getInputProps()} />
                   {isDragActive ? (
@@ -168,7 +169,7 @@ const ProfilePage = () => {
             <Button
               type="submit"
               colorScheme="teal"
-              isLoading={isLoading}
+              isLoading={isUpdating}
               loadingText="Updating"
             >
               Update Profile

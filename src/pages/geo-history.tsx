@@ -298,7 +298,7 @@ export default function GeoHistory() {
                     {selectedSearch.analysisType}
                   </Badge>
                   <Text fontSize="lg" fontWeight="normal">
-                    "{selectedSearch.keyword}"
+                    &quot;{selectedSearch.keyword}&quot;
                   </Text>
                 </HStack>
               )}
