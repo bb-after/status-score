@@ -18,13 +18,15 @@ import {
   ModalCloseButton,
   useDisclosure,
   Text,
+  Spinner,
 } from "@chakra-ui/react";
 import NextLink from "next/link";
-
 import { useRouter } from "next/router";
 import axios from "axios";
+import { useAuth } from "../contexts/AuthContext";
 
 const SettingsPage = () => {
+  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
   const [receiveEmails, setReceiveEmails] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
@@ -82,6 +84,33 @@ const SettingsPage = () => {
       }
     }
   };
+
+  if (authLoading) {
+    return (
+      <Container maxW="container.md" py={8}>
+        <VStack spacing={4}>
+          <Spinner size="xl" color="teal.500" />
+          <Text>Loading...</Text>
+        </VStack>
+      </Container>
+    );
+  }
+
+  if (!isAuthenticated || !user) {
+    return (
+      <Container maxW="container.md" py={8}>
+        <VStack spacing={6} textAlign="center">
+          <Heading>Sign in to access settings</Heading>
+          <Text color="gray.600">
+            Please sign in to view and modify your account settings.
+          </Text>
+          <Button as="a" href="/api/auth/login" colorScheme="teal" size="lg">
+            Sign In
+          </Button>
+        </VStack>
+      </Container>
+    );
+  }
 
   return (
     <>

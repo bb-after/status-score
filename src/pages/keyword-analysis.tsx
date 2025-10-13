@@ -18,10 +18,14 @@ import {
   Radio,
   Checkbox,
   CheckboxGroup,
+  Container,
+  Spinner,
 } from "@chakra-ui/react";
 import Loader from "../components/Loader";
+import { useAuth } from "../contexts/AuthContext";
 
 const KeywordAnalysisPage = () => {
+  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [selectedKeywordId, setSelectedKeywordId] = useState<number | null>(
@@ -109,6 +113,33 @@ const KeywordAnalysisPage = () => {
       setLoading(false);
     }
   };
+
+  if (authLoading) {
+    return (
+      <Container maxW="2xl" py={8}>
+        <VStack spacing={4}>
+          <Spinner size="xl" color="teal.500" />
+          <Text>Loading...</Text>
+        </VStack>
+      </Container>
+    );
+  }
+
+  if (!isAuthenticated || !user) {
+    return (
+      <Container maxW="2xl" py={8}>
+        <VStack spacing={6} textAlign="center">
+          <Heading>Sign in to analyze keywords</Heading>
+          <Text color="gray.600">
+            Please sign in to perform detailed keyword analysis and view reports.
+          </Text>
+          <Button as="a" href="/api/auth/login" colorScheme="teal" size="lg">
+            Sign In
+          </Button>
+        </VStack>
+      </Container>
+    );
+  }
 
   return (
     <Box maxW="2xl" mx="auto" py="12" px="6">

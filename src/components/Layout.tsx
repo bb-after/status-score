@@ -25,7 +25,7 @@ import {
   Badge,
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon, InfoIcon, StarIcon } from "@chakra-ui/icons";
-import { FiBarChart2, FiSearch, FiHome, FiUsers, FiCalendar, FiFileText, FiSettings, FiLogOut, FiTrendingUp } from "react-icons/fi";
+import { FiBarChart2, FiSearch, FiHome, FiUsers, FiCalendar, FiFileText, FiSettings, FiLogOut, FiTrendingUp, FiTarget, FiClock } from "react-icons/fi";
 import NextLink from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
@@ -35,6 +35,8 @@ const Links = [
   { name: "Dashboard", href: "/dashboard", icon: FiHome },
   { name: "Keywords", href: "/keywords", icon: FiFileText },
   { name: "Reputation Analyzer", href: "/reputation", icon: FiTrendingUp },
+  { name: "GEO Checker", href: "/geo-check", icon: FiTarget },
+  { name: "GEO History", href: "/geo-history", icon: FiClock },
   { name: "Reputation Check", href: "/medsearch", icon: FiSearch },
   { name: "Calculator", href: "/calc", icon: FiBarChart2 },
   { name: "Schedule", href: "/schedule", icon: FiCalendar },

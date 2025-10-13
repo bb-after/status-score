@@ -21,6 +21,7 @@ model User {
   teams TeamUser[]
   stripeCustomer StripeCustomer?
   reputationSearches ReputationSearch[]
+  geoSearches GeoSearch[]
 }
 
 model Team {
@@ -208,5 +209,32 @@ enum EntityType {
   INDIVIDUAL
   COMPANY
   PUBLIC_FIGURE
+}
+
+// GEO Analysis Models
+model GeoSearch {
+  id                Int      @id @default(autoincrement())
+  user              User     @relation(fields: [userId], references: [id])
+  userId            Int
+  keyword           String   
+  analysisType      AnalysisType
+  intentCategory    String
+  customPrompt      String?  @db.Text
+  analysisId        Int?     // External service analysis ID
+  overallSentiment  String?
+  results           Json     // Store AI engine results as JSON
+  aggregatedInsights Json?   // Store aggregated insights
+  metadata          Json?    // Store metadata from external service
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([userId])
+  @@index([keyword])
+  @@index([analysisType])
+}
+
+enum AnalysisType {
+  brand
+  individual
 }
 
