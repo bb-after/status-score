@@ -42,17 +42,23 @@ export default function Home() {
   return (
     <Box minH="100vh" bg="gray.50">
       {/* Header */}
-      <Box as="header" bg="white" shadow="sm" borderBottom="1px" borderColor="gray.200">
+      <Box
+        as="header"
+        bg="white"
+        shadow="sm"
+        borderBottom="1px"
+        borderColor="gray.200"
+      >
         <Container maxW="7xl">
           <Flex justify="space-between" align="center" h={16}>
-            <Flex align="center" spacing={2}>
-              <Image 
-                src="https://static.readdy.ai/image/45a01c2f2d1de986a5803f825a3dccfb/775c6703445b4edf65450cb7d88e7489.png" 
-                alt="Status Labs" 
+            <HStack align="center" spacing={2}>
+              <Image
+                src="https://static.readdy.ai/image/45a01c2f2d1de986a5803f825a3dccfb/775c6703445b4edf65450cb7d88e7489.png"
+                alt="Status Labs"
                 h="32px"
                 objectFit="contain"
               />
-            </Flex>
+            </HStack>
             <HStack spacing={3}>
               <Button
                 onClick={() => setShowNewsletterModal(true)}
@@ -104,7 +110,7 @@ export default function Home() {
             opacity={0.85}
           />
         </Box>
-        
+
         <Container maxW="7xl" position="relative" py={24}>
           <Box maxW="3xl">
             <Heading
@@ -117,15 +123,11 @@ export default function Home() {
             >
               Monitor Your Online Reputation with Precision
             </Heading>
-            <Text
-              fontSize="xl"
-              color="teal.100"
-              mb={8}
-              lineHeight="relaxed"
-            >
-              Get a comprehensive reputation score that tracks your online presence across Google search results. 
-              Monitor positive content, suppress negative links, and maintain your digital reputation with our 
-              automated weekly updates.
+            <Text fontSize="xl" color="teal.100" mb={8} lineHeight="relaxed">
+              Get a comprehensive reputation score that tracks your online
+              presence across Google search results. Monitor positive content,
+              suppress negative links, and maintain your digital reputation with
+              our automated weekly updates.
             </Text>
             <VStack spacing={4} align="flex-start">
               <HStack spacing={4}>
@@ -140,7 +142,7 @@ export default function Home() {
                 >
                   View Live Dashboard
                 </Button>
-                <Button 
+                <Button
                   onClick={() => setShowDemoModal(true)}
                   variant="outline"
                   borderColor="white"
@@ -172,18 +174,20 @@ export default function Home() {
               >
                 Complete Reputation Intelligence
               </Heading>
-              <Text
-                fontSize="xl"
-                color="gray.600"
-                maxW="3xl"
-                mx="auto"
-              >
-                Our advanced scoring system analyzes multiple data points to give you a comprehensive 
-                view of your online reputation health.
+              <Text fontSize="xl" color="gray.600" maxW="3xl" mx="auto">
+                Our advanced scoring system analyzes multiple data points to
+                give you a comprehensive view of your online reputation health.
               </Text>
             </Box>
 
-            <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)", lg: "repeat(3, 1fr)" }} gap={8}>
+            <Grid
+              templateColumns={{
+                base: "1fr",
+                md: "repeat(2, 1fr)",
+                lg: "repeat(3, 1fr)",
+              }}
+              gap={8}
+            >
               <GridItem>
                 <VStack spacing={4} textAlign="center" p={6}>
                   <Box
@@ -195,13 +199,22 @@ export default function Home() {
                     alignItems="center"
                     justifyContent="center"
                   >
-                    <Text fontSize="2xl" color="teal.600">📰</Text>
+                    <Text fontSize="2xl" color="teal.600">
+                      📰
+                    </Text>
                   </Box>
-                  <Heading as="h3" fontSize="xl" fontWeight="semibold" color="gray.900">
+                  <Heading
+                    as="h3"
+                    fontSize="xl"
+                    fontWeight="semibold"
+                    color="gray.900"
+                  >
                     Positive Content Tracking
                   </Heading>
                   <Text color="gray.600">
-                    Monitor high-quality positive articles and content in top Google search results with weighted scoring for top 10 positions.
+                    Monitor high-quality positive articles and content in top
+                    Google search results with weighted scoring for top 10
+                    positions.
                   </Text>
                 </VStack>
               </GridItem>
@@ -217,13 +230,21 @@ export default function Home() {
                     alignItems="center"
                     justifyContent="center"
                   >
-                    <Text fontSize="2xl" color="teal.700">🛡️</Text>
+                    <Text fontSize="2xl" color="teal.700">
+                      🛡️
+                    </Text>
                   </Box>
-                  <Heading as="h3" fontSize="xl" fontWeight="semibold" color="gray.900">
+                  <Heading
+                    as="h3"
+                    fontSize="xl"
+                    fontWeight="semibold"
+                    color="gray.900"
+                  >
                     Negative Link Suppression
                   </Heading>
                   <Text color="gray.600">
-                    Identify and track damaging content on page 1 results with heavy negative weighting to protect your reputation.
+                    Identify and track damaging content on page 1 results with
+                    heavy negative weighting to protect your reputation.
                   </Text>
                 </VStack>
               </GridItem>
@@ -239,13 +260,21 @@ export default function Home() {
                     alignItems="center"
                     justifyContent="center"
                   >
-                    <Text fontSize="2xl" color="teal.600">📖</Text>
+                    <Text fontSize="2xl" color="teal.600">
+                      📖
+                    </Text>
                   </Box>
-                  <Heading as="h3" fontSize="xl" fontWeight="semibold" color="gray.900">
+                  <Heading
+                    as="h3"
+                    fontSize="xl"
+                    fontWeight="semibold"
+                    color="gray.900"
+                  >
                     Wikipedia Presence
                   </Heading>
                   <Text color="gray.600">
-                    Track the quality and maintenance of your Wikipedia page with our 5-point rating system for credibility assessment.
+                    Track the quality and maintenance of your Wikipedia page
+                    with our 5-point rating system for credibility assessment.
                   </Text>
                 </VStack>
               </GridItem>
@@ -261,13 +290,21 @@ export default function Home() {
                     alignItems="center"
                     justifyContent="center"
                   >
-                    <Text fontSize="2xl" color="teal.600">📱</Text>
+                    <Text fontSize="2xl" color="teal.600">
+                      📱
+                    </Text>
                   </Box>
-                  <Heading as="h3" fontSize="xl" fontWeight="semibold" color="gray.900">
+                  <Heading
+                    as="h3"
+                    fontSize="xl"
+                    fontWeight="semibold"
+                    color="gray.900"
+                  >
                     Social Media Analysis
                   </Heading>
                   <Text color="gray.600">
-                    Monitor your presence across Reddit, YouTube, and news platforms to boost or identify reputation risks.
+                    Monitor your presence across Reddit, YouTube, and news
+                    platforms to boost or identify reputation risks.
                   </Text>
                 </VStack>
               </GridItem>
@@ -283,13 +320,21 @@ export default function Home() {
                     alignItems="center"
                     justifyContent="center"
                   >
-                    <Text fontSize="2xl" color="teal.700">🤖</Text>
+                    <Text fontSize="2xl" color="teal.700">
+                      🤖
+                    </Text>
                   </Box>
-                  <Heading as="h3" fontSize="xl" fontWeight="semibold" color="gray.900">
+                  <Heading
+                    as="h3"
+                    fontSize="xl"
+                    fontWeight="semibold"
+                    color="gray.900"
+                  >
                     AI Overview Tracking
                   </Heading>
                   <Text color="gray.600">
-                    Track favorable mentions in AI Overviews and People Also Ask sections for modern search visibility.
+                    Track favorable mentions in AI Overviews and People Also Ask
+                    sections for modern search visibility.
                   </Text>
                 </VStack>
               </GridItem>
@@ -305,13 +350,21 @@ export default function Home() {
                     alignItems="center"
                     justifyContent="center"
                   >
-                    <Text fontSize="2xl" color="teal.700">📈</Text>
+                    <Text fontSize="2xl" color="teal.700">
+                      📈
+                    </Text>
                   </Box>
-                  <Heading as="h3" fontSize="xl" fontWeight="semibold" color="gray.900">
+                  <Heading
+                    as="h3"
+                    fontSize="xl"
+                    fontWeight="semibold"
+                    color="gray.900"
+                  >
                     Historical Tracking
                   </Heading>
                   <Text color="gray.600">
-                    View score progression over time with detailed historical charts and trend analysis for strategic planning.
+                    View score progression over time with detailed historical
+                    charts and trend analysis for strategic planning.
                   </Text>
                 </VStack>
               </GridItem>
@@ -328,8 +381,9 @@ export default function Home() {
               Ready to Monitor Your Reputation Score?
             </Heading>
             <Text fontSize="xl" color="teal.100">
-              Start tracking your online reputation with our comprehensive scoring system. 
-              Get insights that matter for your business success.
+              Start tracking your online reputation with our comprehensive
+              scoring system. Get insights that matter for your business
+              success.
             </Text>
             <HStack spacing={4} justify="center">
               <Button
@@ -366,14 +420,15 @@ export default function Home() {
           <Grid templateColumns={{ base: "1fr", md: "2fr 1fr" }} gap={8}>
             <GridItem>
               <VStack align="flex-start" spacing={4}>
-                <Image 
-                  src="https://static.readdy.ai/image/45a01c2f2d1de986a5803f825a3dccfb/c79419efaec7def650aec8f4d3417a5a.png" 
-                  alt="Status Labs" 
+                <Image
+                  src="https://static.readdy.ai/image/45a01c2f2d1de986a5803f825a3dccfb/c79419efaec7def650aec8f4d3417a5a.png"
+                  alt="Status Labs"
                   h="32px"
                   objectFit="contain"
                 />
                 <Text color="gray.400">
-                  Professional reputation management and monitoring solutions for individuals and companies.
+                  Professional reputation management and monitoring solutions
+                  for individuals and companies.
                 </Text>
               </VStack>
             </GridItem>
@@ -418,7 +473,7 @@ export default function Home() {
               </VStack>
             </GridItem>
           </Grid>
-          
+
           <Flex
             borderTop="1px"
             borderColor="gray.800"
@@ -458,9 +513,16 @@ export default function Home() {
           zIndex={1000}
           onClick={() => setShowContactModal(false)}
         >
-          <Box bg="white" p={6} rounded="lg" onClick={(e) => e.stopPropagation()}>
+          <Box
+            bg="white"
+            p={6}
+            rounded="lg"
+            onClick={(e) => e.stopPropagation()}
+          >
             <Text>Contact Modal - Implement as needed</Text>
-            <Button mt={4} onClick={() => setShowContactModal(false)}>Close</Button>
+            <Button mt={4} onClick={() => setShowContactModal(false)}>
+              Close
+            </Button>
           </Box>
         </Box>
       )}
@@ -476,9 +538,16 @@ export default function Home() {
           zIndex={1000}
           onClick={() => setShowNewsletterModal(false)}
         >
-          <Box bg="white" p={6} rounded="lg" onClick={(e) => e.stopPropagation()}>
+          <Box
+            bg="white"
+            p={6}
+            rounded="lg"
+            onClick={(e) => e.stopPropagation()}
+          >
             <Text>Newsletter Modal - Implement as needed</Text>
-            <Button mt={4} onClick={() => setShowNewsletterModal(false)}>Close</Button>
+            <Button mt={4} onClick={() => setShowNewsletterModal(false)}>
+              Close
+            </Button>
           </Box>
         </Box>
       )}
@@ -494,9 +563,16 @@ export default function Home() {
           zIndex={1000}
           onClick={() => setShowDemoModal(false)}
         >
-          <Box bg="white" p={6} rounded="lg" onClick={(e) => e.stopPropagation()}>
+          <Box
+            bg="white"
+            p={6}
+            rounded="lg"
+            onClick={(e) => e.stopPropagation()}
+          >
             <Text>Demo Modal - Implement as needed</Text>
-            <Button mt={4} onClick={() => setShowDemoModal(false)}>Close</Button>
+            <Button mt={4} onClick={() => setShowDemoModal(false)}>
+              Close
+            </Button>
           </Box>
         </Box>
       )}
