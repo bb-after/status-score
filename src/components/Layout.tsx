@@ -44,8 +44,6 @@ import axios from "axios";
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
 
 const Links = [
-  { name: "Dashboard", href: "/dashboard", icon: FiHome },
-  { name: "Keywords", href: "/keywords", icon: FiFileText },
   { name: "Reputation Analyzer", href: "/reputation", icon: FiTrendingUp },
   { name: "GEO Checker", href: "/geo-check", icon: FiTarget },
   { name: "GEO History", href: "/geo-history", icon: FiClock },
@@ -250,6 +248,12 @@ export default function Layout({ children }: { children: ReactNode }) {
                     <MenuDivider />
                     {user?.admin && (
                       <>
+                        <MenuItem as={NextLink} href="/dashboard" icon={<FiHome />}>
+                          Admin: Dashboard
+                        </MenuItem>
+                        <MenuItem as={NextLink} href="/keywords" icon={<FiFileText />}>
+                          Admin: Keywords
+                        </MenuItem>
                         <MenuItem
                           as={NextLink}
                           href="/teams"
