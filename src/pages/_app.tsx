@@ -26,7 +26,7 @@ const geistMono = localFont({
 
 const queryClient = new QueryClient();
 
-function MyApp({ Component, pageProps }: AppProps) {
+function MyApp({ Component, pageProps, router }: AppProps) {
   const [authState, setAuthState] = useState({
     isAuthenticated: false,
     isLoading: true,
@@ -55,15 +55,23 @@ function MyApp({ Component, pageProps }: AppProps) {
     checkAuth();
   }, []);
 
+  // Pages that should not have Layout wrapper (fullscreen pages)
+  const fullscreenPages = ['/'];
+  const isFullscreenPage = fullscreenPages.includes(router.pathname);
+
   return (
     <UserProvider>
       <ChakraProvider theme={theme} resetCSS={false}>
         <AuthProvider value={authState}>
           <QueryClientProvider client={queryClient}>
             <div className={`${geistSans.variable} ${geistMono.variable}`}>
-              <Layout>
+              {isFullscreenPage ? (
                 <Component {...pageProps} />
-              </Layout>
+              ) : (
+                <Layout>
+                  <Component {...pageProps} />
+                </Layout>
+              )}
             </div>
           </QueryClientProvider>
         </AuthProvider>
