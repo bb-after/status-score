@@ -14,6 +14,7 @@ import {
   HStack,
   Image,
 } from "@chakra-ui/react";
+import DemoModal from "../components/DemoModal";
 
 export default function Home() {
   const router = useRouter();
@@ -552,30 +553,10 @@ export default function Home() {
         </Box>
       )}
 
-      {showDemoModal && (
-        <Box
-          position="fixed"
-          inset={0}
-          bg="blackAlpha.600"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          zIndex={1000}
-          onClick={() => setShowDemoModal(false)}
-        >
-          <Box
-            bg="white"
-            p={6}
-            rounded="lg"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Text>Demo Modal - Implement as needed</Text>
-            <Button mt={4} onClick={() => setShowDemoModal(false)}>
-              Close
-            </Button>
-          </Box>
-        </Box>
-      )}
+      <DemoModal
+        isOpen={showDemoModal}
+        onClose={() => setShowDemoModal(false)}
+      />
     </Box>
   );
 }

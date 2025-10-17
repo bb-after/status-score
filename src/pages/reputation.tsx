@@ -8,17 +8,11 @@ import {
   Text,
   useToast,
   Spinner,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
   useDisclosure,
 } from "@chakra-ui/react";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import { ReputationDashboard } from "../components/reputation/ReputationDashboard";
+import { AuthPrompt } from "../components/AuthPrompt";
 
 export default function ReputationAnalysis() {
   const { user, isLoading } = useUser();
@@ -72,40 +66,13 @@ export default function ReputationAnalysis() {
         onCompareIntercept={user?.isAuthenticated ? undefined : handleInterceptedCompare}
       />
       
-      {/* Login Modal */}
-      <Modal isOpen={isOpen} onClose={onClose} size="md" isCentered>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Sign in to analyze reputation</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <VStack spacing={4}>
-              <Text color="gray.600" textAlign="center">
-                Create a free account to access our comprehensive reputation analysis tools for individuals, companies, and public figures.
-              </Text>
-              <Text fontSize="sm" color="gray.500" textAlign="center">
-                Choose your preferred sign-in method:
-              </Text>
-            </VStack>
-          </ModalBody>
-          <ModalFooter>
-            <VStack spacing={3} w="100%">
-              <Button
-                onClick={handleLogin}
-                colorScheme="teal"
-                size="lg"
-                w="100%"
-                leftIcon={<span>📊</span>}
-              >
-                Sign In with Google / Outlook
-              </Button>
-              <Text fontSize="xs" color="gray.400" textAlign="center">
-                By signing in, you agree to our Terms of Service and Privacy Policy
-              </Text>
-            </VStack>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <AuthPrompt
+        isOpen={isOpen}
+        onClose={onClose}
+        onLogin={handleLogin}
+        title="Sign in to analyze reputation"
+        description="Create a free account to access our comprehensive reputation analysis tools for individuals, companies, and public figures."
+      />
     </>
   );
 }
