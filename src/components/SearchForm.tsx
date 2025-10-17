@@ -20,8 +20,9 @@ export const SearchForm: React.FC<SearchFormProps> = ({
   typeRef.current = type;
 
   const handleSearch = () => {
-    if (inputRef.current?.value.trim()) {
-      onSearch(inputRef.current.value.trim(), type);
+    const searchCity = city || inputRef.current?.value.trim();
+    if (searchCity) {
+      onSearch(searchCity, type);
     } else {
       console.error("City is required to perform a search");
     }
@@ -54,7 +55,10 @@ export const SearchForm: React.FC<SearchFormProps> = ({
           const place = autocompleteRef.current?.getPlace();
           if (place?.formatted_address) {
             setCity(place.formatted_address);
-            onSearch(place.formatted_address, typeRef.current);
+            if (inputRef.current) {
+              inputRef.current.value = place.formatted_address;
+            }
+            // Don't trigger search automatically - let user click search button
           }
         });
       }
@@ -77,6 +81,8 @@ export const SearchForm: React.FC<SearchFormProps> = ({
         size="lg"
         mb={4}
         disabled={isLoading}
+        onChange={(e) => setCity(e.target.value)}
+        value={city}
       />
       <Select
         value={type}

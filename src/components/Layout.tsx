@@ -37,6 +37,7 @@ import {
   FiTrendingUp,
   FiTarget,
   FiClock,
+  FiActivity,
 } from "react-icons/fi";
 import NextLink from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -47,6 +48,7 @@ const Links = [
   { name: "Reputation Analyzer", href: "/reputation", icon: FiTrendingUp },
   { name: "GEO Checker", href: "/geo-check", icon: FiTarget },
   { name: "GEO History", href: "/geo-history", icon: FiClock },
+  { name: "Reputation History", href: "/reputation-history", icon: FiActivity },
   { name: "Reputation Check", href: "/medsearch", icon: FiSearch },
   { name: "Calculator", href: "/calc", icon: FiBarChart2 },
   { name: "Schedule", href: "/schedule", icon: FiCalendar },

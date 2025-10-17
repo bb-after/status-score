@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import {
   Box,
-  Container,
   VStack,
   HStack,
   Text,
@@ -13,20 +12,17 @@ import {
   AlertIcon,
   Progress,
   SimpleGrid,
-  Card,
-  CardHeader,
-  CardBody,
   Badge,
   Spinner,
   useToast,
   Select,
-  Radio,
-  RadioGroup,
   Grid,
   GridItem,
   Textarea,
+  Icon,
 } from "@chakra-ui/react";
 import { useUser } from "@auth0/nextjs-auth0/client";
+import { FaRobot, FaCog } from "react-icons/fa";
 
 const BRAND_INTENT_CATEGORIES = [
   {
@@ -389,560 +385,617 @@ function GEOCheck() {
 
   if (isLoading) {
     return (
-      <Container maxW="7xl" py={8}>
-        <VStack spacing={4}>
+      <Box py={8}>
+        <VStack spacing={4} mx={6}>
           <Spinner size="xl" color="teal.500" />
           <Text>Loading...</Text>
         </VStack>
-      </Container>
+      </Box>
     );
   }
 
   if (!user || !user.isAuthenticated) {
     return (
-      <Container maxW="7xl" py={8}>
-        <VStack spacing={6} textAlign="center">
+      <Box py={8}>
+        <VStack spacing={6} textAlign="center" mx={6}>
           <Text fontSize="2xl" fontWeight="bold">
             Sign in to access GEO Analysis
           </Text>
-          <Text color="gray.600">
+          <Text color="gray.600" maxW="2xl" mx="auto">
             Run comprehensive GEO analysis to understand how AI-powered search
             engines perceive and present information about your brand or name.
           </Text>
-          <Button as="a" href="/api/auth/login" colorScheme="teal" size="lg">
+          <Button
+            as="a"
+            href="/api/auth/login"
+            colorScheme="teal"
+            size="lg"
+            bgGradient="linear(to-r, teal.600, cyan.500)"
+            color="white"
+            _hover={{
+              bgGradient: "linear(to-r, teal.700, cyan.600)",
+            }}
+          >
             Sign In
           </Button>
         </VStack>
-      </Container>
+      </Box>
     );
   }
 
   return (
-    <Container maxW="7xl" py={8}>
-      <VStack spacing={8} align="stretch">
-        {/* Header */}
-        <Box textAlign="center">
-          <Text fontSize="3xl" fontWeight="bold" color="gray.900" mb={4}>
+    <Box py={8}>
+      {/* Header Section */}
+      <VStack spacing={2} textAlign="center" mb={8} mx={6}>
+        <HStack spacing={3} justify="center">
+          <Box
+            w={12}
+            h={12}
+            bgGradient="linear(to-r, teal.500, cyan.400)"
+            rounded="lg"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <Icon as={FaRobot} color="white" boxSize={6} />
+          </Box>
+          <Text fontSize="3xl" fontWeight="bold" color="gray.900">
             GEO Analysis
           </Text>
-          <Text fontSize="lg" color="gray.600" maxW="2xl" mx="auto">
-            Run comprehensive GEO (Generative Engine Optimization) analysis to
-            understand how AI-powered search engines perceive and present
-            information about your brand or name.
-          </Text>
-        </Box>
+        </HStack>
+        <Text fontSize="lg" color="gray.600" maxW="2xl" mx="auto">
+          Run comprehensive GEO (Generative Engine Optimization) analysis to
+          understand how AI-powered search engines perceive and present
+          information about your brand or name.
+        </Text>
+      </VStack>
 
-        {/* Analysis Form */}
-        <Card>
-          <CardHeader>
-            <Text fontSize="xl" fontWeight="semibold">
-              GEO Analysis Configuration
-            </Text>
-          </CardHeader>
-          <CardBody>
-            <Grid
-              templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }}
-              gap={6}
+      {/* Analysis Form */}
+      <Box
+        bg="white"
+        borderRadius="xl"
+        boxShadow="sm"
+        border="1px"
+        borderColor="gray.200"
+        p={6}
+        mb={8}
+        mx={6}
+      >
+        {/* Header with Configuration Title and Entity Type Toggle */}
+        <HStack justify="space-between" align="flex-start" mb={6}>
+          <HStack spacing={3}>
+            <Box
+              w={10}
+              h={10}
+              bgGradient="linear(to-r, teal.500, cyan.400)"
+              rounded="lg"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
             >
-              {/* Keyword Field */}
-              <GridItem colSpan={{ base: 1, md: 2 }}>
-                <FormControl isRequired>
-                  <FormLabel>Search Term/Keyword</FormLabel>
-                  <Input
-                    placeholder="Enter name or brand to analyze"
-                    value={formData.keyword}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        keyword: e.target.value,
-                      }))
-                    }
-                    size="lg"
-                    isDisabled={isChecking}
-                  />
-                </FormControl>
-              </GridItem>
+              <Icon as={FaCog} color="white" boxSize={4} />
+            </Box>
+            <VStack align="flex-start" spacing={0}>
+              <Text fontSize="xl" fontWeight="semibold" color="gray.900">
+                GEO Analysis Configuration
+              </Text>
+              <Text fontSize="sm" color="gray.600">
+                Configure your AI-powered reputation analysis settings
+              </Text>
+            </VStack>
+          </HStack>
+        </HStack>
+        <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={6}>
+          {/* Keyword Field */}
+          <GridItem colSpan={{ base: 1, md: 2 }}>
+            <FormControl isRequired>
+              <FormLabel>Search Term/Keyword</FormLabel>
+              <Input
+                placeholder="Enter name or brand to analyze"
+                value={formData.keyword}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    keyword: e.target.value,
+                  }))
+                }
+                size="lg"
+                isDisabled={isChecking}
+              />
+            </FormControl>
+          </GridItem>
 
-              {/* Analysis Type */}
-              <GridItem>
-                <FormControl isRequired>
-                  <FormLabel>Analysis Type</FormLabel>
-                  <RadioGroup
-                    value={formData.analysisType}
-                    onChange={(value: "brand" | "individual") =>
+          {/* Entity Type Toggle */}
+          <GridItem colSpan={{ base: 1, md: 2 }}>
+            <FormControl>
+              <FormLabel>Analysis Type</FormLabel>
+              <HStack bg="gray.100" rounded="lg" p={1} w="fit-content">
+                {(["individual", "brand"] as const).map((type) => (
+                  <Button
+                    key={type}
+                    size="sm"
+                    bg={
+                      formData.analysisType === type ? "white" : "transparent"
+                    }
+                    color={
+                      formData.analysisType === type ? "gray.900" : "gray.600"
+                    }
+                    shadow={formData.analysisType === type ? "sm" : "none"}
+                    _hover={{
+                      color: "gray.900",
+                    }}
+                    onClick={() =>
                       setFormData((prev) => ({
                         ...prev,
-                        analysisType: value,
+                        analysisType: type === "brand" ? "brand" : "individual",
                         intentCategory: "", // Reset intent when changing type
                       }))
                     }
-                    isDisabled={isChecking}
-                  >
-                    <HStack spacing={6}>
-                      <Radio value="individual">Individual</Radio>
-                      <Radio value="brand">Brand</Radio>
-                    </HStack>
-                  </RadioGroup>
-                </FormControl>
-              </GridItem>
-
-              {/* Intent Category */}
-              <GridItem>
-                <FormControl isRequired>
-                  <FormLabel>Intent Category</FormLabel>
-                  <Select
-                    placeholder="Select analysis intent"
-                    value={formData.intentCategory}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        intentCategory: e.target.value,
-                      }))
-                    }
-                    isDisabled={isChecking}
-                  >
-                    {(formData.analysisType === "brand"
-                      ? BRAND_INTENT_CATEGORIES
-                      : INDIVIDUAL_INTENT_CATEGORIES
-                    ).map((category) => (
-                      <option key={category.value} value={category.value}>
-                        {category.label}
-                      </option>
-                    ))}
-                  </Select>
-                </FormControl>
-              </GridItem>
-
-              {/* Custom Prompt */}
-              <GridItem colSpan={{ base: 1, md: 2 }}>
-                <FormControl>
-                  <FormLabel>Analysis Prompt</FormLabel>
-                  <Textarea
-                    placeholder="Select an intent category above to generate a prompt, or write your own custom prompt"
-                    value={formData.customPrompt}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        customPrompt: e.target.value,
-                      }))
-                    }
-                    rows={4}
                     fontSize="sm"
-                    fontFamily="mono"
-                    isDisabled={isChecking}
-                  />
-                  <Text fontSize="xs" color="gray.600" mt={1}>
-                    This prompt will be sent to AI engines for analysis.
-                    Auto-updates when you change selections above.
-                  </Text>
-                </FormControl>
-              </GridItem>
-            </Grid>
+                    fontWeight="medium"
+                  >
+                    {type === "brand"
+                      ? "Company"
+                      : type.charAt(0).toUpperCase() + type.slice(1)}
+                  </Button>
+                ))}
+              </HStack>
+            </FormControl>
+          </GridItem>
 
-            {/* Submit Button */}
-            <Box mt={6} textAlign="center">
-              <Button
+          {/* Intent Category */}
+          <GridItem colSpan={{ base: 1, md: 2 }}>
+            <FormControl isRequired>
+              <FormLabel>Intent Category</FormLabel>
+              <Select
+                placeholder="Select analysis intent"
+                value={formData.intentCategory}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    intentCategory: e.target.value,
+                  }))
+                }
+                isDisabled={isChecking}
+              >
+                {(formData.analysisType === "brand"
+                  ? BRAND_INTENT_CATEGORIES
+                  : INDIVIDUAL_INTENT_CATEGORIES
+                ).map((category) => (
+                  <option key={category.value} value={category.value}>
+                    {category.label}
+                  </option>
+                ))}
+              </Select>
+            </FormControl>
+          </GridItem>
+
+          {/* Custom Prompt */}
+          <GridItem colSpan={{ base: 1, md: 2 }}>
+            <FormControl>
+              <FormLabel>Analysis Prompt</FormLabel>
+              <Textarea
+                placeholder="Select an intent category above to generate a prompt, or write your own custom prompt"
+                value={formData.customPrompt}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    customPrompt: e.target.value,
+                  }))
+                }
+                rows={4}
+                fontSize="sm"
+                fontFamily="mono"
+                isDisabled={isChecking}
+              />
+              <Text fontSize="xs" color="gray.600" mt={1}>
+                This prompt will be sent to AI engines for analysis.
+                Auto-updates when you change selections above.
+              </Text>
+            </FormControl>
+          </GridItem>
+        </Grid>
+
+        {/* Submit Button */}
+        <Box mt={6} textAlign="center">
+          <Button
+            colorScheme="teal"
+            size="lg"
+            onClick={handleGEOCheck}
+            isDisabled={!isFormValid() || isChecking}
+            isLoading={isChecking}
+            loadingText="Running Analysis..."
+            px={10}
+          >
+            Run GEO Analysis
+          </Button>
+        </Box>
+
+        {/* Enhanced Progress Display */}
+        {isChecking && (
+          <Box mt={6}>
+            {/* Animated Header */}
+            <VStack spacing={3} mb={6}>
+              <HStack spacing={3} justify="center" align="center">
+                <Box
+                  as="div"
+                  animation="spin 2s linear infinite"
+                  w={6}
+                  h={6}
+                  border="2px solid"
+                  borderColor="teal.200"
+                  borderTopColor="teal.500"
+                  borderRadius="full"
+                />
+                <Text
+                  fontSize="lg"
+                  fontWeight="semibold"
+                  color="teal.600"
+                  key={loadingVerb} // Key change triggers re-render animation
+                  animation="fadeIn 0.5s ease-in-out"
+                >
+                  {loadingVerb}...
+                </Text>
+              </HStack>
+
+              <Text
+                textAlign="center"
+                fontSize="md"
+                color="gray.600"
+                key={loadingMessage} // Key change triggers re-render animation
+              >
+                {loadingMessage}
+              </Text>
+            </VStack>
+
+            {/* Progress Bar */}
+            <Box mb={4}>
+              <Progress
+                value={progress}
                 colorScheme="teal"
                 size="lg"
-                onClick={handleGEOCheck}
-                isDisabled={!isFormValid() || isChecking}
-                isLoading={isChecking}
-                loadingText="Running Analysis..."
-                px={10}
-              >
-                Run GEO Analysis
-              </Button>
+                rounded="full"
+                hasStripe
+                isAnimated
+                bg="teal.50"
+              />
             </Box>
 
-            {/* Enhanced Progress Display */}
-            {isChecking && (
-              <Box mt={6}>
-                {/* Animated Header */}
-                <VStack spacing={3} mb={6}>
-                  <HStack spacing={3} justify="center" align="center">
-                    <Box
-                      as="div"
-                      animation="spin 2s linear infinite"
-                      w={6}
-                      h={6}
-                      border="2px solid"
-                      borderColor="teal.200"
-                      borderTopColor="teal.500"
-                      borderRadius="full"
-                    />
+            {/* Progress Stats */}
+            <HStack justify="space-between" fontSize="sm" color="gray.500">
+              <Text>{Math.round(progress)}% complete</Text>
+              <Text>
+                {progress < 50
+                  ? "Usually takes 20-30 seconds"
+                  : progress < 90
+                    ? "Almost there..."
+                    : "Just a few more moments..."}
+              </Text>
+            </HStack>
+
+            {/* Tip Box */}
+            {progress > 30 && progress < 90 && (
+              <Box
+                mt={6}
+                p={4}
+                bg="blue.50"
+                rounded="lg"
+                border="1px"
+                borderColor="blue.200"
+                animation="slideIn 0.5s ease-out"
+              >
+                <Text fontSize="sm" color="blue.700" textAlign="center">
+                  💡 <strong>Pro tip:</strong> We&apos;re analyzing responses
+                  from multiple AI engines including GPT-5, Claude, Gemini, and
+                  more to give you the most comprehensive insights.
+                </Text>
+              </Box>
+            )}
+          </Box>
+        )}
+      </Box>
+
+      {/* Results */}
+      {results && (
+        <Box
+          bg="white"
+          borderRadius="xl"
+          boxShadow="sm"
+          border="1px"
+          borderColor="gray.200"
+          p={6}
+          mx={6}
+        >
+          <Text fontSize="xl" fontWeight="semibold" mb={6}>
+            Analysis Results
+          </Text>
+
+          {results.success ? (
+            <VStack spacing={6} align="stretch">
+              <Alert status="success">
+                <AlertIcon />
+                <Text>
+                  {results.message || "Analysis completed successfully!"}
+                </Text>
+              </Alert>
+
+              {results.results && results.results.length > 0 && (
+                <VStack spacing={4} align="stretch">
+                  {/* Analysis Overview */}
+                  <Box>
                     <Text
                       fontSize="lg"
                       fontWeight="semibold"
-                      color="teal.600"
-                      key={loadingVerb} // Key change triggers re-render animation
-                      animation="fadeIn 0.5s ease-in-out"
+                      mb={3}
+                      color="gray.900"
                     >
-                      {loadingVerb}...
+                      Analysis Overview
                     </Text>
-                  </HStack>
-
-                  <Text
-                    textAlign="center"
-                    fontSize="md"
-                    color="gray.600"
-                    key={loadingMessage} // Key change triggers re-render animation
-                  >
-                    {loadingMessage}
-                  </Text>
-                </VStack>
-
-                {/* Progress Bar */}
-                <Box mb={4}>
-                  <Progress
-                    value={progress}
-                    colorScheme="teal"
-                    size="lg"
-                    rounded="full"
-                    hasStripe
-                    isAnimated
-                    bg="teal.50"
-                  />
-                </Box>
-
-                {/* Progress Stats */}
-                <HStack justify="space-between" fontSize="sm" color="gray.500">
-                  <Text>{Math.round(progress)}% complete</Text>
-                  <Text>
-                    {progress < 50
-                      ? "Usually takes 20-30 seconds"
-                      : progress < 90
-                        ? "Almost there..."
-                        : "Just a few more moments..."}
-                  </Text>
-                </HStack>
-
-                {/* Tip Box */}
-                {progress > 30 && progress < 90 && (
-                  <Box
-                    mt={6}
-                    p={4}
-                    bg="blue.50"
-                    rounded="lg"
-                    border="1px"
-                    borderColor="blue.200"
-                    animation="slideIn 0.5s ease-out"
-                  >
-                    <Text fontSize="sm" color="blue.700" textAlign="center">
-                      💡 <strong>Pro tip:</strong> We&apos;re analyzing
-                      responses from multiple AI engines including GPT-5,
-                      Claude, Gemini, and more to give you the most
-                      comprehensive insights.
-                    </Text>
+                    <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
+                      <Box
+                        p={4}
+                        bg="gray.50"
+                        rounded="lg"
+                        border="1px"
+                        borderColor="gray.200"
+                      >
+                        <Text fontSize="sm" color="gray.600" mb={1}>
+                          Keyword
+                        </Text>
+                        <Text fontWeight="bold">{results.keyword}</Text>
+                      </Box>
+                      <Box
+                        p={4}
+                        bg="gray.50"
+                        rounded="lg"
+                        border="1px"
+                        borderColor="gray.200"
+                      >
+                        <Text fontSize="sm" color="gray.600" mb={1}>
+                          Engines Used
+                        </Text>
+                        <Text fontWeight="bold">{results.results.length}</Text>
+                      </Box>
+                      <Box
+                        p={4}
+                        bg="gray.50"
+                        rounded="lg"
+                        border="1px"
+                        borderColor="gray.200"
+                      >
+                        <Text fontSize="sm" color="gray.600" mb={1}>
+                          Analysis Type
+                        </Text>
+                        <Text fontWeight="bold" textTransform="capitalize">
+                          {results.metadata?.analysisType || "Unknown"}
+                        </Text>
+                      </Box>
+                    </SimpleGrid>
                   </Box>
-                )}
-              </Box>
-            )}
-          </CardBody>
-        </Card>
 
-        {/* Results */}
-        {results && (
-          <Card>
-            <CardHeader>
-              <Text fontSize="xl" fontWeight="semibold">
-                Analysis Results
-              </Text>
-            </CardHeader>
-            <CardBody>
-              {results.success ? (
-                <VStack spacing={6} align="stretch">
-                  <Alert status="success">
-                    <AlertIcon />
-                    <Text>
-                      {results.message || "Analysis completed successfully!"}
+                  {/* AI Engine Responses */}
+                  <Box>
+                    <Text
+                      fontSize="lg"
+                      fontWeight="semibold"
+                      mb={3}
+                      color="gray.900"
+                    >
+                      AI Engine Responses ({results.results.length})
                     </Text>
-                  </Alert>
-
-                  {results.results && results.results.length > 0 && (
                     <VStack spacing={4} align="stretch">
-                      {/* Analysis Overview */}
-                      <Box>
-                        <Text
-                          fontSize="lg"
-                          fontWeight="semibold"
-                          mb={3}
-                          color="gray.900"
-                        >
-                          Analysis Overview
-                        </Text>
-                        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
-                          <Card size="sm">
-                            <CardBody>
-                              <Text fontSize="sm" color="gray.600">
-                                Keyword
-                              </Text>
-                              <Text fontWeight="bold">{results.keyword}</Text>
-                            </CardBody>
-                          </Card>
-                          <Card size="sm">
-                            <CardBody>
-                              <Text fontSize="sm" color="gray.600">
-                                Engines Used
-                              </Text>
-                              <Text fontWeight="bold">
-                                {results.results.length}
-                              </Text>
-                            </CardBody>
-                          </Card>
-                          <Card size="sm">
-                            <CardBody>
-                              <Text fontSize="sm" color="gray.600">
-                                Analysis Type
-                              </Text>
-                              <Text
-                                fontWeight="bold"
-                                textTransform="capitalize"
-                              >
-                                {results.metadata?.analysisType || "Unknown"}
-                              </Text>
-                            </CardBody>
-                          </Card>
-                        </SimpleGrid>
-                      </Box>
-
-                      {/* AI Engine Responses */}
-                      <Box>
-                        <Text
-                          fontSize="lg"
-                          fontWeight="semibold"
-                          mb={3}
-                          color="gray.900"
-                        >
-                          AI Engine Responses ({results.results.length})
-                        </Text>
-                        <VStack spacing={4} align="stretch">
-                          {results.results.map((result: any, index: number) => (
-                            <Box
-                              key={index}
-                              p={4}
-                              bg="gray.50"
-                              rounded="md"
-                              border="1px"
-                              borderColor="gray.200"
-                            >
-                              <HStack justify="space-between" mb={3}>
-                                <Badge
-                                  colorScheme="purple"
-                                  variant="subtle"
-                                  fontSize="sm"
-                                >
-                                  {result.engine || `Engine ${index + 1}`}
-                                </Badge>
-                                <Badge
-                                  colorScheme={result.error ? "red" : "green"}
-                                  variant="outline"
-                                  fontSize="xs"
-                                >
-                                  {result.error ? "Error" : "Success"}
-                                </Badge>
-                              </HStack>
-
-                              {result.error ? (
-                                <Alert status="warning" size="sm">
-                                  <AlertIcon />
-                                  <Text fontSize="sm">{result.error}</Text>
-                                </Alert>
-                              ) : (
-                                <>
-                                  <Text
-                                    color="gray.700"
-                                    whiteSpace="pre-wrap"
-                                    fontSize="sm"
-                                    lineHeight="1.6"
-                                  >
-                                    {result.summary ||
-                                      result.response ||
-                                      result.content ||
-                                      "No response content"}
-                                  </Text>
-
-                                  {result.sources &&
-                                    result.sources.length > 0 && (
-                                      <Box
-                                        mt={4}
-                                        pt={3}
-                                        borderTop="1px"
-                                        borderColor="gray.300"
-                                      >
-                                        <Text
-                                          fontSize="xs"
-                                          fontWeight="medium"
-                                          color="gray.600"
-                                          mb={2}
-                                        >
-                                          Sources ({result.sources.length}):
-                                        </Text>
-                                        <VStack spacing={1} align="stretch">
-                                          {result.sources.map(
-                                            (
-                                              source: any,
-                                              sourceIndex: number
-                                            ) => (
-                                              <Text
-                                                key={sourceIndex}
-                                                fontSize="xs"
-                                                color="blue.600"
-                                              >
-                                                •{" "}
-                                                <Text
-                                                  as="span"
-                                                  textDecoration="underline"
-                                                  cursor="pointer"
-                                                >
-                                                  {typeof source === "string"
-                                                    ? source
-                                                    : source.url ||
-                                                      source.title ||
-                                                      "Source"}
-                                                </Text>
-                                              </Text>
-                                            )
-                                          )}
-                                        </VStack>
-                                      </Box>
-                                    )}
-                                </>
-                              )}
-                            </Box>
-                          ))}
-                        </VStack>
-                      </Box>
-
-                      {/* Aggregated Insights */}
-                      {results.aggregatedInsights && (
-                        <Box>
-                          <Text
-                            fontSize="lg"
-                            fontWeight="semibold"
-                            mb={3}
-                            color="gray.900"
-                          >
-                            Aggregated Insights
-                          </Text>
-                          <Box
-                            p={4}
-                            bg="blue.50"
-                            rounded="md"
-                            border="1px"
-                            borderColor="blue.200"
-                          >
-                            <VStack spacing={3} align="stretch">
-                              {results.aggregatedInsights.overallSentiment && (
-                                <Text fontSize="sm">
-                                  <Text as="span" fontWeight="medium">
-                                    Overall Sentiment:
-                                  </Text>{" "}
-                                  {results.aggregatedInsights.overallSentiment}
-                                </Text>
-                              )}
-
-                              {results.aggregatedInsights.commonInsights &&
-                                results.aggregatedInsights.commonInsights
-                                  .length > 0 && (
-                                  <Box>
-                                    <Text
-                                      fontSize="sm"
-                                      fontWeight="medium"
-                                      mb={1}
-                                    >
-                                      Common Insights:
-                                    </Text>
-                                    {results.aggregatedInsights.commonInsights.map(
-                                      (insight: string, idx: number) => (
-                                        <Text
-                                          key={idx}
-                                          fontSize="xs"
-                                          color="gray.700"
-                                        >
-                                          • {insight}
-                                        </Text>
-                                      )
-                                    )}
-                                  </Box>
-                                )}
-
-                              {results.aggregatedInsights.topTags &&
-                                results.aggregatedInsights.topTags.length >
-                                  0 && (
-                                  <Box>
-                                    <Text
-                                      fontSize="sm"
-                                      fontWeight="medium"
-                                      mb={2}
-                                    >
-                                      Top Tags:
-                                    </Text>
-                                    <HStack spacing={2} flexWrap="wrap">
-                                      {results.aggregatedInsights.topTags
-                                        .slice(0, 10)
-                                        .map((tag: any, idx: number) => (
-                                          <Badge
-                                            key={idx}
-                                            colorScheme="gray"
-                                            variant="subtle"
-                                            fontSize="xs"
-                                          >
-                                            {tag.tag} ({tag.count})
-                                          </Badge>
-                                        ))}
-                                    </HStack>
-                                  </Box>
-                                )}
-                            </VStack>
-                          </Box>
-                        </Box>
-                      )}
-
-                      {/* Raw Data (Collapsed) */}
-                      <Box>
-                        <Text
-                          fontSize="lg"
-                          fontWeight="semibold"
-                          mb={3}
-                          color="gray.900"
-                        >
-                          Raw Response Data
-                        </Text>
+                      {results.results.map((result: any, index: number) => (
                         <Box
+                          key={index}
                           p={4}
                           bg="gray.50"
                           rounded="md"
                           border="1px"
                           borderColor="gray.200"
-                          maxH="300px"
-                          overflowY="auto"
                         >
-                          <Text
-                            fontSize="xs"
-                            fontFamily="mono"
-                            whiteSpace="pre-wrap"
-                            color="gray.600"
-                          >
-                            {JSON.stringify(results, null, 2)}
-                          </Text>
+                          <HStack justify="space-between" mb={3}>
+                            <Badge
+                              colorScheme="purple"
+                              variant="subtle"
+                              fontSize="sm"
+                            >
+                              {result.engine || `Engine ${index + 1}`}
+                            </Badge>
+                            <Badge
+                              colorScheme={result.error ? "red" : "green"}
+                              variant="outline"
+                              fontSize="xs"
+                            >
+                              {result.error ? "Error" : "Success"}
+                            </Badge>
+                          </HStack>
+
+                          {result.error ? (
+                            <Alert status="warning" size="sm">
+                              <AlertIcon />
+                              <Text fontSize="sm">{result.error}</Text>
+                            </Alert>
+                          ) : (
+                            <>
+                              <Text
+                                color="gray.700"
+                                whiteSpace="pre-wrap"
+                                fontSize="sm"
+                                lineHeight="1.6"
+                              >
+                                {result.summary ||
+                                  result.response ||
+                                  result.content ||
+                                  "No response content"}
+                              </Text>
+
+                              {result.sources && result.sources.length > 0 && (
+                                <Box
+                                  mt={4}
+                                  pt={3}
+                                  borderTop="1px"
+                                  borderColor="gray.300"
+                                >
+                                  <Text
+                                    fontSize="xs"
+                                    fontWeight="medium"
+                                    color="gray.600"
+                                    mb={2}
+                                  >
+                                    Sources ({result.sources.length}):
+                                  </Text>
+                                  <VStack spacing={1} align="stretch">
+                                    {result.sources.map(
+                                      (source: any, sourceIndex: number) => (
+                                        <Text
+                                          key={sourceIndex}
+                                          fontSize="xs"
+                                          color="blue.600"
+                                        >
+                                          •{" "}
+                                          <Text
+                                            as="span"
+                                            textDecoration="underline"
+                                            cursor="pointer"
+                                          >
+                                            {typeof source === "string"
+                                              ? source
+                                              : source.url ||
+                                                source.title ||
+                                                "Source"}
+                                          </Text>
+                                        </Text>
+                                      )
+                                    )}
+                                  </VStack>
+                                </Box>
+                              )}
+                            </>
+                          )}
                         </Box>
-                      </Box>
+                      ))}
                     </VStack>
+                  </Box>
+
+                  {/* Aggregated Insights */}
+                  {results.aggregatedInsights && (
+                    <Box>
+                      <Text
+                        fontSize="lg"
+                        fontWeight="semibold"
+                        mb={3}
+                        color="gray.900"
+                      >
+                        Aggregated Insights
+                      </Text>
+                      <Box
+                        p={4}
+                        bg="blue.50"
+                        rounded="md"
+                        border="1px"
+                        borderColor="blue.200"
+                      >
+                        <VStack spacing={3} align="stretch">
+                          {results.aggregatedInsights.overallSentiment && (
+                            <Text fontSize="sm">
+                              <Text as="span" fontWeight="medium">
+                                Overall Sentiment:
+                              </Text>{" "}
+                              {results.aggregatedInsights.overallSentiment}
+                            </Text>
+                          )}
+
+                          {results.aggregatedInsights.commonInsights &&
+                            results.aggregatedInsights.commonInsights.length >
+                              0 && (
+                              <Box>
+                                <Text fontSize="sm" fontWeight="medium" mb={1}>
+                                  Common Insights:
+                                </Text>
+                                {results.aggregatedInsights.commonInsights.map(
+                                  (insight: string, idx: number) => (
+                                    <Text
+                                      key={idx}
+                                      fontSize="xs"
+                                      color="gray.700"
+                                    >
+                                      • {insight}
+                                    </Text>
+                                  )
+                                )}
+                              </Box>
+                            )}
+
+                          {results.aggregatedInsights.topTags &&
+                            results.aggregatedInsights.topTags.length > 0 && (
+                              <Box>
+                                <Text fontSize="sm" fontWeight="medium" mb={2}>
+                                  Top Tags:
+                                </Text>
+                                <HStack spacing={2} flexWrap="wrap">
+                                  {results.aggregatedInsights.topTags
+                                    .slice(0, 10)
+                                    .map((tag: any, idx: number) => (
+                                      <Badge
+                                        key={idx}
+                                        colorScheme="gray"
+                                        variant="subtle"
+                                        fontSize="xs"
+                                      >
+                                        {tag.tag} ({tag.count})
+                                      </Badge>
+                                    ))}
+                                </HStack>
+                              </Box>
+                            )}
+                        </VStack>
+                      </Box>
+                    </Box>
                   )}
+
+                  {/* Raw Data (Collapsed) */}
+                  <Box>
+                    <Text
+                      fontSize="lg"
+                      fontWeight="semibold"
+                      mb={3}
+                      color="gray.900"
+                    >
+                      Raw Response Data
+                    </Text>
+                    <Box
+                      p={4}
+                      bg="gray.50"
+                      rounded="md"
+                      border="1px"
+                      borderColor="gray.200"
+                      maxH="300px"
+                      overflowY="auto"
+                    >
+                      <Text
+                        fontSize="xs"
+                        fontFamily="mono"
+                        whiteSpace="pre-wrap"
+                        color="gray.600"
+                      >
+                        {JSON.stringify(results, null, 2)}
+                      </Text>
+                    </Box>
+                  </Box>
                 </VStack>
-              ) : (
-                <Alert status="error">
-                  <AlertIcon />
-                  <Text>
-                    {results.error || "Analysis failed. Please try again."}
-                  </Text>
-                </Alert>
               )}
-            </CardBody>
-          </Card>
-        )}
-      </VStack>
-    </Container>
+            </VStack>
+          ) : (
+            <Alert status="error">
+              <AlertIcon />
+              <Text>
+                {results.error || "Analysis failed. Please try again."}
+              </Text>
+            </Alert>
+          )}
+        </Box>
+      )}
+    </Box>
   );
 }
 
