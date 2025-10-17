@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Box,
   VStack,
@@ -16,9 +16,15 @@ import {
   Icon,
   Flex,
   Divider,
-} from '@chakra-ui/react';
-import { motion } from 'framer-motion';
-import { FaGoogle, FaMicrosoft, FaShieldAlt, FaRocket, FaChartLine } from 'react-icons/fa';
+} from "@chakra-ui/react";
+import { motion } from "framer-motion";
+import {
+  FaGoogle,
+  FaMicrosoft,
+  FaShieldAlt,
+  FaRocket,
+  FaChartLine,
+} from "react-icons/fa";
 
 interface AuthPromptProps {
   isOpen: boolean;
@@ -28,51 +34,51 @@ interface AuthPromptProps {
   onLogin: () => void;
 }
 
-export function AuthPrompt({ 
-  isOpen, 
-  onClose, 
-  title = "Sign in to analyze reputation",
+export function AuthPrompt({
+  isOpen,
+  onClose,
+  title = "Sign in to Analyze Reputation",
   description = "Create a free account to access our comprehensive reputation analysis tools for individuals, companies, and public figures.",
-  onLogin 
+  onLogin,
 }: AuthPromptProps) {
-  const bgColor = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
-  const featureBg = useColorModeValue('gray.50', 'gray.700');
-  const featureBorderColor = useColorModeValue('gray.100', 'gray.600');
+  const bgColor = useColorModeValue("white", "gray.800");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
+  const featureBg = useColorModeValue("gray.50", "gray.700");
+  const featureBorderColor = useColorModeValue("gray.100", "gray.600");
 
   // Animation variants matching SearchSection
   const buttonVariants = {
-    hover: { 
+    hover: {
       scale: 1.02,
-      transition: { 
-        type: "spring", 
-        stiffness: 300, 
-        damping: 20 
-      } 
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 20,
+      },
     },
-    tap: { 
+    tap: {
       scale: 0.98,
-      transition: { 
-        type: "spring", 
-        stiffness: 400, 
-        damping: 25 
-      }
-    }
+      transition: {
+        type: "spring",
+        stiffness: 400,
+        damping: 25,
+      },
+    },
   };
 
   const iconVariants = {
-    hover: { 
+    hover: {
       rotate: [0, -10, 10, 0],
-      transition: { 
-        duration: 0.5
-      } 
-    }
+      transition: {
+        duration: 0.5,
+      },
+    },
   };
 
   const features = [
     { icon: FaChartLine, text: "Comprehensive scoring across 6 factors" },
     { icon: FaShieldAlt, text: "Track positive & negative mentions" },
-    { icon: FaRocket, text: "Get actionable improvement insights" }
+    { icon: FaRocket, text: "Get actionable improvement insights" },
   ];
 
   return (
@@ -100,7 +106,7 @@ export function AuthPrompt({
           </VStack>
         </ModalHeader>
         <ModalCloseButton />
-        
+
         <ModalBody px={8} pb={2}>
           <VStack spacing={6}>
             <motion.div
@@ -120,8 +126,8 @@ export function AuthPrompt({
                   key={index}
                   initial={{ x: -20, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: 0.2 + (index * 0.1), duration: 0.4 }}
-                  style={{ width: '100%' }}
+                  transition={{ delay: 0.2 + index * 0.1, duration: 0.4 }}
+                  style={{ width: "100%" }}
                 >
                   <HStack
                     spacing={3}
@@ -133,11 +139,7 @@ export function AuthPrompt({
                     w="100%"
                   >
                     <motion.div variants={iconVariants} whileHover="hover">
-                      <Icon
-                        as={feature.icon}
-                        color="teal.500"
-                        boxSize={5}
-                      />
+                      <Icon as={feature.icon} color="teal.500" boxSize={5} />
                     </motion.div>
                     <Text fontSize="sm" color="gray.700" fontWeight="medium">
                       {feature.text}
@@ -151,16 +153,21 @@ export function AuthPrompt({
 
             {/* Sign In Options */}
             <VStack spacing={3} w="100%">
-              <Text fontSize="sm" color="gray.500" textAlign="center" fontWeight="medium">
+              <Text
+                fontSize="sm"
+                color="gray.500"
+                textAlign="center"
+                fontWeight="medium"
+              >
                 Choose your preferred sign-in method:
               </Text>
-              
+
               <VStack spacing={3} w="100%">
                 <motion.div
                   variants={buttonVariants}
                   whileHover="hover"
                   whileTap="tap"
-                  style={{ width: '100%' }}
+                  style={{ width: "100%" }}
                 >
                   <Button
                     onClick={onLogin}
@@ -171,8 +178,8 @@ export function AuthPrompt({
                     borderRadius="lg"
                     fontWeight="semibold"
                     _hover={{
-                      transform: 'translateY(-2px)',
-                      boxShadow: 'lg',
+                      transform: "translateY(-2px)",
+                      boxShadow: "lg",
                     }}
                   >
                     Continue with Google
@@ -183,7 +190,7 @@ export function AuthPrompt({
                   variants={buttonVariants}
                   whileHover="hover"
                   whileTap="tap"
-                  style={{ width: '100%' }}
+                  style={{ width: "100%" }}
                 >
                   <Button
                     onClick={onLogin}
@@ -194,8 +201,8 @@ export function AuthPrompt({
                     borderRadius="lg"
                     fontWeight="semibold"
                     _hover={{
-                      transform: 'translateY(-2px)',
-                      boxShadow: 'lg',
+                      transform: "translateY(-2px)",
+                      boxShadow: "lg",
                     }}
                   >
                     Continue with Microsoft
@@ -213,13 +220,28 @@ export function AuthPrompt({
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5, duration: 0.4 }}
             >
-              <Text fontSize="xs" color="gray.400" textAlign="center" maxW="400px">
-                By signing in, you agree to our{' '}
-                <Text as="span" color="teal.500" cursor="pointer" _hover={{ textDecoration: 'underline' }}>
+              <Text
+                fontSize="xs"
+                color="gray.400"
+                textAlign="center"
+                maxW="400px"
+              >
+                By signing in, you agree to our{" "}
+                <Text
+                  as="span"
+                  color="teal.500"
+                  cursor="pointer"
+                  _hover={{ textDecoration: "underline" }}
+                >
                   Terms of Service
-                </Text>
-                {' '}and{' '}
-                <Text as="span" color="teal.500" cursor="pointer" _hover={{ textDecoration: 'underline' }}>
+                </Text>{" "}
+                and{" "}
+                <Text
+                  as="span"
+                  color="teal.500"
+                  cursor="pointer"
+                  _hover={{ textDecoration: "underline" }}
+                >
                   Privacy Policy
                 </Text>
               </Text>
@@ -236,7 +258,9 @@ export function AuthPrompt({
                 <Text>Fast Setup</Text>
               </HStack>
               <Text>•</Text>
-              <Text fontWeight="semibold" color="teal.600">Free Account</Text>
+              <Text fontWeight="semibold" color="teal.600">
+                Free Account
+              </Text>
             </HStack>
           </VStack>
         </ModalFooter>

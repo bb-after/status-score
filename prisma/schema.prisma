@@ -22,6 +22,7 @@ model User {
   stripeCustomer StripeCustomer?
   reputationSearches ReputationSearch[]
   geoSearches GeoSearch[]
+  resultAnnotations ResultAnnotation[]
 }
 
 model Team {
@@ -236,5 +237,62 @@ model GeoSearch {
 enum AnalysisType {
   brand
   individual
+}
+
+// Result Annotation Models
+model ResultAnnotation {
+  id             String           @id @default(cuid())
+  user           User             @relation(fields: [userId], references: [id])
+  userId         Int
+  url            String           
+  keyword        String           // The search term that returned this result
+  annotationType AnnotationType
+  sentimentData  SentimentAnnotation?
+  assetClaimData AssetClaimAnnotation?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@unique([userId, url, annotationType])
+  @@index([userId])
+  @@index([keyword])
+  @@index([url])
+}
+
+model SentimentAnnotation {
+  id           String           @id @default(cuid())
+  annotation   ResultAnnotation @relation(fields: [annotationId], references: [id], onDelete: Cascade)
+  annotationId String           @unique
+  sentiment    SentimentType
+  reason       String           @db.Text
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+}
+
+model AssetClaimAnnotation {
+  id           String           @id @default(cuid())
+  annotation   ResultAnnotation @relation(fields: [annotationId], references: [id], onDelete: Cascade)
+  annotationId String           @unique
+  claimType    ClaimType
+  reason       String           @db.Text
+  verified     Boolean          @default(false) // For future verification workflows
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+}
+
+enum AnnotationType {
+  SENTIMENT
+  ASSET_CLAIM
+}
+
+enum SentimentType {
+  POSITIVE
+  NEUTRAL
+  NEGATIVE
+}
+
+enum ClaimType {
+  OWNED
+  NOT_OWNED
+  NOT_RELEVANT
 }
 

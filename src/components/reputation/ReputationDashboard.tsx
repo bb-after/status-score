@@ -104,6 +104,19 @@ export function ReputationDashboard({ onSearchIntercept, onCompareIntercept }: R
 
   const entityTypes = ["individual", "company", "public-figure"] as const;
 
+  // Handle score updates from SearchResults component
+  const handleScoreUpdate = (newScoreData: { positiveArticles: number; negativeLinks: number; score: number }) => {
+    // Update the scoreData state with new values
+    setScoreData(prevData => ({
+      ...prevData,
+      positiveArticles: newScoreData.positiveArticles,
+      negativeLinks: newScoreData.negativeLinks,
+    }));
+    
+    // Update the current score
+    setCurrentScore(newScoreData.score);
+  };
+
   // Animation variants for step transitions
   const slideVariants = {
     initial: {
@@ -630,6 +643,9 @@ export function ReputationDashboard({ onSearchIntercept, onCompareIntercept }: R
                   keyword={currentKeyword}
                   results={searchResults}
                   isVisible={showResults || showDemoMode}
+                  entityType={entityTypes[activeTab]}
+                  originalScoreData={scoreData}
+                  onScoreUpdate={handleScoreUpdate}
                 />
               </motion.div>
             )}

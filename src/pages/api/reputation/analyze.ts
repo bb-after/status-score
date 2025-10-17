@@ -154,7 +154,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       analysis = await analyzeReputation(keyword, entityType);
     }
 
-    // Save to database
+    // Save to database with original score (no pre-adjustments)
     await prisma.reputationSearch.create({
       data: {
         userId: user.id,
