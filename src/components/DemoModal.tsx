@@ -21,7 +21,6 @@ import {
   ModalBody,
   ModalCloseButton,
   Container,
-  keyframes,
 } from '@chakra-ui/react';
 import { CloseIcon, InfoIcon } from '@chakra-ui/icons';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -31,12 +30,6 @@ interface DemoModalProps {
   onClose: () => void;
 }
 
-// Custom progress bar pulse animation
-const progressPulse = keyframes`
-  0% { box-shadow: 0 0 0 0 rgba(56, 178, 172, 0.4); }
-  70% { box-shadow: 0 0 0 10px rgba(56, 178, 172, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(56, 178, 172, 0); }
-`;
 
 // Framer Motion variants
 const slideVariants = {
@@ -135,6 +128,19 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
     };
   }, [isPlaying, currentStep, isOpen, demoSteps]);
 
+  // Auto-play when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setIsPlaying(true);
+      setCurrentStep(0);
+      setProgress(0);
+    } else {
+      setIsPlaying(false);
+      setCurrentStep(0);
+      setProgress(0);
+    }
+  }, [isOpen]);
+
   const handlePlay = () => {
     setIsPlaying(true);
     if (currentStep === demoSteps.length - 1 && progress === 100) {
@@ -205,12 +211,11 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
                 w="100%"
                 bg="gray.200"
                 borderRadius="full"
-                sx={{
+sx={{
                   '& > div': {
                     background: isPlaying 
                       ? 'linear-gradient(90deg, #38B2AC, #4FD1C7, #81E6D9)'
                       : 'linear-gradient(90deg, #38B2AC, #4FD1C7)',
-                    animation: isPlaying ? `${progressPulse} 2s infinite` : 'none',
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                   }
                 }}
