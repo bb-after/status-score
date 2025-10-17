@@ -25,28 +25,45 @@ import {
   Badge,
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon, InfoIcon, StarIcon } from "@chakra-ui/icons";
-import { FiBarChart2, FiSearch, FiHome, FiUsers, FiCalendar, FiFileText, FiSettings, FiLogOut, FiTrendingUp, FiTarget, FiClock } from "react-icons/fi";
+import {
+  FiBarChart2,
+  FiSearch,
+  FiHome,
+  FiUsers,
+  FiCalendar,
+  FiFileText,
+  FiSettings,
+  FiLogOut,
+  FiTrendingUp,
+  FiTarget,
+  FiClock,
+} from "react-icons/fi";
 import NextLink from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
 
 const Links = [
-  { name: "Dashboard", href: "/dashboard", icon: FiHome },
-  { name: "Keywords", href: "/keywords", icon: FiFileText },
   { name: "Reputation Analyzer", href: "/reputation", icon: FiTrendingUp },
   { name: "GEO Checker", href: "/geo-check", icon: FiTarget },
   { name: "GEO History", href: "/geo-history", icon: FiClock },
   { name: "Reputation Check", href: "/medsearch", icon: FiSearch },
   { name: "Calculator", href: "/calc", icon: FiBarChart2 },
   { name: "Schedule", href: "/schedule", icon: FiCalendar },
-  { name: "Team", href: "/teams", icon: FiUsers },
 ];
 
-const NavLink = ({ children, href, icon }: { children: ReactNode; href: string; icon: any }) => {
+const NavLink = ({
+  children,
+  href,
+  icon,
+}: {
+  children: ReactNode;
+  href: string;
+  icon: any;
+}) => {
   const pathname = usePathname();
   const isActive = pathname === href;
-  
+
   return (
     <NextLink href={href}>
       <Link
@@ -82,7 +99,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const { isAuthenticated, user, isLoading } = useAuth();
-  
+
   const handleSignOut = async () => {
     await axios.post("/api/auth/logout", {}, { withCredentials: true });
     router.push("/");
@@ -98,23 +115,23 @@ export default function Layout({ children }: { children: ReactNode }) {
 
   const isHomePage = pathname === "/";
   const showFullNav = isAuthenticated || !isHomePage;
-  
+
   // Determine if we're on a reputation page
   const isReputationPage = pathname === "/medsearch" || pathname === "/calc";
 
   return (
     <Flex flexDirection="column" minHeight="100vh" bg="gray.50">
       {/* Top Navigation */}
-      <Box 
-        bg="white" 
-        boxShadow="sm" 
-        position="sticky" 
-        top="0" 
+      <Box
+        bg="white"
+        boxShadow="sm"
+        position="sticky"
+        top="0"
         zIndex="100"
         borderBottom="1px"
         borderColor="gray.100"
       >
-        <Container maxW="7xl">
+        <Container maxW="10xl">
           <Flex h={16} alignItems="center" justifyContent="space-between">
             {showFullNav && (
               <IconButton
@@ -126,23 +143,23 @@ export default function Layout({ children }: { children: ReactNode }) {
                 variant="ghost"
               />
             )}
-            
+
             <HStack spacing={4} alignItems="center">
               <NextLink href="/">
-                <Box 
-                  display="flex" 
-                  alignItems="center" 
-                  gap={2} 
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  gap={2}
                   cursor="pointer"
                   _hover={{ opacity: 0.8 }}
                   transition="opacity 0.2s"
                 >
-                  <Flex 
-                    alignItems="center" 
-                    justifyContent="center" 
-                    w="40px" 
-                    h="40px" 
-                    bg="blue.500" 
+                  <Flex
+                    alignItems="center"
+                    justifyContent="center"
+                    w="40px"
+                    h="40px"
+                    bg="blue.500"
                     color="white"
                     borderRadius="md"
                     fontWeight="bold"
@@ -151,19 +168,24 @@ export default function Layout({ children }: { children: ReactNode }) {
                     AI
                   </Flex>
                   <Heading size="md" color="blue.800">
-                    {isReputationPage ? "AI Reputation Checker" : "Status Score"}
+                    {isReputationPage
+                      ? "AI Reputation Checker"
+                      : "Status Score"}
                   </Heading>
                 </Box>
               </NextLink>
             </HStack>
-            
+
             <Flex alignItems="center" gap={4}>
               {isReputationPage && (
-                <Tooltip label="Enterprise-grade reputation management" placement="bottom">
-                  <Button 
-                    leftIcon={<StarIcon />} 
-                    colorScheme="blue" 
-                    size="sm" 
+                <Tooltip
+                  label="Enterprise-grade reputation management"
+                  placement="bottom"
+                >
+                  <Button
+                    leftIcon={<StarIcon />}
+                    colorScheme="blue"
+                    size="sm"
                     variant="outline"
                     display={{ base: "none", md: "flex" }}
                   >
@@ -171,7 +193,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                   </Button>
                 </Tooltip>
               )}
-              
+
               {showFullNav ? (
                 <Menu>
                   <MenuButton
@@ -184,7 +206,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                     height="auto"
                     p={1}
                     _hover={{
-                      bg: "gray.100"
+                      bg: "gray.100",
                     }}
                   >
                     <HStack spacing={2} alignItems="center">
@@ -193,13 +215,16 @@ export default function Layout({ children }: { children: ReactNode }) {
                         name={user?.name || user?.email || ""}
                         src={user?.picture}
                         onError={() =>
-                          console.log("Avatar image failed to load:", user?.picture)
+                          console.log(
+                            "Avatar image failed to load:",
+                            user?.picture
+                          )
                         }
                         referrerPolicy="no-referrer"
                       />
-                      <Text 
-                        fontWeight="medium" 
-                        color="gray.700" 
+                      <Text
+                        fontWeight="medium"
+                        color="gray.700"
                         display={{ base: "none", md: "block" }}
                         fontSize="sm"
                         maxW="150px"
@@ -213,12 +238,29 @@ export default function Layout({ children }: { children: ReactNode }) {
                     <MenuItem as={NextLink} href="/profile" icon={<FiUsers />}>
                       Profile
                     </MenuItem>
-                    <MenuItem as={NextLink} href="/settings" icon={<FiSettings />}>
+                    <MenuItem
+                      as={NextLink}
+                      href="/settings"
+                      icon={<FiSettings />}
+                    >
                       Settings
                     </MenuItem>
                     <MenuDivider />
                     {user?.admin && (
                       <>
+                        <MenuItem as={NextLink} href="/dashboard" icon={<FiHome />}>
+                          Admin: Dashboard
+                        </MenuItem>
+                        <MenuItem as={NextLink} href="/keywords" icon={<FiFileText />}>
+                          Admin: Keywords
+                        </MenuItem>
+                        <MenuItem
+                          as={NextLink}
+                          href="/teams"
+                          icon={<FiUsers />}
+                        >
+                          Admin: Team Management
+                        </MenuItem>
                         <MenuItem as={NextLink} href="/admin/data-sources">
                           Admin: Data Sources
                         </MenuItem>
@@ -276,7 +318,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                 ))}
               </VStack>
             </Box>
-            
+
             {/* Mobile Navigation Drawer */}
             {isOpen && (
               <Box
@@ -304,7 +346,15 @@ export default function Layout({ children }: { children: ReactNode }) {
         )}
 
         {/* Main Content */}
-        <Box as="main" flex="1" py={0} width={{ base: "100%", md: showFullNav ? "calc(100% - 250px)" : "100%" }}>
+        <Box
+          as="main"
+          flex="1"
+          py={0}
+          width={{
+            base: "100%",
+            md: showFullNav ? "calc(100% - 250px)" : "100%",
+          }}
+        >
           {children}
         </Box>
       </Flex>
@@ -322,7 +372,8 @@ export default function Layout({ children }: { children: ReactNode }) {
       >
         <Container maxW="7xl">
           <Text color="gray.500" fontSize="sm">
-            © {new Date().getFullYear()} AI Reputation Checker. All rights reserved.
+            © {new Date().getFullYear()} AI Reputation Checker. All rights
+            reserved.
           </Text>
         </Container>
       </Box>

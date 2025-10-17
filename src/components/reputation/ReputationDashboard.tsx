@@ -53,7 +53,12 @@ export interface AnalysisResult {
   timestamp: string;
 }
 
-export function ReputationDashboard() {
+interface ReputationDashboardProps {
+  onSearchIntercept?: (keyword: string, type: "individual" | "company" | "public-figure") => void;
+  onCompareIntercept?: (keyword1: string, keyword2: string, type: "individual" | "company" | "public-figure") => void;
+}
+
+export function ReputationDashboard({ onSearchIntercept, onCompareIntercept }: ReputationDashboardProps) {
   const { user } = useUser();
   const toast = useToast();
 
@@ -93,6 +98,9 @@ export function ReputationDashboard() {
   const [historicalData, setHistoricalData] = useState<
     Array<{ date: string; score: number }>
   >([]);
+
+  // Dismissable banners state
+  const [showWelcomeBanner, setShowWelcomeBanner] = useState(true);
 
   const entityTypes = ["individual", "company", "public-figure"] as const;
 
@@ -166,6 +174,12 @@ export function ReputationDashboard() {
     keyword: string,
     type: "individual" | "company" | "public-figure"
   ) => {
+    // Check if we need to intercept for authentication
+    if (onSearchIntercept) {
+      onSearchIntercept(keyword, type);
+      return;
+    }
+
     // Step 1 → Step 2: Move to analyzing state
     setCurrentStep(2);
     setIsSearching(true);
@@ -249,6 +263,12 @@ export function ReputationDashboard() {
     keyword2: string,
     type: "individual" | "company" | "public-figure"
   ) => {
+    // Check if we need to intercept for authentication
+    if (onCompareIntercept) {
+      onCompareIntercept(keyword1, keyword2, type);
+      return;
+    }
+
     setCurrentStep(2); // Move to analyzing step
     setIsSearching(true);
     setActiveTab(entityTypes.indexOf(type));
@@ -374,7 +394,7 @@ export function ReputationDashboard() {
   return (
     <Box py={8}>
       {/* User Welcome Banner */}
-      {user && (
+      {user && showWelcomeBanner && (
         <Box
           bgGradient="linear(to-r, teal.600, cyan.500)"
           rounded="xl"
@@ -382,6 +402,7 @@ export function ReputationDashboard() {
           mb={8}
           mx={6}
           color="white"
+          position="relative"
         >
           <Flex justify="space-between" align="center">
             <VStack align="start" spacing={1}>
@@ -392,14 +413,25 @@ export function ReputationDashboard() {
                 Your reputation analysis results are automatically saved
               </Text>
             </VStack>
-            <Button
-              bg="white"
-              color="teal.700"
-              _hover={{ bg: "gray.50" }}
-              size="md"
-            >
-              Upgrade Now
-            </Button>
+            <HStack spacing={3}>
+              <Button
+                bg="white"
+                color="teal.700"
+                _hover={{ bg: "gray.50" }}
+                size="md"
+              >
+                Upgrade Now
+              </Button>
+              <Button
+                variant="ghost"
+                color="white"
+                _hover={{ bg: "whiteAlpha.200" }}
+                size="sm"
+                onClick={() => setShowWelcomeBanner(false)}
+              >
+                ✕
+              </Button>
+            </HStack>
           </Flex>
         </Box>
       )}
@@ -554,6 +586,38 @@ export function ReputationDashboard() {
               </motion.div>
             )}
 
+            {/* Score Overview - Prominently displayed */}
+            {!isComparing && (
+              <motion.div
+                variants={bounceVariants}
+                initial="initial"
+                animate="animate"
+                transition={{ delay: 0.2 }}
+              >
+                <Flex direction={{ base: "column", lg: "row" }} gap={8} mx={6} mb={8}>
+                  {/* Score Overview */}
+                  <Box flex="1">
+                    <ScoreOverview
+                      score={currentScore}
+                      type={entityTypes[activeTab]}
+                      keyword={currentKeyword}
+                      hasSearched={hasSearched || showDemoMode}
+                      historicalData={historicalData}
+                    />
+                  </Box>
+
+                  {/* Score Breakdown */}
+                  <Box flex="2">
+                    <ScoreBreakdown
+                      scoreData={scoreData}
+                      setScoreData={setScoreData}
+                      type={entityTypes[activeTab]}
+                    />
+                  </Box>
+                </Flex>
+              </motion.div>
+            )}
+
             {/* Search Results */}
             {!isComparing && (
               <motion.div
@@ -570,7 +634,7 @@ export function ReputationDashboard() {
               </motion.div>
             )}
 
-            {/* Dashboard Content */}
+            {/* Historical Chart */}
             {!isComparing && (
               <motion.div
                 variants={bounceVariants}
@@ -578,83 +642,63 @@ export function ReputationDashboard() {
                 animate="animate"
                 transition={{ delay: 0.4 }}
               >
-                <Flex direction={{ base: "column", lg: "row" }} gap={8}>
-                  {/* Left Column - Score Overview */}
-                  <VStack flex="1" spacing={6}>
-                    <ScoreOverview
-                      score={currentScore}
-                      type={entityTypes[activeTab]}
-                      keyword={currentKeyword}
-                      hasSearched={hasSearched || showDemoMode}
-                      historicalData={historicalData}
-                    />
-                  </VStack>
-
-                  {/* Right Column - Details */}
-                  <VStack flex="2" spacing={6}>
-                    <ScoreBreakdown
-                      scoreData={scoreData}
-                      setScoreData={setScoreData}
-                      type={entityTypes[activeTab]}
-                    />
-
-                    {historicalData.length > 1 ? (
-                      <HistoricalChart data={historicalData} />
-                    ) : (
-                      <Box
-                        bg="white"
-                        rounded="xl"
-                        shadow="sm"
-                        border="1px"
-                        borderColor="gray.200"
-                        p={6}
-                      >
-                        <VStack py={12} textAlign="center">
-                          <Box
-                            w={16}
-                            h={16}
-                            bg="blue.100"
-                            rounded="full"
-                            display="flex"
-                            alignItems="center"
-                            justifyContent="center"
-                            mb={4}
-                          >
-                            <Text fontSize="2xl" color="blue.600">
-                              📈
-                            </Text>
-                          </Box>
-                          <Text
-                            fontSize="lg"
-                            fontWeight="semibold"
-                            color="gray.900"
-                            mb={2}
-                          >
-                            {showDemoMode
-                              ? "Demo Chart Placeholder"
-                              : "Building Your Score History"}
+                <Box mx={6}>
+                  {historicalData.length > 1 ? (
+                    <HistoricalChart data={historicalData} />
+                  ) : (
+                    <Box
+                      bg="white"
+                      rounded="xl"
+                      shadow="sm"
+                      border="1px"
+                      borderColor="gray.200"
+                      p={6}
+                    >
+                      <VStack py={12} textAlign="center">
+                        <Box
+                          w={16}
+                          h={16}
+                          bg="blue.100"
+                          rounded="full"
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="center"
+                          mb={4}
+                        >
+                          <Text fontSize="2xl" color="blue.600">
+                            📈
                           </Text>
-                          <Text color="gray.600" mb={4}>
+                        </Box>
+                        <Text
+                          fontSize="lg"
+                          fontWeight="semibold"
+                          color="gray.900"
+                          mb={2}
+                        >
+                          {showDemoMode
+                            ? "Demo Chart Placeholder"
+                            : "Building Your Score History"}
+                        </Text>
+                        <Text color="gray.600" mb={4}>
+                          {showDemoMode
+                            ? "This is where your historical reputation trends would appear with real data."
+                            : "Your reputation trend will appear here after we collect more data points over time."}
+                        </Text>
+                        <Alert
+                          status={showDemoMode ? "warning" : "info"}
+                          maxW="md"
+                        >
+                          <AlertIcon />
+                          <Text fontSize="sm">
                             {showDemoMode
-                              ? "This is where your historical reputation trends would appear with real data."
-                              : "Your reputation trend will appear here after we collect more data points over time."}
+                              ? "Run a real analysis to start building your reputation history."
+                              : "Check back weekly to see your reputation trend develop and track your progress."}
                           </Text>
-                          <Alert
-                            status={showDemoMode ? "warning" : "info"}
-                            maxW="md"
-                          >
-                            <AlertIcon />
-                            <Text fontSize="sm">
-                              {showDemoMode
-                                ? "Run a real analysis to start building your reputation history."
-                                : "Check back weekly to see your reputation trend develop and track your progress."}
-                            </Text>
-                          </Alert>
-                        </VStack>
-                      </Box>
-                    )}
-                  </VStack>
-                </Flex>
+                        </Alert>
+                      </VStack>
+                    </Box>
+                  )}
+                </Box>
               </motion.div>
             )}
           </motion.div>
