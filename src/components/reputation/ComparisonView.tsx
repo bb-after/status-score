@@ -129,7 +129,7 @@ export function ComparisonView({ entity1, entity2, type, onClose }: ComparisonVi
               )}
               <HStack justify="space-between">
                 <Text fontSize="sm">Owned Assets:</Text>
-                <Text fontSize="sm" fontWeight="bold">{entity1.data.ownedAssets}%</Text>
+                <Text fontSize="sm" fontWeight="bold">{entity1.data.ownedAssets}</Text>
               </HStack>
               <HStack justify="space-between">
                 <Text fontSize="sm" color="red.500">Negative Links:</Text>
@@ -198,7 +198,7 @@ export function ComparisonView({ entity1, entity2, type, onClose }: ComparisonVi
               )}
               <HStack justify="space-between">
                 <Text fontSize="sm">Owned Assets:</Text>
-                <Text fontSize="sm" fontWeight="bold">{entity2.data.ownedAssets}%</Text>
+                <Text fontSize="sm" fontWeight="bold">{entity2.data.ownedAssets}</Text>
               </HStack>
               <HStack justify="space-between">
                 <Text fontSize="sm" color="red.500">Negative Links:</Text>
@@ -249,7 +249,7 @@ export function ComparisonView({ entity1, entity2, type, onClose }: ComparisonVi
               }
               
               // Compare owned assets if significant difference
-              if (Math.abs(entity1.data.ownedAssets - entity2.data.ownedAssets) > 20) {
+              if (Math.abs(entity1.data.ownedAssets - entity2.data.ownedAssets) > 2) {
                 const higher = entity1.data.ownedAssets > entity2.data.ownedAssets ? entity1.keyword : entity2.keyword;
                 factors.push(`${higher} has more owned digital assets`);
               }

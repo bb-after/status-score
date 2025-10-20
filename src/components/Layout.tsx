@@ -196,7 +196,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                 </Tooltip>
               )}
 
-              {showFullNav ? (
+              {isAuthenticated ? (
                 <Menu>
                   <MenuButton
                     as={Button}
@@ -287,7 +287,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                 </Menu>
               ) : (
                 <Button as={NextLink} href="/api/auth/login" colorScheme="blue">
-                  Login
+                  Sign In
                 </Button>
               )}
             </Flex>

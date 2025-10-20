@@ -26,9 +26,10 @@ import {
   ModalBody,
   ModalCloseButton,
 } from "@chakra-ui/react";
-import { useAuth } from "../contexts/AuthContext";
+import { useUser } from "@auth0/nextjs-auth0/client";
 import { ViewIcon, TimeIcon, RepeatIcon } from "@chakra-ui/icons";
 import { formatDistanceToNow } from "date-fns";
+import { ProtectedRoute } from "../components/ProtectedRoute";
 
 interface GeoSearchRecord {
   id: number;
@@ -54,7 +55,7 @@ interface HistoryResponse {
 }
 
 export default function GeoHistory() {
-  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
+  const { user, isLoading: authLoading } = useUser();
   const [history, setHistory] = useState<GeoSearchRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -64,10 +65,10 @@ export default function GeoHistory() {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
-    if (isAuthenticated && user) {
+    if (user?.isAuthenticated && !authLoading) {
       fetchHistory();
     }
-  }, [isAuthenticated, user]);
+  }, [user, authLoading]);
 
   const fetchHistory = async () => {
     try {
@@ -110,35 +111,13 @@ export default function GeoHistory() {
     return type === "brand" ? "purple" : "teal";
   };
 
-  if (authLoading) {
-    return (
-      <Container maxW="7xl" py={8}>
-        <VStack spacing={4}>
-          <Spinner size="xl" color="teal.500" />
-          <Text>Loading...</Text>
-        </VStack>
-      </Container>
-    );
-  }
-
-  if (!isAuthenticated || !user) {
-    return (
-      <Container maxW="7xl" py={8}>
-        <VStack spacing={6} textAlign="center">
-          <Heading>Sign in to view your GEO history</Heading>
-          <Text color="gray.600">
-            Please sign in to view your previous GEO analysis results.
-          </Text>
-          <Button as="a" href="/api/auth/login" colorScheme="teal" size="lg">
-            Sign In
-          </Button>
-        </VStack>
-      </Container>
-    );
-  }
-
   return (
-    <Container maxW="7xl" py={8}>
+    <ProtectedRoute
+      title="Sign in to view your GEO history"
+      description="Please sign in to view your previous GEO analysis results."
+      loadingMessage="Loading your GEO history..."
+    >
+      <Container maxW="7xl" py={8}>
       <VStack spacing={8} align="stretch">
         {/* Header */}
         <Box>
@@ -515,5 +494,6 @@ export default function GeoHistory() {
         </ModalContent>
       </Modal>
     </Container>
+    </ProtectedRoute>
   );
 }

@@ -65,23 +65,40 @@ const analyzeReputation = async (keyword: string, type: 'individual' | 'company'
     ? Math.floor(Math.random() * 50) + 30
     : Math.floor(Math.random() * 60) + 20;
   
+  // Generate owned assets as count (0-10, with realistic distribution)
+  const generateOwnedAssetsCount = () => {
+    const rand = Math.random();
+    if (rand < 0.1) return 0; // 10% chance of 0 owned assets
+    if (rand < 0.3) return Math.floor(Math.random() * 2) + 1; // 20% chance of 1-2 assets
+    if (rand < 0.7) return Math.floor(Math.random() * 2) + 3; // 40% chance of 3-4 assets  
+    return Math.floor(Math.random() * 6) + 5; // 30% chance of 5-10 assets
+  };
+
   const data: ReputationData = {
     positiveArticles: positiveCount,
     wikipediaPresence,
-    ownedAssets: Math.floor(Math.random() * 40) + (type === 'individual' ? 50 : 40),
+    ownedAssets: generateOwnedAssetsCount(),
     negativeLinks: negativeCount,
     socialPresence: Math.floor(Math.random() * 30) + (type === 'public-figure' ? 70 : 60),
     aiOverviews: Math.floor(Math.random() * 4) + 1,
     geoPresence: baseGeoPresence
   };
   
+  // Calculate owned assets score: 5+ = max, 3-4 = great, 1-2 = ok, 0 = bad
+  const getOwnedAssetsScore = (count: number, maxPoints: number) => {
+    if (count >= 5) return maxPoints; // Perfect score
+    if (count >= 3) return maxPoints * 0.8; // Great score (80%)
+    if (count >= 1) return maxPoints * 0.5; // OK score (50%)
+    return 0; // No owned assets = 0 points
+  };
+
   // Calculate score with type-specific weighting
   let score = 0;
   
   if (type === 'public-figure') {
     score += Math.min((data.positiveArticles / 15) * 25, 25);
     score += (data.wikipediaPresence / 5) * 20;
-    score += (data.ownedAssets / 100) * 15;
+    score += getOwnedAssetsScore(data.ownedAssets, 15);
     score -= data.negativeLinks * 17.5;
     score += (data.socialPresence / 100) * 10;
     score += (data.aiOverviews / 5) * 5;
@@ -89,14 +106,14 @@ const analyzeReputation = async (keyword: string, type: 'individual' | 'company'
   } else if (type === 'company') {
     score += Math.min((data.positiveArticles / 15) * 30, 30);
     score += (data.wikipediaPresence / 5) * 15;
-    score += (data.ownedAssets / 100) * 15;
+    score += getOwnedAssetsScore(data.ownedAssets, 15);
     score -= data.negativeLinks * 15;
     score += (data.socialPresence / 100) * 10;
     score += (data.aiOverviews / 5) * 5;
     score += (data.geoPresence / 100) * 10;
   } else {
     score += Math.min((data.positiveArticles / 15) * 35, 35);
-    score += (data.ownedAssets / 100) * 25;
+    score += getOwnedAssetsScore(data.ownedAssets, 25);
     score -= data.negativeLinks * 12.5;
     score += (data.socialPresence / 100) * 15;
     score += (data.aiOverviews / 5) * 5;
