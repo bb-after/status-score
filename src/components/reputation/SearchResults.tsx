@@ -174,7 +174,7 @@ export function SearchResults({
     const scoreData = originalScoreData || {
       positiveArticles: positiveCount,
       wikipediaPresence: 2,
-      ownedAssets: 80,
+      ownedAssets: 4,
       negativeLinks: negativeCount,
       socialPresence: 85,
       aiOverviews: 3,
@@ -188,13 +188,21 @@ export function SearchResults({
       negativeLinks: negativeCount,
     };
 
+    // Calculate owned assets score: 5+ = max, 3-4 = great, 1-2 = ok, 0 = bad
+    const getOwnedAssetsScore = (count: number, maxPoints: number) => {
+      if (count >= 5) return maxPoints; // Perfect score
+      if (count >= 3) return maxPoints * 0.8; // Great score (80%)
+      if (count >= 1) return maxPoints * 0.5; // OK score (50%)
+      return 0; // No owned assets = 0 points
+    };
+
     // Use the exact same scoring logic as ReputationDashboard
     let score = 0;
     if (entityType === "public-figure") {
       // public-figure - Positive articles are the most important factor
       score += (updatedScoreData.positiveArticles / 10) * 70; // Up to 70 points (7 per positive)
       score += (updatedScoreData.wikipediaPresence / 5) * 15;
-      score += (updatedScoreData.ownedAssets / 100) * 8;
+      score += getOwnedAssetsScore(updatedScoreData.ownedAssets, 8);
       score -= updatedScoreData.negativeLinks * 30; // Negative content heavily penalized
       score += (updatedScoreData.socialPresence / 100) * 5;
       score += (updatedScoreData.aiOverviews / 5) * 2;
@@ -203,7 +211,7 @@ export function SearchResults({
       // company - Positive coverage is crucial for business reputation
       score += (updatedScoreData.positiveArticles / 10) * 65; // Up to 65 points (6.5 per positive)
       score += (updatedScoreData.wikipediaPresence / 5) * 15;
-      score += (updatedScoreData.ownedAssets / 100) * 10;
+      score += getOwnedAssetsScore(updatedScoreData.ownedAssets, 10);
       score -= updatedScoreData.negativeLinks * 25; // Business negative news is very damaging
       score += (updatedScoreData.socialPresence / 100) * 8;
       score += (updatedScoreData.aiOverviews / 5) * 2;
@@ -211,7 +219,7 @@ export function SearchResults({
     } else {
       // individual - Personal reputation heavily depends on positive mentions
       score += (updatedScoreData.positiveArticles / 10) * 75; // Up to 75 points (7.5 per positive)
-      score += (updatedScoreData.ownedAssets / 100) * 12;
+      score += getOwnedAssetsScore(updatedScoreData.ownedAssets, 12);
       score -= updatedScoreData.negativeLinks * 20; // Personal negatives are damaging
       score += (updatedScoreData.socialPresence / 100) * 10;
       score += (updatedScoreData.aiOverviews / 5) * 3;

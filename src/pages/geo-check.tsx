@@ -23,6 +23,7 @@ import {
 } from "@chakra-ui/react";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import { FaRobot, FaCog } from "react-icons/fa";
+import { ProtectedRoute } from "../components/ProtectedRoute";
 
 const BRAND_INTENT_CATEGORIES = [
   {
@@ -383,48 +384,13 @@ function GEOCheck() {
     );
   };
 
-  if (isLoading) {
-    return (
-      <Box py={8}>
-        <VStack spacing={4} mx={6}>
-          <Spinner size="xl" color="teal.500" />
-          <Text>Loading...</Text>
-        </VStack>
-      </Box>
-    );
-  }
-
-  if (!user || !user.isAuthenticated) {
-    return (
-      <Box py={8}>
-        <VStack spacing={6} textAlign="center" mx={6}>
-          <Text fontSize="2xl" fontWeight="bold">
-            Sign in to access GEO Analysis
-          </Text>
-          <Text color="gray.600" maxW="2xl" mx="auto">
-            Run comprehensive GEO analysis to understand how AI-powered search
-            engines perceive and present information about your brand or name.
-          </Text>
-          <Button
-            as="a"
-            href="/api/auth/login"
-            colorScheme="teal"
-            size="lg"
-            bgGradient="linear(to-r, teal.600, cyan.500)"
-            color="white"
-            _hover={{
-              bgGradient: "linear(to-r, teal.700, cyan.600)",
-            }}
-          >
-            Sign In
-          </Button>
-        </VStack>
-      </Box>
-    );
-  }
-
   return (
-    <Box py={8}>
+    <ProtectedRoute
+      title="Sign in to access GEO Analysis"
+      description="Run comprehensive GEO analysis to understand how AI-powered search engines perceive and present information about your brand or name."
+      loadingMessage="Loading GEO Analysis..."
+    >
+      <Box py={8}>
       {/* Header Section */}
       <VStack spacing={2} textAlign="center" mb={8} mx={6}>
         <HStack spacing={3} justify="center">
@@ -995,7 +961,8 @@ function GEOCheck() {
           )}
         </Box>
       )}
-    </Box>
+      </Box>
+    </ProtectedRoute>
   );
 }
 

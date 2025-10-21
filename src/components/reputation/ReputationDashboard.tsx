@@ -54,11 +54,21 @@ export interface AnalysisResult {
 }
 
 interface ReputationDashboardProps {
-  onSearchIntercept?: (keyword: string, type: "individual" | "company" | "public-figure") => void;
-  onCompareIntercept?: (keyword1: string, keyword2: string, type: "individual" | "company" | "public-figure") => void;
+  onSearchIntercept?: (
+    keyword: string,
+    type: "individual" | "company" | "public-figure"
+  ) => void;
+  onCompareIntercept?: (
+    keyword1: string,
+    keyword2: string,
+    type: "individual" | "company" | "public-figure"
+  ) => void;
 }
 
-export function ReputationDashboard({ onSearchIntercept, onCompareIntercept }: ReputationDashboardProps) {
+export function ReputationDashboard({
+  onSearchIntercept,
+  onCompareIntercept,
+}: ReputationDashboardProps) {
   const { user } = useUser();
   const toast = useToast();
 
@@ -71,7 +81,7 @@ export function ReputationDashboard({ onSearchIntercept, onCompareIntercept }: R
   const [scoreData, setScoreData] = useState<ReputationData>({
     positiveArticles: 5, // 5 positive articles
     wikipediaPresence: 2,
-    ownedAssets: 80,
+    ownedAssets: 4, // 4 owned assets (great score)
     negativeLinks: 0, // 5 neutral, 0 negative (should score ~80)
     socialPresence: 85,
     aiOverviews: 3,
@@ -105,14 +115,18 @@ export function ReputationDashboard({ onSearchIntercept, onCompareIntercept }: R
   const entityTypes = ["individual", "company", "public-figure"] as const;
 
   // Handle score updates from SearchResults component
-  const handleScoreUpdate = (newScoreData: { positiveArticles: number; negativeLinks: number; score: number }) => {
+  const handleScoreUpdate = (newScoreData: {
+    positiveArticles: number;
+    negativeLinks: number;
+    score: number;
+  }) => {
     // Update the scoreData state with new values
-    setScoreData(prevData => ({
+    setScoreData((prevData) => ({
       ...prevData,
       positiveArticles: newScoreData.positiveArticles,
       negativeLinks: newScoreData.negativeLinks,
     }));
-    
+
     // Update the current score
     setCurrentScore(newScoreData.score);
   };
@@ -370,11 +384,19 @@ export function ReputationDashboard({ onSearchIntercept, onCompareIntercept }: R
     const calculateScore = () => {
       let score = 0;
 
+      // Calculate owned assets score: 5+ = max, 3-4 = great, 1-2 = ok, 0 = bad
+      const getOwnedAssetsScore = (count: number, maxPoints: number) => {
+        if (count >= 5) return maxPoints; // Perfect score
+        if (count >= 3) return maxPoints * 0.8; // Great score (80%)
+        if (count >= 1) return maxPoints * 0.5; // OK score (50%)
+        return 0; // No owned assets = 0 points
+      };
+
       if (activeTab === 2) {
         // public-figure - Positive articles are the most important factor
         score += (scoreData.positiveArticles / 10) * 70; // Up to 70 points (7 per positive)
         score += (scoreData.wikipediaPresence / 5) * 15;
-        score += (scoreData.ownedAssets / 100) * 8;
+        score += getOwnedAssetsScore(scoreData.ownedAssets, 8);
         score -= scoreData.negativeLinks * 30; // Negative content heavily penalized
         score += (scoreData.socialPresence / 100) * 5;
         score += (scoreData.aiOverviews / 5) * 2;
@@ -383,7 +405,7 @@ export function ReputationDashboard({ onSearchIntercept, onCompareIntercept }: R
         // company - Positive coverage is crucial for business reputation
         score += (scoreData.positiveArticles / 10) * 65; // Up to 65 points (6.5 per positive)
         score += (scoreData.wikipediaPresence / 5) * 15;
-        score += (scoreData.ownedAssets / 100) * 10;
+        score += getOwnedAssetsScore(scoreData.ownedAssets, 10);
         score -= scoreData.negativeLinks * 25; // Business negative news is very damaging
         score += (scoreData.socialPresence / 100) * 8;
         score += (scoreData.aiOverviews / 5) * 2;
@@ -391,7 +413,7 @@ export function ReputationDashboard({ onSearchIntercept, onCompareIntercept }: R
       } else {
         // individual - Personal reputation heavily depends on positive mentions
         score += (scoreData.positiveArticles / 10) * 75; // Up to 75 points (7.5 per positive)
-        score += (scoreData.ownedAssets / 100) * 12;
+        score += getOwnedAssetsScore(scoreData.ownedAssets, 12);
         score -= scoreData.negativeLinks * 20; // Personal negatives are damaging
         score += (scoreData.socialPresence / 100) * 10;
         score += (scoreData.aiOverviews / 5) * 3;
@@ -407,7 +429,7 @@ export function ReputationDashboard({ onSearchIntercept, onCompareIntercept }: R
   return (
     <Box py={8}>
       {/* User Welcome Banner */}
-      {user && showWelcomeBanner && (
+      {user?.name && showWelcomeBanner && (
         <Box
           bgGradient="linear(to-r, teal.600, cyan.500)"
           rounded="xl"
@@ -607,7 +629,12 @@ export function ReputationDashboard({ onSearchIntercept, onCompareIntercept }: R
                 animate="animate"
                 transition={{ delay: 0.2 }}
               >
-                <Flex direction={{ base: "column", lg: "row" }} gap={8} mx={6} mb={8}>
+                <Flex
+                  direction={{ base: "column", lg: "row" }}
+                  gap={8}
+                  mx={6}
+                  mb={8}
+                >
                   {/* Score Overview */}
                   <Box flex="1">
                     <ScoreOverview

@@ -73,10 +73,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
     });
 
+    // Transform legacy percentage-based ownedAssets to count-based
+    const transformedSearches = searches.map(search => {
+      // If ownedAssets > 10, it's likely a legacy percentage value, convert to count
+      if (search.ownedAssets > 10) {
+        // Convert percentage to approximate count (0-10 scale)
+        // 80-100% -> 5-10 assets, 60-79% -> 3-4 assets, 40-59% -> 1-2 assets, <40% -> 0 assets
+        let count;
+        if (search.ownedAssets >= 80) count = Math.floor(Math.random() * 6) + 5; // 5-10
+        else if (search.ownedAssets >= 60) count = Math.floor(Math.random() * 2) + 3; // 3-4
+        else if (search.ownedAssets >= 40) count = Math.floor(Math.random() * 2) + 1; // 1-2
+        else count = 0;
+        
+        return {
+          ...search,
+          ownedAssets: count
+        };
+      }
+      return search;
+    });
+
     const totalPages = Math.ceil(total / limitNum);
 
     return res.status(200).json({
-      searches,
+      searches: transformedSearches,
       pagination: {
         page: pageNum,
         limit: limitNum,

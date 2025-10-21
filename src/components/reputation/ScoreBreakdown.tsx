@@ -34,8 +34,8 @@ export function ScoreBreakdown({ scoreData, setScoreData, type }: ScoreBreakdown
     {
       key: 'ownedAssets' as const,
       label: 'Owned Digital Assets',
-      description: 'Control over your digital presence (%)',
-      max: 100,
+      description: 'Count of owned properties on page 1 (5+ = perfect)',
+      max: 10,
       color: 'purple'
     },
     {
@@ -92,7 +92,7 @@ export function ScoreBreakdown({ scoreData, setScoreData, type }: ScoreBreakdown
                     {metric.label}
                   </Text>
                   <Text fontSize="sm" fontWeight="bold" color={`${metric.color}.500`}>
-                    {scoreData[metric.key]}{metric.max === 100 ? '%' : ''}
+                    {scoreData[metric.key]}{metric.key === 'socialPresence' ? '%' : ''}
                   </Text>
                 </HStack>
                 <Text fontSize="xs" color="gray.500">
