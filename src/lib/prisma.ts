@@ -1,6 +1,10 @@
 // lib/prisma.ts
 import { PrismaClient } from '@prisma/client';
 
+// Disable all Prisma logging
+process.env.DEBUG = '';
+process.env.PRISMA_QUERY_ENGINE_DEBUG = '';
+
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
@@ -8,7 +12,8 @@ const globalForPrisma = globalThis as unknown as {
 const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
-    log: process.env.NODE_ENV === 'development' ? ['query'] : [],
+    log: [], // Explicitly disable all logging
+    errorFormat: 'minimal', // Reduce error verbosity
   });
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
