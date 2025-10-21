@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Box,
   VStack,
@@ -199,7 +199,7 @@ function GEOCheck() {
   }, [user, formData.keyword]);
 
   // Generate prompt based on selected category and keyword
-  const generatePromptPreview = () => {
+  const generatePromptPreview = useCallback(() => {
     if (!formData.intentCategory || !formData.keyword.trim()) return "";
 
     const categories =
@@ -225,7 +225,7 @@ function GEOCheck() {
     prompt += " Include any links to sources.";
 
     return prompt;
-  };
+  }, [formData.intentCategory, formData.keyword, formData.analysisType]);
 
   // Update custom prompt when intent category or keyword changes
   useEffect(() => {
@@ -238,6 +238,7 @@ function GEOCheck() {
     formData.keyword,
     formData.analysisType,
     formData.customPrompt,
+    generatePromptPreview,
   ]);
 
   // Enhanced loading states with playful messages

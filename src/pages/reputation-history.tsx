@@ -98,11 +98,52 @@ export default function ReputationHistory() {
   const [searchKeyword, setSearchKeyword] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+  const fetchHistory = useCallback(
+    async (keyword = "") => {
+      try {
+        setLoading(true);
+        const params = new URLSearchParams();
+        if (keyword) params.append("keyword", keyword);
+
+        if (!user?.email) {
+          setError("User email not available");
+          return;
+        }
+
+        const response = await fetch(
+          `/api/reputation/client-searches?${params}`,
+          {
+            headers: {
+              Authorization: `Bearer ${user.email}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch history");
+        }
+
+        const data: HistoryResponse = await response.json();
+        setHistory(data.searches);
+
+        // Group searches by keyword
+        const groups = groupSearchesByKeyword(data.searches);
+        setGroupedHistory(groups);
+      } catch (err) {
+        console.error("Error fetching history:", err);
+        setError("Failed to load search history");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [user]
+  );
+
   useEffect(() => {
     if (user?.isAuthenticated && !authLoading) {
       fetchHistory();
     }
-  }, [user, authLoading]);
+  }, [user, authLoading, fetchHistory]);
 
   const groupSearchesByKeyword = (
     searches: ReputationSearchRecord[]
@@ -158,32 +199,6 @@ export default function ReputationHistory() {
       );
   };
 
-  const fetchHistory = useCallback(async (keyword = "") => {
-    try {
-      setLoading(true);
-      const params = new URLSearchParams();
-      if (keyword) params.append("keyword", keyword);
-
-      const response = await fetch(`/api/reputation/search-history?${params}`);
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch history");
-      }
-
-      const data: HistoryResponse = await response.json();
-      setHistory(data.searches);
-
-      // Group searches by keyword
-      const groups = groupSearchesByKeyword(data.searches);
-      setGroupedHistory(groups);
-    } catch (err) {
-      console.error("Error fetching history:", err);
-      setError("Failed to load search history");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   const handleSearch = () => {
     fetchHistory(searchKeyword);
   };
@@ -235,6 +250,185 @@ export default function ReputationHistory() {
         return "red.500";
       default:
         return "gray.500";
+    }
+  };
+
+  // Helper function to get rating and suggestions for each score factor
+  const getFactorRating = (factor: string, value: number) => {
+    switch (factor) {
+      case "positiveArticles":
+        if (value >= 7)
+          return {
+            rating: "Excellent",
+            color: "green.500",
+            suggestion:
+              "Outstanding positive coverage! Maintain this momentum with consistent quality content.",
+          };
+        if (value >= 5)
+          return {
+            rating: "Great",
+            color: "green.400",
+            suggestion:
+              "Strong positive presence. Consider creating more engaging content to reach excellence.",
+          };
+        if (value >= 3)
+          return {
+            rating: "Good",
+            color: "blue.500",
+            suggestion:
+              "Solid foundation. Focus on publishing high-quality content and engaging with your audience.",
+          };
+        if (value >= 1)
+          return {
+            rating: "Needs Work",
+            color: "orange.500",
+            suggestion:
+              "Limited positive coverage. Develop a content strategy and improve your online presence.",
+          };
+        return {
+          rating: "Poor",
+          color: "red.500",
+          suggestion:
+            "No positive articles found. Urgent need for reputation building through quality content and PR efforts.",
+        };
+
+      case "negativeLinks":
+        if (value === 0)
+          return {
+            rating: "Excellent",
+            color: "green.500",
+            suggestion:
+              "Perfect! No negative content found. Keep monitoring and maintaining this clean reputation.",
+          };
+        if (value <= 2)
+          return {
+            rating: "Good",
+            color: "blue.500",
+            suggestion:
+              "Minor negative presence. Monitor closely and consider reputation management strategies.",
+          };
+        if (value <= 5)
+          return {
+            rating: "Concerning",
+            color: "orange.500",
+            suggestion:
+              "Moderate negative content. Implement active reputation management and create positive content to offset.",
+          };
+        return {
+          rating: "Critical",
+          color: "red.500",
+          suggestion:
+            "High negative coverage. Urgent reputation repair needed - consider professional reputation management services.",
+        };
+
+      case "socialPresence":
+        if (value >= 80)
+          return {
+            rating: "Excellent",
+            color: "green.500",
+            suggestion:
+              "Strong social media presence! Continue engaging with your audience consistently.",
+          };
+        if (value >= 60)
+          return {
+            rating: "Good",
+            color: "blue.500",
+            suggestion:
+              "Solid social presence. Increase posting frequency and engagement to reach the next level.",
+          };
+        if (value >= 40)
+          return {
+            rating: "Needs Work",
+            color: "orange.500",
+            suggestion:
+              "Limited social presence. Focus on building followers and creating engaging content.",
+          };
+        return {
+          rating: "Poor",
+          color: "red.500",
+          suggestion:
+            "Weak social presence. Establish active profiles on major platforms and develop a content strategy.",
+        };
+
+      case "ownedAssets":
+        if (value >= 5)
+          return {
+            rating: "Excellent",
+            color: "green.500",
+            suggestion:
+              "Outstanding control over your digital presence! You own multiple top search results.",
+          };
+        if (value >= 3)
+          return {
+            rating: "Great",
+            color: "green.400",
+            suggestion:
+              "Strong ownership of search results. Consider creating one or two more owned properties.",
+          };
+        if (value >= 1)
+          return {
+            rating: "OK",
+            color: "blue.500",
+            suggestion:
+              "Some owned assets. Build more owned properties like websites, social profiles, and professional pages.",
+          };
+        return {
+          rating: "Poor",
+          color: "red.500",
+          suggestion:
+            "No owned assets in top results. Create professional website, LinkedIn profile, and other owned properties.",
+        };
+
+      case "wikipediaPresence":
+        if (value >= 3)
+          return {
+            rating: "Excellent",
+            color: "green.500",
+            suggestion:
+              "Strong Wikipedia presence indicates high authority and credibility.",
+          };
+        if (value >= 1)
+          return {
+            rating: "Good",
+            color: "blue.500",
+            suggestion:
+              "Some Wikipedia presence. Work on increasing your notability and contributions to relevant articles.",
+          };
+        return {
+          rating: "None",
+          color: "gray.500",
+          suggestion:
+            "No Wikipedia presence. Focus on building notable achievements and contributions in your field.",
+        };
+
+      case "aiOverviews":
+        if (value >= 3)
+          return {
+            rating: "Excellent",
+            color: "green.500",
+            suggestion:
+              "Strong AI overview presence! You're well-represented in AI-powered search results.",
+          };
+        if (value >= 1)
+          return {
+            rating: "Good",
+            color: "blue.500",
+            suggestion:
+              "Some AI coverage. Continue creating quality content that AI systems can understand and feature.",
+          };
+        return {
+          rating: "None",
+          color: "gray.500",
+          suggestion:
+            "No AI overview presence. Focus on creating structured, authoritative content that AI systems can easily process.",
+        };
+
+      default:
+        return {
+          rating: "Unknown",
+          color: "gray.500",
+          suggestion: "Unable to determine rating for this factor.",
+        };
     }
   };
 
@@ -310,7 +504,18 @@ export default function ReputationHistory() {
                 const isExpanded = expandedKeyword === group.keyword;
 
                 return (
-                  <Card key={group.keyword} shadow="sm" borderWidth="1px">
+                  <Card
+                    key={group.keyword}
+                    shadow="sm"
+                    borderWidth="1px"
+                    cursor="pointer"
+                    _hover={{
+                      shadow: "md",
+                      borderColor: "teal.200",
+                    }}
+                    transition="all 0.2s"
+                    onClick={() => toggleKeywordExpansion(group.keyword)}
+                  >
                     <CardHeader>
                       <HStack justify="space-between" align="center">
                         <HStack spacing={3} flex={1}>
@@ -325,9 +530,10 @@ export default function ReputationHistory() {
                             }
                             size="sm"
                             variant="ghost"
-                            onClick={() =>
-                              toggleKeywordExpansion(group.keyword)
-                            }
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleKeywordExpansion(group.keyword);
+                            }}
                           />
                           <VStack align="start" spacing={1}>
                             <HStack spacing={3}>
@@ -403,6 +609,14 @@ export default function ReputationHistory() {
                                 borderColor="gray.200"
                                 rounded="lg"
                                 bg="gray.50"
+                                cursor="pointer"
+                                _hover={{
+                                  bg: "gray.100",
+                                  borderColor: "teal.200",
+                                  shadow: "md",
+                                }}
+                                transition="all 0.2s"
+                                onClick={() => handleViewDetails(search)}
                               >
                                 <VStack align="stretch" spacing={2}>
                                   <HStack justify="space-between">
@@ -431,7 +645,10 @@ export default function ReputationHistory() {
                                       +{search.positiveArticles} Positive
                                     </Text>
                                     <Text color="red.600">
-                                      -{search.negativeLinks} Negative
+                                      {search.negativeLinks === 0
+                                        ? "0"
+                                        : `-${search.negativeLinks}`}{" "}
+                                      Negative
                                     </Text>
                                     <Text color="blue.600">
                                       {search.socialPresence}% Social
@@ -441,15 +658,15 @@ export default function ReputationHistory() {
                                     </Text>
                                   </SimpleGrid>
 
-                                  <Button
-                                    size="xs"
-                                    colorScheme="teal"
-                                    variant="outline"
-                                    leftIcon={<ViewIcon />}
-                                    onClick={() => handleViewDetails(search)}
+                                  <HStack
+                                    spacing={1}
+                                    fontSize="xs"
+                                    color="teal.600"
+                                    align="center"
                                   >
-                                    View Results
-                                  </Button>
+                                    <ViewIcon />
+                                    <Text>Click to view details</Text>
+                                  </HStack>
                                 </VStack>
                               </Box>
                             ))}
@@ -520,66 +737,114 @@ export default function ReputationHistory() {
                       Score Factors
                     </Text>
                     <SimpleGrid
-                      columns={{ base: 2, md: 4 }}
-                      spacing={4}
+                      columns={{ base: 1, md: 2, lg: 3 }}
+                      spacing={6}
                       fontSize="sm"
                     >
-                      <VStack align="center" spacing={1}>
-                        <Text fontWeight="medium" color="green.600">
-                          +{selectedSearch.positiveArticles}
-                        </Text>
-                        <Text color="gray.600" textAlign="center">
-                          Positive Articles
-                        </Text>
-                      </VStack>
-                      <VStack align="center" spacing={1}>
-                        <Text fontWeight="medium" color="red.600">
-                          -{selectedSearch.negativeLinks}
-                        </Text>
-                        <Text color="gray.600" textAlign="center">
-                          Negative Links
-                        </Text>
-                      </VStack>
-                      <VStack align="center" spacing={1}>
-                        <Text fontWeight="medium" color="blue.600">
-                          {selectedSearch.socialPresence}%
-                        </Text>
-                        <Text color="gray.600" textAlign="center">
-                          Social Presence
-                        </Text>
-                      </VStack>
-                      <VStack align="center" spacing={1}>
-                        <Text fontWeight="medium" color="purple.600">
-                          {selectedSearch.ownedAssets}
-                        </Text>
-                        <Text color="gray.600" textAlign="center">
-                          Owned Assets
-                        </Text>
-                      </VStack>
-                      <VStack align="center" spacing={1}>
-                        <Text fontWeight="medium" color="orange.600">
-                          {selectedSearch.wikipediaPresence}
-                        </Text>
-                        <Text color="gray.600" textAlign="center">
-                          Wikipedia
-                        </Text>
-                      </VStack>
-                      <VStack align="center" spacing={1}>
-                        <Text fontWeight="medium" color="teal.600">
-                          {selectedSearch.aiOverviews}
-                        </Text>
-                        <Text color="gray.600" textAlign="center">
-                          AI Overviews
-                        </Text>
-                      </VStack>
-                      <VStack align="center" spacing={1}>
-                        <Text fontWeight="medium" color="pink.600">
-                          {selectedSearch.geoPresence}%
-                        </Text>
-                        <Text color="gray.600" textAlign="center">
-                          GEO Presence
-                        </Text>
-                      </VStack>
+                      {[
+                        {
+                          key: "positiveArticles",
+                          value: selectedSearch.positiveArticles,
+                          label: "Positive Articles",
+                          displayValue: `+${selectedSearch.positiveArticles}`,
+                          color: "green.600",
+                        },
+                        {
+                          key: "negativeLinks",
+                          value: selectedSearch.negativeLinks,
+                          label: "Negative Links",
+                          displayValue:
+                            selectedSearch.negativeLinks === 0
+                              ? "0"
+                              : `-${selectedSearch.negativeLinks}`,
+                          color: "red.600",
+                        },
+                        {
+                          key: "socialPresence",
+                          value: selectedSearch.socialPresence,
+                          label: "Social Presence",
+                          displayValue: `${selectedSearch.socialPresence}%`,
+                          color: "blue.600",
+                        },
+                        {
+                          key: "ownedAssets",
+                          value: selectedSearch.ownedAssets,
+                          label: "Owned Assets",
+                          displayValue: `${selectedSearch.ownedAssets}`,
+                          color: "purple.600",
+                        },
+                        {
+                          key: "wikipediaPresence",
+                          value: selectedSearch.wikipediaPresence,
+                          label: "Wikipedia",
+                          displayValue: `${selectedSearch.wikipediaPresence}`,
+                          color: "orange.600",
+                        },
+                        {
+                          key: "aiOverviews",
+                          value: selectedSearch.aiOverviews,
+                          label: "AI Overviews",
+                          displayValue: `${selectedSearch.aiOverviews}`,
+                          color: "teal.600",
+                        },
+                      ].map((factor) => {
+                        const rating = getFactorRating(
+                          factor.key,
+                          factor.value
+                        );
+                        return (
+                          <VStack key={factor.key} align="center" spacing={2}>
+                            <Text
+                              fontWeight="medium"
+                              color={factor.color}
+                              fontSize="lg"
+                            >
+                              {factor.displayValue}
+                            </Text>
+                            <Text
+                              color="gray.600"
+                              textAlign="center"
+                              fontSize="xs"
+                            >
+                              {factor.label}
+                            </Text>
+                            <Tooltip
+                              label={rating.suggestion}
+                              placement="top"
+                              hasArrow
+                              bg="gray.700"
+                              color="white"
+                              fontSize="xs"
+                              p={3}
+                              maxW="250px"
+                              textAlign="center"
+                            >
+                              <Badge
+                                colorScheme={
+                                  rating.color === "green.500"
+                                    ? "green"
+                                    : rating.color === "green.400"
+                                      ? "green"
+                                      : rating.color === "blue.500"
+                                        ? "blue"
+                                        : rating.color === "orange.500"
+                                          ? "orange"
+                                          : rating.color === "red.500"
+                                            ? "red"
+                                            : "gray"
+                                }
+                                variant="subtle"
+                                fontSize="xs"
+                                px={2}
+                                py={1}
+                                cursor="pointer"
+                              >
+                                {rating.rating}
+                              </Badge>
+                            </Tooltip>
+                          </VStack>
+                        );
+                      })}
                     </SimpleGrid>
                   </Box>
                 )}
