@@ -40,7 +40,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let countQuery = 'SELECT COUNT(*) as count FROM ReputationSearch WHERE userId = ?';
     let searchQuery = `SELECT id, keyword, entityType, score, positiveArticles, wikipediaPresence, ownedAssets, negativeLinks, socialPresence, aiOverviews, geoPresence, searchResults, createdAt, updatedAt FROM ReputationSearch WHERE userId = ?`;
     
-    const queryParams = [user.id];
+    const queryParams: any[] = [user.id];
     
     if (keyword && typeof keyword === 'string' && keyword.trim()) {
       countQuery += ' AND keyword LIKE ?';
@@ -49,7 +49,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     searchQuery += ' ORDER BY createdAt DESC LIMIT ? OFFSET ?';
-    const searchParams = [...queryParams, limitNum, offset];
+    const searchParams: any[] = [...queryParams, limitNum, offset];
 
     const [countResult, searches] = await Promise.all([
       prisma.$queryRawUnsafe(countQuery, ...queryParams),

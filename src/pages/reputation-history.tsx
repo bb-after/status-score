@@ -102,7 +102,7 @@ export default function ReputationHistory() {
     if (user?.isAuthenticated && !authLoading) {
       fetchHistory();
     }
-  }, [user, authLoading]);
+  }, [user, authLoading, fetchHistory]);
 
   const groupSearchesByKeyword = (
     searches: ReputationSearchRecord[]
