@@ -250,10 +250,18 @@ export default function Layout({ children }: { children: ReactNode }) {
                     <MenuDivider />
                     {user?.admin && (
                       <>
-                        <MenuItem as={NextLink} href="/dashboard" icon={<FiHome />}>
+                        <MenuItem
+                          as={NextLink}
+                          href="/dashboard"
+                          icon={<FiHome />}
+                        >
                           Admin: Dashboard
                         </MenuItem>
-                        <MenuItem as={NextLink} href="/keywords" icon={<FiFileText />}>
+                        <MenuItem
+                          as={NextLink}
+                          href="/keywords"
+                          icon={<FiFileText />}
+                        >
                           Admin: Keywords
                         </MenuItem>
                         <MenuItem
