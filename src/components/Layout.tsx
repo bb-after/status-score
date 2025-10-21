@@ -156,13 +156,19 @@ export default function Layout({ children }: { children: ReactNode }) {
                   _hover={{ opacity: 0.8 }}
                   transition="opacity 0.2s"
                 >
-                  <Image
-                    src="/status-score-transparent-logo.png"
-                    alt="Status Score Logo"
-                    w="60px"
-                    h="60px"
-                    objectFit="contain"
-                  />
+                  <Flex
+                    alignItems="center"
+                    justifyContent="center"
+                    w="40px"
+                    h="40px"
+                    bg="blue.500"
+                    color="white"
+                    borderRadius="md"
+                    fontWeight="bold"
+                    fontSize="xl"
+                  >
+                    AI
+                  </Flex>
                   <Heading size="md" color="blue.800">
                     {isReputationPage
                       ? "AI Reputation Checker"
