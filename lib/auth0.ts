@@ -13,7 +13,7 @@ export default initAuth0({
   clockTolerance: 60, // Allow 60 seconds clock skew
 
   // HTTP agent options to fix the "listener" error in serverless
-  httpAgent: false, // Disable connection pooling for serverless
+  httpAgent: undefined, // Use default agent options
 
   // Session configuration
   session: {
