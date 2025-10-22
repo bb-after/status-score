@@ -56,12 +56,12 @@ export interface AnalysisResult {
 interface ReputationDashboardProps {
   onSearchIntercept?: (
     keyword: string,
-    type: "individual" | "company" | "public-figure"
+    type: "individual" | "company" | "public-figure",
   ) => void;
   onCompareIntercept?: (
     keyword1: string,
     keyword2: string,
-    type: "individual" | "company" | "public-figure"
+    type: "individual" | "company" | "public-figure",
   ) => void;
 }
 
@@ -192,14 +192,14 @@ export function ReputationDashboard({
         () => {
           setSearchProgress(step);
         },
-        delays.slice(0, index + 1).reduce((sum, delay) => sum + delay, 0)
+        delays.slice(0, index + 1).reduce((sum, delay) => sum + delay, 0),
       );
     });
   };
 
   const handleSearch = async (
     keyword: string,
-    type: "individual" | "company" | "public-figure"
+    type: "individual" | "company" | "public-figure",
   ) => {
     // Check if we need to intercept for authentication
     if (onSearchIntercept) {
@@ -237,7 +237,7 @@ export function ReputationDashboard({
 
       // Load historical data
       const historyResponse = await fetch(
-        `/api/reputation/history?keyword=${encodeURIComponent(keyword)}`
+        `/api/reputation/history?keyword=${encodeURIComponent(keyword)}`,
       );
       if (historyResponse.ok) {
         const history = await historyResponse.json();
@@ -288,7 +288,7 @@ export function ReputationDashboard({
   const handleCompare = async (
     keyword1: string,
     keyword2: string,
-    type: "individual" | "company" | "public-figure"
+    type: "individual" | "company" | "public-figure",
   ) => {
     // Check if we need to intercept for authentication
     if (onCompareIntercept) {
@@ -450,6 +450,8 @@ export function ReputationDashboard({
             </VStack>
             <HStack spacing={3}>
               <Button
+                as="a"
+                href="/upgrade"
                 bg="white"
                 color="teal.700"
                 _hover={{ bg: "gray.50" }}
