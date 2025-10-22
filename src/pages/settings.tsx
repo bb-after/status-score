@@ -317,7 +317,7 @@ const SettingsPage = () => {
                   <FormControl
                     display="flex"
                     alignItems="center"
-                    justify="space-between"
+                    justifyContent="space-between"
                   >
                     <VStack align="start" spacing={0} flex={1}>
                       <FormLabel
