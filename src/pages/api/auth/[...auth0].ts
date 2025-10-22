@@ -1,8 +1,8 @@
-import { handleAuth, handleCallback } from '@auth0/nextjs-auth0';
+import auth0Instance from '../../../../lib/auth0';
 import prisma from '../../../lib/prisma';
 
-export default handleAuth({
-  callback: handleCallback({
+export default auth0Instance.handleAuth({
+  callback: auth0Instance.handleCallback({
     afterCallback: async (req, res, session) => {
       try {
         const { user } = session;
