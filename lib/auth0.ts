@@ -12,9 +12,6 @@ export default initAuth0({
   httpTimeout: 10000, // 10 second timeout
   clockTolerance: 60, // Allow 60 seconds clock skew
 
-  // HTTP agent options to fix the "listener" error in serverless
-  httpAgent: undefined, // Use default agent options
-
   // Session configuration
   session: {
     cookie: {
@@ -28,11 +25,8 @@ export default initAuth0({
     rollingDuration: 60 * 60 * 24 * 7, // 7 days
   },
 
-  // Auth0 routes
+  // Auth0 routes - simplified to avoid type errors
   routes: {
-    login: "/api/auth/login",
-    logout: "/api/auth/logout",
-    callback: "/api/auth/callback",
     postLogoutRedirect: "/",
   },
 });
