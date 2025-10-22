@@ -13,17 +13,23 @@ import {
   GridItem,
 } from "@chakra-ui/react";
 import { motion } from "framer-motion";
-import { FaSearch, FaBalanceScale, FaSpinner, FaInfoCircle, FaGift } from "react-icons/fa";
+import {
+  FaSearch,
+  FaBalanceScale,
+  FaSpinner,
+  FaInfoCircle,
+  FaGift,
+} from "react-icons/fa";
 
 interface SearchSectionProps {
   onSearch: (
     keyword: string,
-    type: "individual" | "company" | "public-figure"
+    type: "individual" | "company" | "public-figure",
   ) => void;
   onCompare: (
     keyword1: string,
     keyword2: string,
-    type: "individual" | "company" | "public-figure"
+    type: "individual" | "company" | "public-figure",
   ) => void;
   onDemo?: () => void;
   isSearching: boolean;
@@ -49,41 +55,47 @@ export function SearchSection({
   const borderColor = useColorModeValue("gray.200", "gray.600");
 
   // Progress steps with stats
-  const progressSteps = useMemo(() => [
-    {
-      message: "Searching Google for top 20 results...",
-      stat: "90% of people research online before making decisions",
-      progress: 20
-    },
-    {
-      message: "Analyzing sentiment and content quality...",
-      stat: "A single negative result can cost 22% of potential customers",
-      progress: 40
-    },
-    {
-      message: "Checking Wikipedia and authority sites...",
-      stat: "75% of people never scroll past the first page of search results",
-      progress: 60
-    },
-    {
-      message: "Evaluating social media presence...",
-      stat: "Online reputation influences 93% of consumer decisions",
-      progress: 80
-    },
-    {
-      message: "Generating comprehensive reputation score...",
-      stat: "Companies with positive online reputation see 31% higher profits",
-      progress: 100
-    }
-  ], []);
+  const progressSteps = useMemo(
+    () => [
+      {
+        message: "Searching Google for top 20 results...",
+        stat: "90% of people research online before making decisions",
+        progress: 20,
+      },
+      {
+        message: "Analyzing sentiment and content quality...",
+        stat: "A single negative result can cost 22% of potential customers",
+        progress: 40,
+      },
+      {
+        message: "Checking Wikipedia and authority sites...",
+        stat: "75% of people never scroll past the first page of search results",
+        progress: 60,
+      },
+      {
+        message: "Evaluating social media presence...",
+        stat: "Online reputation influences 93% of consumer decisions",
+        progress: 80,
+      },
+      {
+        message: "Generating comprehensive reputation score...",
+        stat: "Companies with positive online reputation see 31% higher profits",
+        progress: 100,
+      },
+    ],
+    [],
+  );
 
   const getCurrentStep = () => {
-    return progressSteps.find(step => searchProgress <= step.progress) || progressSteps[progressSteps.length - 1];
+    return (
+      progressSteps.find((step) => searchProgress <= step.progress) ||
+      progressSteps[progressSteps.length - 1]
+    );
   };
 
   const handleSearch = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    
+
     if (searchMode === "search" && keyword.trim()) {
       onSearch(keyword.trim(), entityType);
     } else if (searchMode === "compare" && keyword1.trim() && keyword2.trim()) {
@@ -128,13 +140,14 @@ export function SearchSection({
           </Box>
           <VStack align="flex-start" spacing={0}>
             <Text fontSize="lg" fontWeight="semibold" color="gray.900">
-              {searchMode === "compare" ? "Reputation Comparison" : "Reputation Search"}
+              {searchMode === "compare"
+                ? "Reputation Comparison"
+                : "Reputation Search"}
             </Text>
             <Text fontSize="sm" color="gray.600">
               {searchMode === "compare"
-                ? "Compare two entities side-by-side (Free: up to 2 comparisons)"
-                : "Enter a name or company to analyze their online reputation"
-              }
+                ? "Compare two entities side-by-side (Premium feature)"
+                : "Enter a name or company to analyze their online reputation"}
             </Text>
           </VStack>
         </HStack>
@@ -143,11 +156,18 @@ export function SearchSection({
         <HStack spacing={2}>
           <Button
             size="sm"
-            bg={!searchMode || searchMode === "search" ? "teal.100" : "transparent"}
-            color={!searchMode || searchMode === "search" ? "teal.700" : "gray.600"}
+            bg={
+              !searchMode || searchMode === "search"
+                ? "teal.100"
+                : "transparent"
+            }
+            color={
+              !searchMode || searchMode === "search" ? "teal.700" : "gray.600"
+            }
             _hover={{
-              bg: !searchMode || searchMode === "search" ? "teal.100" : "gray.50",
-              color: "gray.900"
+              bg:
+                !searchMode || searchMode === "search" ? "teal.100" : "gray.50",
+              color: "gray.900",
             }}
             onClick={() => setSearchMode("search")}
             leftIcon={<Icon as={FaSearch} />}
@@ -162,7 +182,7 @@ export function SearchSection({
             color={searchMode === "compare" ? "teal.700" : "gray.600"}
             _hover={{
               bg: searchMode === "compare" ? "teal.100" : "gray.50",
-              color: "gray.900"
+              color: "gray.900",
             }}
             onClick={() => setSearchMode("compare")}
             leftIcon={<Icon as={FaBalanceScale} />}
@@ -180,7 +200,7 @@ export function SearchSection({
               fontSize="xs"
               rounded="full"
             >
-              FREE
+              PREMIUM
             </Box>
           </Button>
         </HStack>
@@ -231,7 +251,11 @@ export function SearchSection({
         <VStack spacing={4}>
           {/* Search Inputs */}
           {searchMode === "compare" ? (
-            <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={4} w="100%">
+            <Grid
+              templateColumns={{ base: "1fr", md: "1fr 1fr" }}
+              gap={4}
+              w="100%"
+            >
               <GridItem>
                 <Text fontSize="sm" fontWeight="medium" color="gray.700" mb={2}>
                   First Entity
@@ -270,7 +294,9 @@ export function SearchSection({
                     borderColor: "transparent",
                   }}
                   isDisabled={isSearching}
-                  onKeyPress={(e) => e.key === "Enter" && canSearch && handleSearch()}
+                  onKeyPress={(e) =>
+                    e.key === "Enter" && canSearch && handleSearch()
+                  }
                 />
               </GridItem>
             </Grid>
@@ -291,7 +317,9 @@ export function SearchSection({
                   borderColor: "transparent",
                 }}
                 isDisabled={isSearching}
-                onKeyPress={(e) => e.key === "Enter" && canSearch && handleSearch()}
+                onKeyPress={(e) =>
+                  e.key === "Enter" && canSearch && handleSearch()
+                }
               />
             </HStack>
           )}
@@ -300,23 +328,27 @@ export function SearchSection({
           <HStack justify="space-between" align="center" w="100%">
             {/* Entity Type Selector */}
             <HStack bg="gray.100" rounded="lg" p={1}>
-              {(["individual", "company", "public-figure"] as const).map((type) => (
-                <Button
-                  key={type}
-                  size="sm"
-                  bg={entityType === type ? "white" : "transparent"}
-                  color={entityType === type ? "gray.900" : "gray.600"}
-                  shadow={entityType === type ? "sm" : "none"}
-                  _hover={{
-                    color: "gray.900",
-                  }}
-                  onClick={() => setEntityType(type)}
-                  fontSize="sm"
-                  fontWeight="medium"
-                >
-                  {type === "public-figure" ? "Public Figure" : type.charAt(0).toUpperCase() + type.slice(1)}
-                </Button>
-              ))}
+              {(["individual", "company", "public-figure"] as const).map(
+                (type) => (
+                  <Button
+                    key={type}
+                    size="sm"
+                    bg={entityType === type ? "white" : "transparent"}
+                    color={entityType === type ? "gray.900" : "gray.600"}
+                    shadow={entityType === type ? "sm" : "none"}
+                    _hover={{
+                      color: "gray.900",
+                    }}
+                    onClick={() => setEntityType(type)}
+                    fontSize="sm"
+                    fontWeight="medium"
+                  >
+                    {type === "public-figure"
+                      ? "Public Figure"
+                      : type.charAt(0).toUpperCase() + type.slice(1)}
+                  </Button>
+                ),
+              )}
             </HStack>
 
             {searchMode === "compare" && (
@@ -329,7 +361,7 @@ export function SearchSection({
                 rounded="lg"
               >
                 <Icon as={FaGift} color="blue.600" />
-                <Text>Free: Compare up to 2 entities</Text>
+                <Text>Premium: Compare multiple entities</Text>
               </HStack>
             )}
           </HStack>
@@ -347,16 +379,24 @@ export function SearchSection({
             }}
             isDisabled={!canSearch || isSearching}
             isLoading={isSearching}
-            loadingText={searchMode === "compare" ? "Comparing Reputations..." : "Analyzing Reputation..."}
+            loadingText={
+              searchMode === "compare"
+                ? "Comparing Reputations..."
+                : "Analyzing Reputation..."
+            }
             leftIcon={
               isSearching ? (
                 <Icon as={FaSpinner} className="animate-spin" />
               ) : (
-                <Icon as={searchMode === "compare" ? FaBalanceScale : FaSearch} />
+                <Icon
+                  as={searchMode === "compare" ? FaBalanceScale : FaSearch}
+                />
               )
             }
           >
-            {searchMode === "compare" ? "Compare Reputations" : "Analyze Reputation"}
+            {searchMode === "compare"
+              ? "Compare Reputations"
+              : "Analyze Reputation"}
           </Button>
         </VStack>
       </Box>
@@ -367,32 +407,45 @@ export function SearchSection({
           <Icon as={FaInfoCircle} color="blue.600" mt={0.5} />
           <VStack align="flex-start" spacing={1}>
             <Text fontSize="sm" color="blue.800" fontWeight="medium">
-              {searchMode === "compare" ? "Comparison Features:" : "How it works:"}
+              {searchMode === "compare"
+                ? "Comparison Features:"
+                : "How it works:"}
             </Text>
-            <VStack align="flex-start" spacing={1} color="blue.700" fontSize="sm">
+            <VStack
+              align="flex-start"
+              spacing={1}
+              color="blue.700"
+              fontSize="sm"
+            >
               {searchMode === "compare" ? (
                 <>
                   <Text>• Side-by-side reputation score comparison</Text>
                   <Text>• Detailed breakdown of each factor</Text>
                   <Text>• Visual charts showing strengths and weaknesses</Text>
-                  <Text>• Free: Compare up to 2 entities</Text>
+                  <Text>• Premium: Compare up to 2 entities</Text>
                   <Text>
-                    • <Text as="span" fontWeight="medium">Premium:</Text> Compare 3+ entities, weekly email reports
+                    •{" "}
+                    <Text as="span" fontWeight="medium">
+                      Premium:
+                    </Text>{" "}
+                    Compare 3+ entities, weekly email reports
                   </Text>
                 </>
               ) : (
                 <>
                   <Text>• Searches Google for the top 20 results</Text>
                   <Text>• Analyzes sentiment and content quality</Text>
-                  <Text>• Checks Wikipedia, social media, and news coverage</Text>
+                  <Text>
+                    • Checks Wikipedia, social media, and news coverage
+                  </Text>
                   <Text>• Generates comprehensive reputation score</Text>
                   <Text>
-                    • {entityType === "public-figure"
+                    •{" "}
+                    {entityType === "public-figure"
                       ? "Public figures: Negative content weighted more heavily"
                       : entityType === "company"
-                      ? "Companies: Enhanced brand reputation analysis"
-                      : "Individuals: Balanced personal reputation scoring"
-                    }
+                        ? "Companies: Enhanced brand reputation analysis"
+                        : "Individuals: Balanced personal reputation scoring"}
                   </Text>
                 </>
               )}

@@ -25,6 +25,7 @@ import {
   Badge,
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon, InfoIcon, StarIcon } from "@chakra-ui/icons";
+import { FaCrown } from "react-icons/fa";
 import {
   FiBarChart2,
   FiSearch,
@@ -46,9 +47,9 @@ import { AuthProvider, useAuth } from "../contexts/AuthContext";
 
 const Links = [
   { name: "Reputation Analyzer", href: "/reputation", icon: FiTrendingUp },
+  { name: "Reputation History", href: "/reputation-history", icon: FiActivity },
   { name: "GEO Checker", href: "/geo-check", icon: FiTarget },
   { name: "GEO History", href: "/geo-history", icon: FiClock },
-  { name: "Reputation History", href: "/reputation-history", icon: FiActivity },
   { name: "Reputation Check", href: "/medsearch", icon: FiSearch },
   { name: "Calculator", href: "/calc", icon: FiBarChart2 },
   { name: "Schedule", href: "/schedule", icon: FiCalendar },
@@ -89,6 +90,11 @@ const NavLink = ({
         {href === "/medsearch" && (
           <Badge ml={2} colorScheme="green" fontSize="xs">
             New
+          </Badge>
+        )}
+        {(href === "/geo-check" || href === "/geo-history") && (
+          <Badge ml={2} colorScheme="purple" fontSize="xs">
+            Premium
           </Badge>
         )}
       </Link>
@@ -219,7 +225,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                         onError={() =>
                           console.log(
                             "Avatar image failed to load:",
-                            user?.picture
+                            user?.picture,
                           )
                         }
                         referrerPolicy="no-referrer"
