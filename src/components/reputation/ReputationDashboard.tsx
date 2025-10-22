@@ -62,7 +62,7 @@ interface ReputationDashboardProps {
     keyword1: string,
     keyword2: string,
     type: "individual" | "company" | "public-figure",
-  ) => void;
+  ) => boolean | void;
 }
 
 export function ReputationDashboard({
@@ -290,10 +290,12 @@ export function ReputationDashboard({
     keyword2: string,
     type: "individual" | "company" | "public-figure",
   ) => {
-    // Check if we need to intercept for authentication
+    // Check if we need to intercept for authentication or premium check
     if (onCompareIntercept) {
-      onCompareIntercept(keyword1, keyword2, type);
-      return;
+      const shouldProceed = onCompareIntercept(keyword1, keyword2, type);
+      if (shouldProceed !== true) {
+        return; // Don't proceed if intercept doesn't explicitly return true
+      }
     }
 
     setCurrentStep(2); // Move to analyzing step
