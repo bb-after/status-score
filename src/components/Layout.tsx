@@ -185,7 +185,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             </HStack>
 
             <Flex alignItems="center" gap={4}>
-              {isReputationPage && (
+              {/* {isReputationPage && (
                 <Tooltip
                   label="Enterprise-grade reputation management"
                   placement="bottom"
@@ -200,7 +200,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                     Enterprise
                   </Button>
                 </Tooltip>
-              )}
+              )} */}
 
               {isAuthenticated ? (
                 <Menu>
