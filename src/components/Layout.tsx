@@ -44,6 +44,7 @@ import NextLink from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import axios from "axios";
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
+import { useSubscription } from "../hooks/useSubscription";
 
 const Links = [
   { name: "Reputation Analyzer", href: "/reputation", icon: FiTrendingUp },
@@ -59,10 +60,12 @@ const NavLink = ({
   children,
   href,
   icon,
+  hasActiveSubscription,
 }: {
   children: ReactNode;
   href: string;
   icon: any;
+  hasActiveSubscription?: boolean;
 }) => {
   const pathname = usePathname();
   const isActive = pathname === href;
@@ -87,16 +90,17 @@ const NavLink = ({
       >
         <Box as={icon} mr={2} />
         {children}
-        {href === "/medsearch" && (
+        {/* {href === "/medsearch" && (
           <Badge ml={2} colorScheme="green" fontSize="xs">
             New
           </Badge>
-        )}
-        {(href === "/geo-check" || href === "/geo-history") && (
-          <Badge ml={2} colorScheme="purple" fontSize="xs">
-            Premium
-          </Badge>
-        )}
+        )} */}
+        {(href === "/geo-check" || href === "/geo-history") &&
+          !hasActiveSubscription && (
+            <Badge ml={2} colorScheme="purple" fontSize="xs">
+              Premium
+            </Badge>
+          )}
       </Link>
     </NextLink>
   );
@@ -107,6 +111,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const { isAuthenticated, user, isLoading } = useAuth();
+  const { hasActiveSubscription } = useSubscription();
 
   const handleSignOut = async () => {
     await axios.post("/api/auth/logout", {}, { withCredentials: true });
@@ -328,7 +333,12 @@ export default function Layout({ children }: { children: ReactNode }) {
             >
               <VStack align="stretch" py={4} spacing={1}>
                 {Links.map((link) => (
-                  <NavLink key={link.name} href={link.href} icon={link.icon}>
+                  <NavLink
+                    key={link.name}
+                    href={link.href}
+                    icon={link.icon}
+                    hasActiveSubscription={hasActiveSubscription}
+                  >
                     {link.name}
                   </NavLink>
                 ))}
@@ -351,7 +361,12 @@ export default function Layout({ children }: { children: ReactNode }) {
               >
                 <VStack align="stretch" py={4} spacing={1}>
                   {Links.map((link) => (
-                    <NavLink key={link.name} href={link.href} icon={link.icon}>
+                    <NavLink
+                      key={link.name}
+                      href={link.href}
+                      icon={link.icon}
+                      hasActiveSubscription={hasActiveSubscription}
+                    >
                       {link.name}
                     </NavLink>
                   ))}

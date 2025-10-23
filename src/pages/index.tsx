@@ -55,19 +55,13 @@ export default function Home() {
               />
             </HStack>
             <HStack spacing={3}>
-              {!user ? (
+              {!user?.email ? (
                 <>
                   <Button
-                    onClick={() => setShowNewsletterModal(true)}
-                    variant="ghost"
-                    color="teal.700"
-                    size="sm"
-                    fontWeight="medium"
-                  >
-                    📧 Weekly Updates
-                  </Button>
-                  <Button
-                    onClick={() => setShowContactModal(true)}
+                    as="a"
+                    href="https://statuslabs.com/contact"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     variant="ghost"
                     color="teal.700"
                     size="sm"
@@ -166,7 +160,7 @@ export default function Home() {
                   _hover={{ bg: "gray.50" }}
                   leftIcon={<span>📊</span>}
                 >
-                  View Live Dashboard
+                  Get Started Free
                 </Button>
                 <Button
                   onClick={() => setShowDemoModal(true)}
@@ -421,10 +415,13 @@ export default function Home() {
                 _hover={{ bg: "gray.50" }}
                 leftIcon={<span>📊</span>}
               >
-                Launch Dashboard
+                Get Started Free
               </Button>
               <Button
-                onClick={() => setShowContactModal(true)}
+                as="a"
+                href="https://statuslabs.com/contact"
+                target="_blank"
+                rel="noopener noreferrer"
                 variant="outline"
                 borderColor="white"
                 color="white"
@@ -499,31 +496,6 @@ export default function Home() {
               </VStack>
             </GridItem>
           </Grid>
-
-          <Flex
-            borderTop="1px"
-            borderColor="gray.800"
-            mt={8}
-            pt={8}
-            justify="space-between"
-            align="center"
-            direction={{ base: "column", sm: "row" }}
-          >
-            <Text color="gray.400" fontSize="sm">
-              © 2024 Status Labs. All rights reserved.
-            </Text>
-            <Text
-              as="a"
-              href="https://readdy.ai/?origin=logo"
-              color="gray.400"
-              _hover={{ color: "white" }}
-              fontSize="sm"
-              mt={{ base: 4, sm: 0 }}
-              cursor="pointer"
-            >
-              Powered by Readdy
-            </Text>
-          </Flex>
         </Container>
       </Box>
 

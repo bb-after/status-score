@@ -16,11 +16,11 @@ import {
   useDisclosure,
   Tooltip,
 } from "@chakra-ui/react";
-import { 
-  FaEdit, 
-  FaCog, 
-  FaThumbsUp, 
-  FaThumbsDown, 
+import {
+  FaEdit,
+  FaCog,
+  FaThumbsUp,
+  FaThumbsDown,
   FaEquals,
   FaFacebook,
   FaTwitter,
@@ -28,11 +28,15 @@ import {
   FaInstagram,
   FaPinterest,
   FaMedium,
-  FaGlobe
+  FaGlobe,
 } from "react-icons/fa";
 import { SearchResult } from "./ReputationDashboard";
 import { SentimentModal } from "./SentimentModal";
 import { AssetClaimModal } from "./AssetClaimModal";
+import {
+  calculateScoreFromLegacyData,
+  type EntityType,
+} from "../../utils/scoreCalculator";
 
 interface ExtendedSearchResult extends SearchResult {
   userAnnotation?: {
@@ -62,8 +66,13 @@ interface SearchResultsProps {
     socialPresence: number;
     aiOverviews: number;
     geoPresence: number;
+    totalResults?: number;
   };
-  onScoreUpdate?: (newScoreData: { positiveArticles: number; negativeLinks: number; score: number }) => void;
+  onScoreUpdate?: (newScoreData: {
+    positiveArticles: number;
+    negativeLinks: number;
+    score: number;
+  }) => void;
 }
 
 export function SearchResults({
@@ -74,17 +83,19 @@ export function SearchResults({
   originalScoreData,
   onScoreUpdate,
 }: SearchResultsProps) {
-  const [selectedResult, setSelectedResult] = useState<ExtendedSearchResult | null>(null);
-  const [extendedResults, setExtendedResults] = useState<ExtendedSearchResult[]>(results);
-  const { 
-    isOpen: isSentimentModalOpen, 
-    onOpen: onSentimentModalOpen, 
-    onClose: onSentimentModalClose 
+  const [selectedResult, setSelectedResult] =
+    useState<ExtendedSearchResult | null>(null);
+  const [extendedResults, setExtendedResults] =
+    useState<ExtendedSearchResult[]>(results);
+  const {
+    isOpen: isSentimentModalOpen,
+    onOpen: onSentimentModalOpen,
+    onClose: onSentimentModalClose,
   } = useDisclosure();
-  const { 
-    isOpen: isAssetModalOpen, 
-    onOpen: onAssetModalOpen, 
-    onClose: onAssetModalClose 
+  const {
+    isOpen: isAssetModalOpen,
+    onOpen: onAssetModalOpen,
+    onClose: onAssetModalClose,
   } = useDisclosure();
 
   // Fetch existing annotations when results change
@@ -93,27 +104,29 @@ export function SearchResults({
       if (!results.length || !keyword) return;
 
       try {
-        const urls = results.map(r => r.url);
+        const urls = results.map((r) => r.url);
         const params = new URLSearchParams();
-        params.append('keyword', keyword);
-        urls.forEach(url => params.append('urls', url));
-        const response = await fetch(`/api/reputation/annotations/get?${params}`);
+        params.append("keyword", keyword);
+        urls.forEach((url) => params.append("urls", url));
+        const response = await fetch(
+          `/api/reputation/annotations/get?${params}`,
+        );
 
         if (response.ok) {
           const data = await response.json();
-          
+
           // Merge annotations with results
-          const resultsWithAnnotations = results.map(result => ({
+          const resultsWithAnnotations = results.map((result) => ({
             ...result,
             userAnnotation: data.annotations[result.url],
           }));
-          
+
           setExtendedResults(resultsWithAnnotations);
         }
       } catch (error) {
-        console.error('Failed to fetch annotations:', error);
+        console.error("Failed to fetch annotations:", error);
         // If fetch fails, just use results as-is
-        setExtendedResults(results.map(r => ({ ...r })));
+        setExtendedResults(results.map((r) => ({ ...r })));
       }
     };
 
@@ -144,29 +157,40 @@ export function SearchResults({
 
   const getSocialIcon = (url: string) => {
     const lowerUrl = url.toLowerCase();
-    if (lowerUrl.includes('facebook.com')) return FaFacebook;
-    if (lowerUrl.includes('twitter.com') || lowerUrl.includes('x.com')) return FaTwitter;
-    if (lowerUrl.includes('linkedin.com')) return FaLinkedin;
-    if (lowerUrl.includes('instagram.com')) return FaInstagram;
-    if (lowerUrl.includes('pinterest.com')) return FaPinterest;
-    if (lowerUrl.includes('medium.com')) return FaMedium;
+    if (lowerUrl.includes("facebook.com")) return FaFacebook;
+    if (lowerUrl.includes("twitter.com") || lowerUrl.includes("x.com"))
+      return FaTwitter;
+    if (lowerUrl.includes("linkedin.com")) return FaLinkedin;
+    if (lowerUrl.includes("instagram.com")) return FaInstagram;
+    if (lowerUrl.includes("pinterest.com")) return FaPinterest;
+    if (lowerUrl.includes("medium.com")) return FaMedium;
     return FaGlobe;
   };
 
   const isSocialMedia = (url: string) => {
     const lowerUrl = url.toLowerCase();
-    return ['facebook.com', 'twitter.com', 'x.com', 'linkedin.com', 'instagram.com', 'pinterest.com', 'medium.com'].some(domain => lowerUrl.includes(domain));
+    return [
+      "facebook.com",
+      "twitter.com",
+      "x.com",
+      "linkedin.com",
+      "instagram.com",
+      "pinterest.com",
+      "medium.com",
+    ].some((domain) => lowerUrl.includes(domain));
   };
 
   // Calculate updated score based on current sentiment distribution using the exact same logic as ReputationDashboard
   const calculateUpdatedScore = (results: ExtendedSearchResult[]) => {
-    const positiveCount = results.filter(r => {
-      const currentSentiment = r.userAnnotation?.sentiment?.value || r.sentiment;
+    const positiveCount = results.filter((r) => {
+      const currentSentiment =
+        r.userAnnotation?.sentiment?.value || r.sentiment;
       return currentSentiment === "positive";
     }).length;
-    
-    const negativeCount = results.filter(r => {
-      const currentSentiment = r.userAnnotation?.sentiment?.value || r.sentiment;
+
+    const negativeCount = results.filter((r) => {
+      const currentSentiment =
+        r.userAnnotation?.sentiment?.value || r.sentiment;
       return currentSentiment === "negative";
     }).length;
 
@@ -186,50 +210,20 @@ export function SearchResults({
       ...scoreData,
       positiveArticles: positiveCount,
       negativeLinks: negativeCount,
+      // Preserve totalResults for accurate percentage-based scoring
+      totalResults: scoreData.totalResults || results.length,
     };
 
-    // Calculate owned assets score: 5+ = max, 3-4 = great, 1-2 = ok, 0 = bad
-    const getOwnedAssetsScore = (count: number, maxPoints: number) => {
-      if (count >= 5) return maxPoints; // Perfect score
-      if (count >= 3) return maxPoints * 0.8; // Great score (80%)
-      if (count >= 1) return maxPoints * 0.5; // OK score (50%)
-      return 0; // No owned assets = 0 points
-    };
+    // Use centralized scoring logic
+    const score = calculateScoreFromLegacyData(
+      updatedScoreData,
+      entityType as EntityType,
+    );
 
-    // Use the exact same scoring logic as ReputationDashboard
-    let score = 0;
-    if (entityType === "public-figure") {
-      // public-figure - Positive articles are the most important factor
-      score += (updatedScoreData.positiveArticles / 10) * 70; // Up to 70 points (7 per positive)
-      score += (updatedScoreData.wikipediaPresence / 5) * 15;
-      score += getOwnedAssetsScore(updatedScoreData.ownedAssets, 8);
-      score -= updatedScoreData.negativeLinks * 30; // Negative content heavily penalized
-      score += (updatedScoreData.socialPresence / 100) * 5;
-      score += (updatedScoreData.aiOverviews / 5) * 2;
-      score += 0; // GEO presence minimal for public figures
-    } else if (entityType === "company") {
-      // company - Positive coverage is crucial for business reputation
-      score += (updatedScoreData.positiveArticles / 10) * 65; // Up to 65 points (6.5 per positive)
-      score += (updatedScoreData.wikipediaPresence / 5) * 15;
-      score += getOwnedAssetsScore(updatedScoreData.ownedAssets, 10);
-      score -= updatedScoreData.negativeLinks * 25; // Business negative news is very damaging
-      score += (updatedScoreData.socialPresence / 100) * 8;
-      score += (updatedScoreData.aiOverviews / 5) * 2;
-      score += 0; // GEO presence minimal for companies
-    } else {
-      // individual - Personal reputation heavily depends on positive mentions
-      score += (updatedScoreData.positiveArticles / 10) * 75; // Up to 75 points (7.5 per positive)
-      score += getOwnedAssetsScore(updatedScoreData.ownedAssets, 12);
-      score -= updatedScoreData.negativeLinks * 20; // Personal negatives are damaging
-      score += (updatedScoreData.socialPresence / 100) * 10;
-      score += (updatedScoreData.aiOverviews / 5) * 3;
-      score += 0; // GEO presence minimal for individuals
-    }
-    
     return {
       positiveArticles: positiveCount,
       negativeLinks: negativeCount,
-      score: Math.max(0, Math.min(100, Math.round(score)))
+      score,
     };
   };
 
@@ -243,14 +237,17 @@ export function SearchResults({
     onAssetModalOpen();
   };
 
-  const handleSentimentSave = async (newSentiment: "positive" | "neutral" | "negative", reason: string) => {
+  const handleSentimentSave = async (
+    newSentiment: "positive" | "neutral" | "negative",
+    reason: string,
+  ) => {
     if (!selectedResult) return;
-    
+
     // TODO: Call API to save sentiment annotation
     try {
-      const response = await fetch('/api/reputation/annotations/sentiment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/reputation/annotations/sentiment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           url: selectedResult.url,
           sentiment: newSentiment,
@@ -258,11 +255,13 @@ export function SearchResults({
           keyword,
         }),
       });
-      
-      if (!response.ok) throw new Error('Failed to save sentiment');
-      
+
+      if (!response.ok) throw new Error("Failed to save sentiment");
+
       // Update local state to reflect the change
-      const resultIndex = extendedResults.findIndex(r => r.url === selectedResult.url);
+      const resultIndex = extendedResults.findIndex(
+        (r) => r.url === selectedResult.url,
+      );
       if (resultIndex !== -1) {
         const updatedResults = [...extendedResults];
         updatedResults[resultIndex] = {
@@ -278,39 +277,44 @@ export function SearchResults({
           },
         };
         setExtendedResults(updatedResults);
-        
+
         // Calculate and notify parent of score update
         if (onScoreUpdate) {
           const newScoreData = calculateUpdatedScore(updatedResults);
           onScoreUpdate(newScoreData);
-          
+
           // Update the backend reputation search record with new score
-          fetch('/api/reputation/update-score', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+          fetch("/api/reputation/update-score", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               keyword,
               positiveArticles: newScoreData.positiveArticles,
               negativeLinks: newScoreData.negativeLinks,
               score: newScoreData.score,
             }),
-          }).catch(error => console.error('Failed to update backend score:', error));
+          }).catch((error) =>
+            console.error("Failed to update backend score:", error),
+          );
         }
       }
     } catch (error) {
-      console.error('Failed to save sentiment:', error);
+      console.error("Failed to save sentiment:", error);
       throw error;
     }
   };
 
-  const handleAssetClaimSave = async (claimType: "owned" | "not_owned" | "not_relevant", reason: string) => {
+  const handleAssetClaimSave = async (
+    claimType: "owned" | "not_owned" | "not_relevant",
+    reason: string,
+  ) => {
     if (!selectedResult) return;
-    
+
     // TODO: Call API to save asset claim
     try {
-      const response = await fetch('/api/reputation/annotations/asset-claim', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/reputation/annotations/asset-claim", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           url: selectedResult.url,
           claimType,
@@ -318,11 +322,13 @@ export function SearchResults({
           keyword,
         }),
       });
-      
-      if (!response.ok) throw new Error('Failed to save asset claim');
-      
+
+      if (!response.ok) throw new Error("Failed to save asset claim");
+
       // Update local state to reflect the change
-      const resultIndex = extendedResults.findIndex(r => r.url === selectedResult.url);
+      const resultIndex = extendedResults.findIndex(
+        (r) => r.url === selectedResult.url,
+      );
       if (resultIndex !== -1) {
         const updatedResults = [...extendedResults];
         updatedResults[resultIndex] = {
@@ -339,7 +345,7 @@ export function SearchResults({
         setExtendedResults(updatedResults);
       }
     } catch (error) {
-      console.error('Failed to save asset claim:', error);
+      console.error("Failed to save asset claim:", error);
       throw error;
     }
   };
@@ -367,11 +373,12 @@ export function SearchResults({
             </Text>
 
             <VStack spacing={3} align="stretch">
-              {extendedResults.slice(0, 10).map((result, index) => {
-                const currentSentiment = result.userAnnotation?.sentiment?.value || result.sentiment;
+              {extendedResults.map((result, index) => {
+                const currentSentiment =
+                  result.userAnnotation?.sentiment?.value || result.sentiment;
                 const SocialIcon = getSocialIcon(result.url);
                 const isaSocialSite = isSocialMedia(result.url);
-                
+
                 return (
                   <Box
                     key={index}
@@ -385,7 +392,11 @@ export function SearchResults({
                       <HStack justify="space-between" align="start">
                         <VStack align="stretch" spacing={1} flex={1}>
                           <HStack spacing={2}>
-                            <Icon as={SocialIcon} boxSize={3} color="gray.500" />
+                            <Icon
+                              as={SocialIcon}
+                              boxSize={3}
+                              color="gray.500"
+                            />
                             <Link
                               href={result.url}
                               isExternal
@@ -398,7 +409,11 @@ export function SearchResults({
                             </Link>
                             {isaSocialSite && (
                               <Tooltip label="Social Media Profile">
-                                <Badge colorScheme="blue" size="xs" variant="outline">
+                                <Badge
+                                  colorScheme="blue"
+                                  size="xs"
+                                  variant="outline"
+                                >
                                   Social
                                 </Badge>
                               </Tooltip>
@@ -409,26 +424,42 @@ export function SearchResults({
                               {result.source} • Rank #{result.rank}
                             </Text>
                             {result.userAnnotation?.sentiment && (
-                              <Badge colorScheme="purple" size="xs" variant="outline">
+                              <Badge
+                                colorScheme="purple"
+                                size="xs"
+                                variant="outline"
+                              >
                                 User Adjusted
                               </Badge>
                             )}
                             {result.userAnnotation?.assetClaim && (
-                              <Badge 
+                              <Badge
                                 colorScheme={
-                                  result.userAnnotation.assetClaim.claimType === "owned" ? "green" : "gray"
-                                } 
-                                size="xs" 
+                                  result.userAnnotation.assetClaim.claimType ===
+                                  "owned"
+                                    ? "green"
+                                    : "gray"
+                                }
+                                size="xs"
                                 variant="outline"
                               >
-                                {result.userAnnotation.assetClaim.claimType === "owned" ? "My Asset" : "Not Mine"}
+                                {result.userAnnotation.assetClaim.claimType ===
+                                "owned"
+                                  ? "My Asset"
+                                  : "Not Mine"}
                               </Badge>
                             )}
                           </HStack>
                         </VStack>
-                        
+
                         <HStack spacing={2}>
-                          <Tooltip label={result.userAnnotation?.sentiment ? `Adjusted: ${result.userAnnotation.sentiment.reason}` : "Click to adjust sentiment"}>
+                          <Tooltip
+                            label={
+                              result.userAnnotation?.sentiment
+                                ? `Adjusted: ${result.userAnnotation.sentiment.reason}`
+                                : "Click to adjust sentiment"
+                            }
+                          >
                             <Badge
                               colorScheme={getSentimentColor(currentSentiment)}
                               size="sm"
@@ -437,12 +468,15 @@ export function SearchResults({
                               onClick={() => handleSentimentAdjustment(result)}
                             >
                               <HStack spacing={1}>
-                                <Icon as={getSentimentIcon(currentSentiment)} boxSize={2} />
+                                <Icon
+                                  as={getSentimentIcon(currentSentiment)}
+                                  boxSize={2}
+                                />
                                 <Text>{currentSentiment}</Text>
                               </HStack>
                             </Badge>
                           </Tooltip>
-                          
+
                           <Menu>
                             <MenuButton
                               as={Button}
@@ -455,7 +489,9 @@ export function SearchResults({
                             <MenuList>
                               <MenuItem
                                 icon={<Icon as={FaEdit} />}
-                                onClick={() => handleSentimentAdjustment(result)}
+                                onClick={() =>
+                                  handleSentimentAdjustment(result)
+                                }
                               >
                                 Adjust Sentiment
                               </MenuItem>
@@ -480,12 +516,6 @@ export function SearchResults({
                 );
               })}
             </VStack>
-
-            {extendedResults.length > 10 && (
-              <Text fontSize="sm" color="gray.500" textAlign="center">
-                Showing first 10 of {extendedResults.length} results
-              </Text>
-            )}
           </VStack>
         </Box>
       </Collapse>
@@ -495,15 +525,23 @@ export function SearchResults({
         isOpen={isSentimentModalOpen}
         onClose={onSentimentModalClose}
         result={selectedResult}
-        currentSentiment={selectedResult?.userAnnotation?.sentiment?.value || selectedResult?.sentiment || "neutral"}
+        currentSentiment={
+          selectedResult?.userAnnotation?.sentiment?.value ||
+          selectedResult?.sentiment ||
+          "neutral"
+        }
         onSave={handleSentimentSave}
-        existingAnnotation={selectedResult?.userAnnotation?.sentiment ? {
-          sentiment: selectedResult.userAnnotation.sentiment.value,
-          reason: selectedResult.userAnnotation.sentiment.reason,
-          updatedAt: selectedResult.userAnnotation.sentiment.updatedAt,
-        } : undefined}
+        existingAnnotation={
+          selectedResult?.userAnnotation?.sentiment
+            ? {
+                sentiment: selectedResult.userAnnotation.sentiment.value,
+                reason: selectedResult.userAnnotation.sentiment.reason,
+                updatedAt: selectedResult.userAnnotation.sentiment.updatedAt,
+              }
+            : undefined
+        }
       />
-      
+
       <AssetClaimModal
         isOpen={isAssetModalOpen}
         onClose={onAssetModalClose}
