@@ -17,6 +17,7 @@ import {
   Progress,
 } from "@chakra-ui/react";
 import { motion, AnimatePresence } from "framer-motion";
+import { WelcomeBanner } from "./WelcomeBanner";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import { SearchSection } from "./SearchSection";
 import { ScoreOverview } from "./ScoreOverview";
@@ -24,6 +25,12 @@ import { ScoreBreakdown } from "./ScoreBreakdown";
 import { SearchResults } from "./SearchResults";
 import { HistoricalChart } from "./HistoricalChart";
 import { ComparisonView } from "./ComparisonView";
+import { ReputationActionItems } from "./ReputationActionItems";
+import { ReputationScoreBreakdown } from "./ReputationScoreBreakdown";
+import {
+  calculateScoreFromLegacyData,
+  type EntityType,
+} from "../../utils/scoreCalculator";
 
 export interface ReputationData {
   positiveArticles: number;
@@ -33,6 +40,7 @@ export interface ReputationData {
   socialPresence: number;
   aiOverviews: number;
   geoPresence: number;
+  totalResults?: number;
 }
 
 export interface SearchResult {
@@ -51,6 +59,11 @@ export interface AnalysisResult {
   data: ReputationData;
   results: SearchResult[];
   timestamp: string;
+  lowResultAlert?: {
+    isLowCount: boolean;
+    message?: string;
+    suggestions?: string[];
+  };
 }
 
 interface ReputationDashboardProps {
@@ -111,6 +124,12 @@ export function ReputationDashboard({
 
   // Dismissable banners state
   const [showWelcomeBanner, setShowWelcomeBanner] = useState(true);
+  const [toastShown, setToastShown] = useState(false);
+  const [lowResultAlert, setLowResultAlert] = useState<{
+    isLowCount: boolean;
+    message?: string;
+    suggestions?: string[];
+  } | null>(null);
 
   const entityTypes = ["individual", "company", "public-figure"] as const;
 
@@ -215,6 +234,7 @@ export function ReputationDashboard({
     setIsComparing(false);
     setComparisonData(null);
     setShowDemoMode(false);
+    setToastShown(false); // Reset toast flag for new search
 
     simulateProgress();
 
@@ -234,6 +254,7 @@ export function ReputationDashboard({
       setSearchResults(analysis.results);
       setShowResults(true);
       setHasSearched(true);
+      setLowResultAlert(analysis.lowResultAlert || null);
 
       // Load historical data
       const historyResponse = await fetch(
@@ -247,12 +268,15 @@ export function ReputationDashboard({
       // Step 2 → Step 3: Move to results state
       setCurrentStep(3);
 
-      toast({
-        title: "Analysis Complete",
-        description: `Reputation score: ${analysis.score}/100`,
-        status: "success",
-        duration: 3000,
-      });
+      if (!toastShown) {
+        toast({
+          title: "Analysis Complete",
+          description: `Reputation score: ${analysis.score}/100`,
+          status: "success",
+          duration: 3000,
+        });
+        setToastShown(true);
+      }
     } catch (error) {
       console.error("Search failed:", error);
       // Reset to step 1 on error
@@ -381,48 +405,27 @@ export function ReputationDashboard({
     setHistoricalData([]);
   };
 
-  // Calculate score based on inputs with type-specific weighting
+  // Calculate score based on inputs using centralized logic
   useEffect(() => {
     const calculateScore = () => {
-      let score = 0;
-
-      // Calculate owned assets score: 5+ = max, 3-4 = great, 1-2 = ok, 0 = bad
-      const getOwnedAssetsScore = (count: number, maxPoints: number) => {
-        if (count >= 5) return maxPoints; // Perfect score
-        if (count >= 3) return maxPoints * 0.8; // Great score (80%)
-        if (count >= 1) return maxPoints * 0.5; // OK score (50%)
-        return 0; // No owned assets = 0 points
-      };
-
+      // Map activeTab to entityType
+      let entityType: EntityType;
       if (activeTab === 2) {
-        // public-figure - Positive articles are the most important factor
-        score += (scoreData.positiveArticles / 10) * 70; // Up to 70 points (7 per positive)
-        score += (scoreData.wikipediaPresence / 5) * 15;
-        score += getOwnedAssetsScore(scoreData.ownedAssets, 8);
-        score -= scoreData.negativeLinks * 30; // Negative content heavily penalized
-        score += (scoreData.socialPresence / 100) * 5;
-        score += (scoreData.aiOverviews / 5) * 2;
-        score += 0; // GEO presence minimal for public figures
+        entityType = "public-figure";
       } else if (activeTab === 1) {
-        // company - Positive coverage is crucial for business reputation
-        score += (scoreData.positiveArticles / 10) * 65; // Up to 65 points (6.5 per positive)
-        score += (scoreData.wikipediaPresence / 5) * 15;
-        score += getOwnedAssetsScore(scoreData.ownedAssets, 10);
-        score -= scoreData.negativeLinks * 25; // Business negative news is very damaging
-        score += (scoreData.socialPresence / 100) * 8;
-        score += (scoreData.aiOverviews / 5) * 2;
-        score += 0; // GEO presence minimal for companies
+        entityType = "company";
       } else {
-        // individual - Personal reputation heavily depends on positive mentions
-        score += (scoreData.positiveArticles / 10) * 75; // Up to 75 points (7.5 per positive)
-        score += getOwnedAssetsScore(scoreData.ownedAssets, 12);
-        score -= scoreData.negativeLinks * 20; // Personal negatives are damaging
-        score += (scoreData.socialPresence / 100) * 10;
-        score += (scoreData.aiOverviews / 5) * 3;
-        score += 0; // GEO presence minimal for individuals
+        entityType = "individual";
       }
 
-      setCurrentScore(Math.max(0, Math.min(100, Math.round(score))));
+      // Add geoPresence with default value if missing
+      const dataWithGeo = {
+        ...scoreData,
+        geoPresence: scoreData.geoPresence || 0,
+      };
+
+      const score = calculateScoreFromLegacyData(dataWithGeo, entityType);
+      setCurrentScore(score);
     };
 
     calculateScore();
@@ -432,47 +435,10 @@ export function ReputationDashboard({
     <Box py={8}>
       {/* User Welcome Banner */}
       {user?.name && showWelcomeBanner && (
-        <Box
-          bgGradient="linear(to-r, teal.600, cyan.500)"
-          rounded="xl"
-          p={6}
-          mb={8}
-          mx={6}
-          color="white"
-          position="relative"
-        >
-          <Flex justify="space-between" align="center">
-            <VStack align="start" spacing={1}>
-              <Text fontSize="xl" fontWeight="bold">
-                Welcome back, {user.name || user.email}!
-              </Text>
-              <Text fontSize="sm" color="teal.100">
-                Your reputation analysis results are automatically saved
-              </Text>
-            </VStack>
-            <HStack spacing={3}>
-              <Button
-                as="a"
-                href="/upgrade"
-                bg="white"
-                color="teal.700"
-                _hover={{ bg: "gray.50" }}
-                size="md"
-              >
-                Upgrade Now
-              </Button>
-              <Button
-                variant="ghost"
-                color="white"
-                _hover={{ bg: "whiteAlpha.200" }}
-                size="sm"
-                onClick={() => setShowWelcomeBanner(false)}
-              >
-                ✕
-              </Button>
-            </HStack>
-          </Flex>
-        </Box>
+        <WelcomeBanner
+          userName={user.name || user.email || ""}
+          onDismiss={() => setShowWelcomeBanner(false)}
+        />
       )}
 
       {/* Animated Step Container */}
@@ -662,6 +628,41 @@ export function ReputationDashboard({
               </motion.div>
             )}
 
+            {/* Low Result Alert */}
+            {lowResultAlert?.isLowCount && (
+              <motion.div
+                variants={bounceVariants}
+                initial="initial"
+                animate="animate"
+                transition={{ delay: 0.25 }}
+              >
+                <Box mx={6} mb={6}>
+                  <Alert status="warning" borderRadius="lg">
+                    <AlertIcon />
+                    <Box>
+                      <Text fontWeight="semibold" mb={2}>
+                        {lowResultAlert.message}
+                      </Text>
+                      {lowResultAlert.suggestions && (
+                        <Box>
+                          <Text fontSize="sm" mb={2}>
+                            Suggestions to improve your online presence:
+                          </Text>
+                          <VStack align="start" fontSize="sm" spacing={1}>
+                            {lowResultAlert.suggestions.map(
+                              (suggestion, index) => (
+                                <Text key={index}>• {suggestion}</Text>
+                              ),
+                            )}
+                          </VStack>
+                        </Box>
+                      )}
+                    </Box>
+                  </Alert>
+                </Box>
+              </motion.div>
+            )}
+
             {/* Search Results */}
             {!isComparing && (
               <motion.div
@@ -681,13 +682,48 @@ export function ReputationDashboard({
               </motion.div>
             )}
 
+            {/* Action Items - Show after search results */}
+            {(showResults || showDemoMode) && (
+              <motion.div
+                variants={bounceVariants}
+                initial="initial"
+                animate="animate"
+                transition={{ delay: 0.3 }}
+              >
+                <Box mx={6}>
+                  <ReputationActionItems
+                    score={currentScore}
+                    type={entityTypes[activeTab]}
+                    data={scoreData}
+                  />
+                </Box>
+              </motion.div>
+            )}
+
+            {/* Score Breakdown Charts - Show after action items */}
+            {(showResults || showDemoMode) && (
+              <motion.div
+                variants={bounceVariants}
+                initial="initial"
+                animate="animate"
+                transition={{ delay: 0.4 }}
+              >
+                <Box mx={6} mt={6}>
+                  <ReputationScoreBreakdown
+                    scoreData={scoreData}
+                    type={entityTypes[activeTab]}
+                  />
+                </Box>
+              </motion.div>
+            )}
+
             {/* Historical Chart */}
             {!isComparing && (
               <motion.div
                 variants={bounceVariants}
                 initial="initial"
                 animate="animate"
-                transition={{ delay: 0.4 }}
+                transition={{ delay: 0.5 }}
               >
                 <Box mx={6}>
                   {historicalData.length > 1 ? (

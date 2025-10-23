@@ -1,15 +1,28 @@
-import { Box, VStack, Text, CircularProgress, CircularProgressLabel, Badge } from '@chakra-ui/react';
-import { useState, useEffect } from 'react';
+import {
+  Box,
+  VStack,
+  Text,
+  CircularProgress,
+  CircularProgressLabel,
+  Badge,
+} from "@chakra-ui/react";
+import { useState, useEffect } from "react";
 
 interface ScoreOverviewProps {
   score: number;
-  type: 'individual' | 'company' | 'public-figure';
+  type: "individual" | "company" | "public-figure";
   keyword?: string;
   hasSearched: boolean;
-  historicalData: Array<{ date: string; score: number; }>;
+  historicalData: Array<{ date: string; score: number }>;
 }
 
-export function ScoreOverview({ score, type, keyword, hasSearched, historicalData }: ScoreOverviewProps) {
+export function ScoreOverview({
+  score,
+  type,
+  keyword,
+  hasSearched,
+  historicalData,
+}: ScoreOverviewProps) {
   const [animatedScore, setAnimatedScore] = useState(0);
 
   // Animate score counter from 0 to target score
@@ -40,17 +53,17 @@ export function ScoreOverview({ score, type, keyword, hasSearched, historicalDat
   }, [score, hasSearched]);
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return 'green';
-    if (score >= 60) return 'yellow';
-    if (score >= 40) return 'orange';
-    return 'red';
+    if (score >= 80) return "green";
+    if (score >= 60) return "yellow";
+    if (score >= 40) return "orange";
+    return "red";
   };
 
   const getScoreLabel = (score: number) => {
-    if (score >= 80) return 'Excellent';
-    if (score >= 60) return 'Good';
-    if (score >= 40) return 'Fair';
-    return 'Poor';
+    if (score >= 80) return "Excellent";
+    if (score >= 60) return "Good";
+    if (score >= 40) return "Fair";
+    return "Poor";
   };
 
   const displayScore = hasSearched ? animatedScore : 0;
@@ -69,7 +82,7 @@ export function ScoreOverview({ score, type, keyword, hasSearched, historicalDat
         <Text fontSize="lg" fontWeight="semibold" color="gray.900">
           Reputation Score
         </Text>
-        
+
         {keyword && (
           <Text fontSize="md" color="gray.600">
             {keyword}
@@ -90,19 +103,19 @@ export function ScoreOverview({ score, type, keyword, hasSearched, historicalDat
 
         <VStack spacing={2}>
           <Badge
-            colorScheme={getScoreColor(displayScore)}
+            colorScheme={getScoreColor(score)}
             size="lg"
             px={3}
             py={1}
             rounded="full"
           >
-            {getScoreLabel(displayScore)}
+            {getScoreLabel(score)}
           </Badge>
 
           <Text fontSize="sm" color="gray.500" textAlign="center">
-            {type === 'individual' && 'Individual reputation analysis'}
-            {type === 'company' && 'Company reputation analysis'}
-            {type === 'public-figure' && 'Public figure reputation analysis'}
+            {type === "individual" && "Individual reputation analysis"}
+            {type === "company" && "Company reputation analysis"}
+            {type === "public-figure" && "Public figure reputation analysis"}
           </Text>
         </VStack>
 
@@ -113,7 +126,8 @@ export function ScoreOverview({ score, type, keyword, hasSearched, historicalDat
             </Text>
             {historicalData.length >= 2 && (
               <Text fontSize="xs" color="gray.500">
-                First: {historicalData[0].score} → Latest: {historicalData[historicalData.length - 1].score}
+                First: {historicalData[0].score} → Latest:{" "}
+                {historicalData[historicalData.length - 1].score}
               </Text>
             )}
           </Box>

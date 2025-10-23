@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -27,7 +27,10 @@ interface SentimentModalProps {
   onClose: () => void;
   result: SearchResult | null;
   currentSentiment: "positive" | "neutral" | "negative";
-  onSave: (newSentiment: "positive" | "neutral" | "negative", reason: string) => Promise<void>;
+  onSave: (
+    newSentiment: "positive" | "neutral" | "negative",
+    reason: string,
+  ) => Promise<void>;
   existingAnnotation?: {
     sentiment: "positive" | "neutral" | "negative";
     reason: string;
@@ -43,25 +46,27 @@ export function SentimentModal({
   onSave,
   existingAnnotation,
 }: SentimentModalProps) {
-  const [selectedSentiment, setSelectedSentiment] = useState<"positive" | "neutral" | "negative">(currentSentiment);
+  const [selectedSentiment, setSelectedSentiment] = useState<
+    "positive" | "neutral" | "negative"
+  >(currentSentiment);
   const [reason, setReason] = useState(existingAnnotation?.reason || "");
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
 
-  const handleSave = async () => {
-    if (!reason.trim()) {
-      toast({
-        title: "Reason Required",
-        description: "Please provide a reason for this sentiment adjustment",
-        status: "warning",
-        duration: 3000,
-      });
-      return;
-    }
+  // Update selected sentiment when currentSentiment changes (modal reopens)
+  useEffect(() => {
+    setSelectedSentiment(currentSentiment);
+  }, [currentSentiment]);
 
+  // Update reason when existingAnnotation changes
+  useEffect(() => {
+    setReason(existingAnnotation?.reason || "");
+  }, [existingAnnotation]);
+
+  const handleSave = async () => {
     setIsLoading(true);
     try {
-      await onSave(selectedSentiment, reason);
+      await onSave(selectedSentiment, reason.trim() || "Manual adjustment");
       toast({
         title: "Sentiment Updated",
         description: "Your sentiment adjustment has been saved",
@@ -113,7 +118,10 @@ export function SentimentModal({
           <VStack align="flex-start" spacing={2}>
             <Text>Adjust Sentiment</Text>
             <HStack spacing={2}>
-              <Badge colorScheme={getSentimentColor(currentSentiment)} size="sm">
+              <Badge
+                colorScheme={getSentimentColor(currentSentiment)}
+                size="sm"
+              >
                 Current: {currentSentiment}
               </Badge>
               {existingAnnotation && (
@@ -125,11 +133,17 @@ export function SentimentModal({
           </VStack>
         </ModalHeader>
         <ModalCloseButton />
-        
+
         <ModalBody>
           <VStack spacing={4} align="stretch">
             {/* Result Preview */}
-            <Box p={3} bg="gray.50" rounded="lg" border="1px" borderColor="gray.200">
+            <Box
+              p={3}
+              bg="gray.50"
+              rounded="lg"
+              border="1px"
+              borderColor="gray.200"
+            >
               <Text fontSize="sm" fontWeight="semibold" color="blue.600" mb={1}>
                 {result.title}
               </Text>
@@ -148,14 +162,24 @@ export function SentimentModal({
               </Text>
               <RadioGroup
                 value={selectedSentiment}
-                onChange={(value: "positive" | "neutral" | "negative") => setSelectedSentiment(value)}
+                onChange={(value: "positive" | "neutral" | "negative") =>
+                  setSelectedSentiment(value)
+                }
               >
                 <VStack align="stretch" spacing={2}>
                   <Box
                     p={3}
                     border="1px"
-                    borderColor={selectedSentiment === "positive" ? "green.300" : "gray.200"}
-                    bg={selectedSentiment === "positive" ? "green.50" : "transparent"}
+                    borderColor={
+                      selectedSentiment === "positive"
+                        ? "green.300"
+                        : "gray.200"
+                    }
+                    bg={
+                      selectedSentiment === "positive"
+                        ? "green.50"
+                        : "transparent"
+                    }
                     rounded="md"
                     cursor="pointer"
                     _hover={{ borderColor: "green.300", bg: "green.50" }}
@@ -164,17 +188,29 @@ export function SentimentModal({
                     <HStack spacing={3}>
                       <Radio value="positive" colorScheme="green" />
                       <Icon as={FaThumbsUp} color="green.500" />
-                      <Text fontWeight={selectedSentiment === "positive" ? "semibold" : "normal"}>
+                      <Text
+                        fontWeight={
+                          selectedSentiment === "positive"
+                            ? "semibold"
+                            : "normal"
+                        }
+                      >
                         Positive - This content is favorable
                       </Text>
                     </HStack>
                   </Box>
-                  
+
                   <Box
                     p={3}
                     border="1px"
-                    borderColor={selectedSentiment === "neutral" ? "gray.400" : "gray.200"}
-                    bg={selectedSentiment === "neutral" ? "gray.50" : "transparent"}
+                    borderColor={
+                      selectedSentiment === "neutral" ? "gray.400" : "gray.200"
+                    }
+                    bg={
+                      selectedSentiment === "neutral"
+                        ? "gray.50"
+                        : "transparent"
+                    }
                     rounded="md"
                     cursor="pointer"
                     _hover={{ borderColor: "gray.400", bg: "gray.50" }}
@@ -183,17 +219,29 @@ export function SentimentModal({
                     <HStack spacing={3}>
                       <Radio value="neutral" colorScheme="gray" />
                       <Icon as={FaEquals} color="gray.500" />
-                      <Text fontWeight={selectedSentiment === "neutral" ? "semibold" : "normal"}>
+                      <Text
+                        fontWeight={
+                          selectedSentiment === "neutral"
+                            ? "semibold"
+                            : "normal"
+                        }
+                      >
                         Neutral - This content is factual/balanced
                       </Text>
                     </HStack>
                   </Box>
-                  
+
                   <Box
                     p={3}
                     border="1px"
-                    borderColor={selectedSentiment === "negative" ? "red.300" : "gray.200"}
-                    bg={selectedSentiment === "negative" ? "red.50" : "transparent"}
+                    borderColor={
+                      selectedSentiment === "negative" ? "red.300" : "gray.200"
+                    }
+                    bg={
+                      selectedSentiment === "negative"
+                        ? "red.50"
+                        : "transparent"
+                    }
                     rounded="md"
                     cursor="pointer"
                     _hover={{ borderColor: "red.300", bg: "red.50" }}
@@ -202,7 +250,13 @@ export function SentimentModal({
                     <HStack spacing={3}>
                       <Radio value="negative" colorScheme="red" />
                       <Icon as={FaThumbsDown} color="red.500" />
-                      <Text fontWeight={selectedSentiment === "negative" ? "semibold" : "normal"}>
+                      <Text
+                        fontWeight={
+                          selectedSentiment === "negative"
+                            ? "semibold"
+                            : "normal"
+                        }
+                      >
                         Negative - This content is unfavorable
                       </Text>
                     </HStack>
@@ -214,22 +268,29 @@ export function SentimentModal({
             {/* Reason */}
             <Box>
               <Text fontWeight="medium" mb={2}>
-                Reason for adjustment *
+                Reason for adjustment (optional)
               </Text>
               <Textarea
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
-                placeholder="Explain why you're changing this sentiment classification..."
+                placeholder="Optionally explain why you're changing this sentiment classification..."
                 rows={3}
               />
               <Text fontSize="xs" color="gray.500" mt={1}>
-                This will help you remember your reasoning and improve future analysis
+                This will help you remember your reasoning and improve future
+                analysis
               </Text>
             </Box>
 
             {/* Previous Annotation Info */}
             {existingAnnotation && (
-              <Box p={3} bg="blue.50" rounded="lg" border="1px" borderColor="blue.200">
+              <Box
+                p={3}
+                bg="blue.50"
+                rounded="lg"
+                border="1px"
+                borderColor="blue.200"
+              >
                 <Text fontSize="sm" fontWeight="medium" color="blue.700" mb={1}>
                   Previous Adjustment
                 </Text>
@@ -240,7 +301,8 @@ export function SentimentModal({
                   Reason: {existingAnnotation.reason}
                 </Text>
                 <Text fontSize="xs" color="blue.500">
-                  Updated: {new Date(existingAnnotation.updatedAt).toLocaleDateString()}
+                  Updated:{" "}
+                  {new Date(existingAnnotation.updatedAt).toLocaleDateString()}
                 </Text>
               </Box>
             )}

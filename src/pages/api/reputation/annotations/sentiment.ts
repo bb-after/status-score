@@ -1,28 +1,31 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import { getSession } from '@auth0/nextjs-auth0';
-import { PrismaClient } from '@prisma/client';
+import { NextApiRequest, NextApiResponse } from "next";
+import { getSession } from "@auth0/nextjs-auth0";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
     const session = await getSession(req, res);
     if (!session?.user) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      return res.status(401).json({ error: "Unauthorized" });
     }
 
     const { url, sentiment, reason, keyword } = req.body;
 
-    if (!url || !sentiment || !reason || !keyword) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    if (!url || !sentiment || !keyword) {
+      return res.status(400).json({ error: "Missing required fields" });
     }
 
-    if (!['positive', 'neutral', 'negative'].includes(sentiment)) {
-      return res.status(400).json({ error: 'Invalid sentiment value' });
+    if (!["positive", "neutral", "negative"].includes(sentiment)) {
+      return res.status(400).json({ error: "Invalid sentiment value" });
     }
 
     // Find the user by Auth0 ID
@@ -31,11 +34,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
 
     // Convert sentiment to enum value
-    const sentimentEnum = sentiment.toUpperCase() as 'POSITIVE' | 'NEUTRAL' | 'NEGATIVE';
+    const sentimentEnum = sentiment.toUpperCase() as
+      | "POSITIVE"
+      | "NEUTRAL"
+      | "NEGATIVE";
+
+    // Use provided reason or default
+    const finalReason = reason?.trim() || "Manual adjustment";
 
     // Check if annotation already exists
     const existingAnnotation = await prisma.resultAnnotation.findUnique({
@@ -43,7 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         userId_url_annotationType: {
           userId: user.id,
           url,
-          annotationType: 'SENTIMENT',
+          annotationType: "SENTIMENT",
         },
       },
       include: {
@@ -52,7 +61,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     let annotation;
-    
+
     if (existingAnnotation) {
       // Update existing annotation and its sentiment data
       if (existingAnnotation.sentimentData) {
@@ -63,7 +72,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           },
           data: {
             sentiment: sentimentEnum,
-            reason,
+            reason: finalReason,
             updatedAt: new Date(),
           },
         });
@@ -73,11 +82,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           data: {
             annotationId: existingAnnotation.id,
             sentiment: sentimentEnum,
-            reason,
+            reason: finalReason,
           },
         });
       }
-      
+
       // Update annotation itself
       annotation = await prisma.resultAnnotation.update({
         where: {
@@ -98,11 +107,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           userId: user.id,
           url,
           keyword,
-          annotationType: 'SENTIMENT',
+          annotationType: "SENTIMENT",
           sentimentData: {
             create: {
               sentiment: sentimentEnum,
-              reason,
+              reason: finalReason,
             },
           },
         },
@@ -115,14 +124,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).json({
       success: true,
       annotation,
-      message: 'Sentiment annotation saved successfully',
+      message: "Sentiment annotation saved successfully",
     });
-
   } catch (error) {
-    console.error('Error saving sentiment annotation:', error);
-    return res.status(500).json({ 
-      error: 'Internal server error',
-      message: 'Failed to save sentiment annotation' 
+    console.error("Error saving sentiment annotation:", error);
+    return res.status(500).json({
+      error: "Internal server error",
+      message: "Failed to save sentiment annotation",
     });
   }
 }

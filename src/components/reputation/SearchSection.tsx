@@ -433,7 +433,7 @@ export function SearchSection({
                 </>
               ) : (
                 <>
-                  <Text>• Searches Google for the top 20 results</Text>
+                  <Text>• Searches Google for the top 15 results</Text>
                   <Text>• Analyzes sentiment and content quality</Text>
                   <Text>
                     • Checks Wikipedia, social media, and news coverage

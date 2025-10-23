@@ -46,6 +46,7 @@ import {
 import { formatDistanceToNow } from "date-fns";
 import { SearchResults } from "../components/reputation/SearchResults";
 import { ProtectedRoute } from "../components/ProtectedRoute";
+import { WelcomeBanner } from "../components/reputation/WelcomeBanner";
 
 interface ReputationSearchRecord {
   id: number;
@@ -87,6 +88,7 @@ interface KeywordGroup {
 
 export default function ReputationHistory() {
   const { user, isLoading: authLoading } = useUser();
+  const [showWelcomeBanner, setShowWelcomeBanner] = useState(true);
   console.log("user", user);
   const [history, setHistory] = useState<ReputationSearchRecord[]>([]);
   const [groupedHistory, setGroupedHistory] = useState<KeywordGroup[]>([]);
@@ -116,7 +118,7 @@ export default function ReputationHistory() {
             headers: {
               Authorization: `Bearer ${user.email}`,
             },
-          }
+          },
         );
 
         if (!response.ok) {
@@ -136,7 +138,7 @@ export default function ReputationHistory() {
         setLoading(false);
       }
     },
-    [user]
+    [user],
   );
 
   useEffect(() => {
@@ -146,7 +148,7 @@ export default function ReputationHistory() {
   }, [user, authLoading, fetchHistory]);
 
   const groupSearchesByKeyword = (
-    searches: ReputationSearchRecord[]
+    searches: ReputationSearchRecord[],
   ): KeywordGroup[] => {
     const groupMap: Record<string, ReputationSearchRecord[]> = {};
 
@@ -165,7 +167,7 @@ export default function ReputationHistory() {
         // Sort searches by date (newest first)
         const sortedSearches = keywordSearches.sort(
           (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
         );
 
         const latestSearch = sortedSearches[0];
@@ -195,7 +197,7 @@ export default function ReputationHistory() {
       .sort(
         (a, b) =>
           new Date(b.latestSearch.createdAt).getTime() -
-          new Date(a.latestSearch.createdAt).getTime()
+          new Date(a.latestSearch.createdAt).getTime(),
       );
   };
 
@@ -440,6 +442,13 @@ export default function ReputationHistory() {
     >
       <Container maxW="7xl" py={8}>
         <VStack spacing={8} align="stretch">
+          {/* User Welcome Banner */}
+          {user?.name && showWelcomeBanner && (
+            <WelcomeBanner
+              userName={user.name || user.email || ""}
+              onDismiss={() => setShowWelcomeBanner(false)}
+            />
+          )}
           {/* Header */}
           <VStack spacing={4} align="stretch">
             <Heading size="lg" color="gray.900">
@@ -542,7 +551,7 @@ export default function ReputationHistory() {
                               </Text>
                               <Badge
                                 colorScheme={getEntityTypeBadgeColor(
-                                  group.entityType
+                                  group.entityType,
                                 )}
                                 size="sm"
                               >
@@ -583,7 +592,7 @@ export default function ReputationHistory() {
                               new Date(group.latestSearch.createdAt),
                               {
                                 addSuffix: true,
-                              }
+                              },
                             )}
                           </Text>
                         </VStack>
@@ -631,7 +640,7 @@ export default function ReputationHistory() {
                                         new Date(search.createdAt),
                                         {
                                           addSuffix: true,
-                                        }
+                                        },
                                       )}
                                     </Text>
                                   </HStack>
@@ -704,7 +713,7 @@ export default function ReputationHistory() {
                 <HStack spacing={2}>
                   <Badge
                     colorScheme={getEntityTypeBadgeColor(
-                      selectedSearch?.entityType || ""
+                      selectedSearch?.entityType || "",
                     )}
                     size="sm"
                   >
@@ -790,7 +799,7 @@ export default function ReputationHistory() {
                       ].map((factor) => {
                         const rating = getFactorRating(
                           factor.key,
-                          factor.value
+                          factor.value,
                         );
                         return (
                           <VStack key={factor.key} align="center" spacing={2}>

@@ -1,73 +1,123 @@
-import { Box, VStack, HStack, Text, Slider, SliderTrack, SliderFilledTrack, SliderThumb, SimpleGrid } from '@chakra-ui/react';
-import { ReputationData } from './ReputationDashboard';
+import {
+  Box,
+  VStack,
+  HStack,
+  Text,
+  Slider,
+  SliderTrack,
+  SliderFilledTrack,
+  SliderThumb,
+  SimpleGrid,
+} from "@chakra-ui/react";
+import { ReputationData } from "./ReputationDashboard";
 
 interface ScoreBreakdownProps {
   scoreData: ReputationData;
   setScoreData: (data: ReputationData) => void;
-  type: 'individual' | 'company' | 'public-figure';
+  type: "individual" | "company" | "public-figure";
 }
 
-export function ScoreBreakdown({ scoreData, setScoreData, type }: ScoreBreakdownProps) {
+export function ScoreBreakdown({
+  scoreData,
+  setScoreData,
+  type,
+}: ScoreBreakdownProps) {
   const updateScore = (field: keyof ReputationData, value: number) => {
     setScoreData({
       ...scoreData,
-      [field]: value
+      [field]: value,
     });
   };
 
   const metrics = [
     {
-      key: 'positiveArticles' as const,
-      label: 'Positive Articles',
-      description: 'Number of positive articles/mentions found (max 10)',
-      max: 10,
-      color: 'green'
+      key: "positiveArticles" as const,
+      label: "Positive Articles",
+      description: `Number of positive articles/mentions found (max ${
+        type === "individual"
+          ? process.env.NEXT_PUBLIC_REPUTATION_RESULTS_INDIVIDUAL || 10
+          : type === "company"
+            ? process.env.NEXT_PUBLIC_REPUTATION_RESULTS_COMPANY || 15
+            : process.env.NEXT_PUBLIC_REPUTATION_RESULTS_PUBLIC_FIGURE || 20
+      })`,
+      max:
+        type === "individual"
+          ? parseInt(
+              process.env.NEXT_PUBLIC_REPUTATION_RESULTS_INDIVIDUAL || "10",
+            )
+          : type === "company"
+            ? parseInt(
+                process.env.NEXT_PUBLIC_REPUTATION_RESULTS_COMPANY || "15",
+              )
+            : parseInt(
+                process.env.NEXT_PUBLIC_REPUTATION_RESULTS_PUBLIC_FIGURE ||
+                  "20",
+              ),
+      color: "green",
     },
     {
-      key: 'wikipediaPresence' as const,
-      label: 'Wikipedia Presence',
-      description: 'Authority and credibility indicators',
+      key: "wikipediaPresence" as const,
+      label: "Wikipedia Presence",
+      description: "Authority and credibility indicators",
       max: 5,
-      color: 'blue',
-      hidden: type === 'individual' // Individuals rarely have Wikipedia pages
+      color: "blue",
+      hidden: type === "individual", // Individuals rarely have Wikipedia pages
     },
     {
-      key: 'ownedAssets' as const,
-      label: 'Owned Digital Assets',
-      description: 'Count of owned properties on page 1 (5+ = perfect)',
+      key: "ownedAssets" as const,
+      label: "Owned Digital Assets",
+      description: "Count of owned properties on page 1 (0-10, 5+ = perfect)",
       max: 10,
-      color: 'purple'
+      color: "purple",
     },
     {
-      key: 'negativeLinks' as const,
-      label: 'Negative Links',
-      description: 'Number of negative articles/mentions',
-      max: 10,
-      color: 'red',
-      isNegative: true
+      key: "negativeLinks" as const,
+      label: "Negative Links",
+      description: `Number of negative articles/mentions (max ${
+        type === "individual"
+          ? process.env.NEXT_PUBLIC_REPUTATION_RESULTS_INDIVIDUAL || 10
+          : type === "company"
+            ? process.env.NEXT_PUBLIC_REPUTATION_RESULTS_COMPANY || 15
+            : process.env.NEXT_PUBLIC_REPUTATION_RESULTS_PUBLIC_FIGURE || 20
+      })`,
+      max:
+        type === "individual"
+          ? parseInt(
+              process.env.NEXT_PUBLIC_REPUTATION_RESULTS_INDIVIDUAL || "10",
+            )
+          : type === "company"
+            ? parseInt(
+                process.env.NEXT_PUBLIC_REPUTATION_RESULTS_COMPANY || "15",
+              )
+            : parseInt(
+                process.env.NEXT_PUBLIC_REPUTATION_RESULTS_PUBLIC_FIGURE ||
+                  "20",
+              ),
+      color: "red",
+      isNegative: true,
     },
     {
-      key: 'socialPresence' as const,
-      label: 'Social Media Presence',
-      description: 'Social media visibility and engagement (%)',
+      key: "socialPresence" as const,
+      label: "Social Media Presence",
+      description: "Social media visibility and engagement (%)",
       max: 100,
-      color: 'cyan'
+      color: "cyan",
     },
     {
-      key: 'aiOverviews' as const,
-      label: 'AI Overviews',
-      description: 'Mentions in AI-generated summaries',
+      key: "aiOverviews" as const,
+      label: "AI Overviews",
+      description: "Mentions in AI-generated summaries",
       max: 5,
-      color: 'teal'
+      color: "teal",
     },
     {
-      key: 'geoPresence' as const,
-      label: 'GEO Presence',
-      description: 'Generative Engine Optimization score (%)',
+      key: "geoPresence" as const,
+      label: "GEO Presence",
+      description: "Generative Engine Optimization score (%)",
       max: 100,
-      color: 'orange'
-    }
-  ].filter(metric => !metric.hidden);
+      color: "orange",
+    },
+  ].filter((metric) => !metric.hidden);
 
   return (
     <Box
@@ -91,8 +141,13 @@ export function ScoreBreakdown({ scoreData, setScoreData, type }: ScoreBreakdown
                   <Text fontSize="sm" fontWeight="medium" color="gray.700">
                     {metric.label}
                   </Text>
-                  <Text fontSize="sm" fontWeight="bold" color={`${metric.color}.500`}>
-                    {scoreData[metric.key]}{metric.key === 'socialPresence' ? '%' : ''}
+                  <Text
+                    fontSize="sm"
+                    fontWeight="bold"
+                    color={`${metric.color}.500`}
+                  >
+                    {scoreData[metric.key]}
+                    {metric.key === "socialPresence" ? "%" : ""}
                   </Text>
                 </HStack>
                 <Text fontSize="xs" color="gray.500">
@@ -125,7 +180,8 @@ export function ScoreBreakdown({ scoreData, setScoreData, type }: ScoreBreakdown
 
         <Box bg="gray.50" rounded="lg" p={4}>
           <Text fontSize="sm" color="gray.600" textAlign="center">
-            <strong>Tip:</strong> Adjust the sliders above to simulate how changes to these factors would affect your reputation score.
+            <strong>Tip:</strong> Adjust the sliders above to simulate how
+            changes to these factors would affect your reputation score.
           </Text>
         </Box>
       </VStack>
