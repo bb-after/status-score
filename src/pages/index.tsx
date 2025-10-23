@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/router";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import {
@@ -22,12 +22,6 @@ export default function Home() {
   const [showContactModal, setShowContactModal] = useState(false);
   const [showNewsletterModal, setShowNewsletterModal] = useState(false);
   const [showDemoModal, setShowDemoModal] = useState(false);
-
-  useEffect(() => {
-    if (!isLoading && user?.isAuthenticated) {
-      router.push("/reputation");
-    }
-  }, [user, isLoading, router]);
 
   const handleDashboardNavigation = () => {
     router.push("/reputation");
@@ -61,34 +55,65 @@ export default function Home() {
               />
             </HStack>
             <HStack spacing={3}>
-              <Button
-                onClick={() => setShowNewsletterModal(true)}
-                variant="ghost"
-                color="teal.700"
-                size="sm"
-                fontWeight="medium"
-              >
-                📧 Weekly Updates
-              </Button>
-              <Button
-                onClick={() => setShowContactModal(true)}
-                variant="ghost"
-                color="teal.700"
-                size="sm"
-                fontWeight="medium"
-              >
-                Contact Sales
-              </Button>
-              <Button
-                onClick={handleDashboardNavigation}
-                bgGradient="linear(to-r, teal.800, teal.400)"
-                color="white"
-                size="sm"
-                fontWeight="medium"
-                _hover={{ bgGradient: "linear(to-r, teal.900, teal.500)" }}
-              >
-                View Dashboard
-              </Button>
+              {!user ? (
+                <>
+                  <Button
+                    onClick={() => setShowNewsletterModal(true)}
+                    variant="ghost"
+                    color="teal.700"
+                    size="sm"
+                    fontWeight="medium"
+                  >
+                    📧 Weekly Updates
+                  </Button>
+                  <Button
+                    onClick={() => setShowContactModal(true)}
+                    variant="ghost"
+                    color="teal.700"
+                    size="sm"
+                    fontWeight="medium"
+                  >
+                    Contact Sales
+                  </Button>
+                  <Button
+                    as="a"
+                    href="/api/auth/login"
+                    bgGradient="linear(to-r, teal.800, teal.400)"
+                    color="white"
+                    size="sm"
+                    fontWeight="medium"
+                    _hover={{ bgGradient: "linear(to-r, teal.900, teal.500)" }}
+                  >
+                    Login
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Text color="teal.700" size="sm" fontWeight="medium">
+                    Welcome back, {user.name}!
+                  </Text>
+                  <Button
+                    onClick={handleDashboardNavigation}
+                    bgGradient="linear(to-r, teal.800, teal.400)"
+                    color="white"
+                    size="sm"
+                    fontWeight="medium"
+                    _hover={{ bgGradient: "linear(to-r, teal.900, teal.500)" }}
+                  >
+                    View Dashboard
+                  </Button>
+                  <Button
+                    as="a"
+                    href="/api/auth/logout"
+                    variant="ghost"
+                    color="teal.700"
+                    size="sm"
+                    fontWeight="medium"
+                  >
+                    Logout
+                  </Button>
+                </>
+              )}
             </HStack>
           </Flex>
         </Container>
