@@ -104,13 +104,6 @@ export function ScoreBreakdown({
       color: "cyan",
     },
     {
-      key: "aiOverviews" as const,
-      label: "AI Overviews",
-      description: "Mentions in AI-generated summaries",
-      max: 5,
-      color: "teal",
-    },
-    {
       key: "geoPresence" as const,
       label: "GEO Presence",
       description: "Generative Engine Optimization score (%)",

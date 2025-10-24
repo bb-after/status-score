@@ -54,7 +54,7 @@ export default async function handler(
         ownedAssets: analysis.data.ownedAssets,
         negativeLinks: analysis.data.negativeLinks,
         socialPresence: analysis.data.socialPresence,
-        aiOverviews: analysis.data.aiOverviews,
+        aiOverviews: 0, // Deprecated field, set to 0 for backward compatibility
         geoPresence: analysis.data.geoPresence,
         searchResults: analysis.results as any,
       },

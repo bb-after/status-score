@@ -38,7 +38,6 @@ export interface ReputationData {
   ownedAssets: number;
   negativeLinks: number;
   socialPresence: number;
-  aiOverviews: number;
   geoPresence: number;
   totalResults?: number;
 }
@@ -97,7 +96,6 @@ export function ReputationDashboard({
     ownedAssets: 4, // 4 owned assets (great score)
     negativeLinks: 0, // 5 neutral, 0 negative (should score ~80)
     socialPresence: 85,
-    aiOverviews: 3,
     geoPresence: 70,
   });
 
