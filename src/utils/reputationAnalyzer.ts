@@ -21,7 +21,6 @@ export interface ReputationData {
   ownedAssets: number;
   negativeLinks: number;
   socialPresence: number;
-  aiOverviews: number;
   geoPresence: number;
   totalResults?: number;
 }
@@ -273,11 +272,6 @@ export async function performRealReputationAnalysis(
       ownedAssets: enhancedMetrics.ownedAssets.score,
       negativeLinks: negativeArticles,
       socialPresence: enhancedMetrics.socialPresence.score,
-      aiOverviews: Math.min(
-        enhancedMetrics.mediaPresence.newsResults +
-          enhancedMetrics.mediaPresence.prResults,
-        5,
-      ),
       geoPresence: enhancedMetrics.geoPresence.score,
       totalResults: results.length,
     };

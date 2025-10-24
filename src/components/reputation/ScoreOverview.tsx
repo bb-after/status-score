@@ -7,6 +7,7 @@ import {
   Badge,
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 
 interface ScoreOverviewProps {
   score: number;
@@ -23,34 +24,43 @@ export function ScoreOverview({
   hasSearched,
   historicalData,
 }: ScoreOverviewProps) {
+  // Use Framer Motion's useMotionValue for smooth animation
+  const motionScore = useMotionValue(0);
+
+  // Apply spring animation with nice easing
+  const springScore = useSpring(motionScore, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001,
+  });
+
+  // Transform the spring value to a rounded number for display
+  const displayScore = useTransform(springScore, (value) => Math.round(value));
+
   const [animatedScore, setAnimatedScore] = useState(0);
 
-  // Animate score counter from 0 to target score
+  // Always reset to 0 and animate to target score when score changes
   useEffect(() => {
-    if (hasSearched && score > 0) {
-      setAnimatedScore(0);
-      const duration = 2000; // 2 seconds animation
-      const steps = 60; // 60fps-like animation
-      const increment = score / steps;
-      const stepDuration = duration / steps;
+    // Reset to 0 first
+    motionScore.set(0);
+    setAnimatedScore(0);
 
-      let currentStep = 0;
-      const timer = setInterval(() => {
-        currentStep++;
-        const nextValue = Math.min(Math.round(increment * currentStep), score);
-        setAnimatedScore(nextValue);
+    // Small delay to ensure reset is visible, then animate to target
+    const resetTimeout = setTimeout(() => {
+      motionScore.set(score);
+    }, 100);
 
-        if (currentStep >= steps || nextValue >= score) {
-          setAnimatedScore(score);
-          clearInterval(timer);
-        }
-      }, stepDuration);
+    return () => clearTimeout(resetTimeout);
+  }, [score, motionScore]);
 
-      return () => clearInterval(timer);
-    } else if (!hasSearched) {
-      setAnimatedScore(0);
-    }
-  }, [score, hasSearched]);
+  // Update the animated score state when spring value changes
+  useEffect(() => {
+    const unsubscribe = displayScore.on("change", (latest) => {
+      setAnimatedScore(latest);
+    });
+
+    return unsubscribe;
+  }, [displayScore]);
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return "green";
@@ -66,7 +76,7 @@ export function ScoreOverview({
     return "Poor";
   };
 
-  const displayScore = hasSearched ? animatedScore : 0;
+  const finalDisplayScore = animatedScore;
 
   return (
     <Box
@@ -89,17 +99,24 @@ export function ScoreOverview({
           </Text>
         )}
 
-        <CircularProgress
-          value={displayScore}
-          size="150px"
-          thickness="8px"
-          color={`${getScoreColor(displayScore)}.400`}
-          trackColor="gray.100"
+        <motion.div
+          key={score} // Forces remount on score change for animation reset
+          initial={{ scale: 0.9, opacity: 0.8 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
         >
-          <CircularProgressLabel fontSize="2xl" fontWeight="bold">
-            {displayScore}
-          </CircularProgressLabel>
-        </CircularProgress>
+          <CircularProgress
+            value={finalDisplayScore}
+            size="150px"
+            thickness="8px"
+            color={`${getScoreColor(finalDisplayScore)}.400`}
+            trackColor="gray.100"
+          >
+            <CircularProgressLabel fontSize="2xl" fontWeight="bold">
+              {finalDisplayScore}
+            </CircularProgressLabel>
+          </CircularProgress>
+        </motion.div>
 
         <VStack spacing={2}>
           <Badge

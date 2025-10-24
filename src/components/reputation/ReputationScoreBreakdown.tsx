@@ -53,8 +53,6 @@ export function ReputationScoreBreakdown({
       ownedAssets: "Owned Assets",
       negativeLinks: "Negative Links",
       socialPresence: "Social Presence",
-      aiOverviews: "AI Overviews",
-      geoPresence: "Geographic Presence",
     };
     return labels[key] || key;
   };
@@ -70,8 +68,6 @@ export function ReputationScoreBreakdown({
         "Websites, social profiles, and digital properties you control",
       negativeLinks: "Negative articles, complaints, and critical coverage",
       socialPresence: "Social media activity, followers, and engagement",
-      aiOverviews: "Presence in AI-generated search summaries",
-      geoPresence: "Local search visibility and geographic coverage",
     };
     return descriptions[key] || "";
   };
@@ -79,35 +75,30 @@ export function ReputationScoreBreakdown({
   const getFactorWeight = (key: string) => {
     if (type === "public-figure") {
       const weights: Record<string, number> = {
-        positiveArticles: 25,
-        wikipediaPresence: 20,
-        ownedAssets: 15,
-        negativeLinks: 35,
-        socialPresence: 10,
-        aiOverviews: 5,
-        geoPresence: 5,
+        positiveArticles: 70,
+        wikipediaPresence: 10,
+        ownedAssets: 10,
+        negativeLinks: 10, // This is deduction, not additive weight
+        socialPresence: 5,
       };
       return weights[key] || 0;
     } else if (type === "company") {
       const weights: Record<string, number> = {
-        positiveArticles: 30,
-        wikipediaPresence: 15,
-        ownedAssets: 15,
-        negativeLinks: 30,
-        socialPresence: 10,
-        aiOverviews: 5,
-        geoPresence: 10,
+        positiveArticles: 70,
+        wikipediaPresence: 10,
+        ownedAssets: 10,
+        negativeLinks: 10, // This is deduction, not additive weight
+        socialPresence: 5,
       };
       return weights[key] || 0;
     } else {
+      // individual
       const weights: Record<string, number> = {
-        positiveArticles: 35,
+        positiveArticles: 70,
         wikipediaPresence: 0,
-        ownedAssets: 25,
-        negativeLinks: 25,
-        socialPresence: 15,
-        aiOverviews: 5,
-        geoPresence: 5,
+        ownedAssets: 15,
+        negativeLinks: 10, // This is deduction, not additive weight
+        socialPresence: 10,
       };
       return weights[key] || 0;
     }
@@ -120,8 +111,6 @@ export function ReputationScoreBreakdown({
       ownedAssets: "#8B5CF6", // Purple
       negativeLinks: "#EF4444", // Red
       socialPresence: "#F59E0B", // Amber
-      aiOverviews: "#06B6D4", // Cyan
-      geoPresence: "#84CC16", // Lime
     };
     return colors[key] || "#6B7280";
   };
@@ -137,8 +126,6 @@ export function ReputationScoreBreakdown({
       wikipediaPresence: 5,
       ownedAssets: 100,
       socialPresence: 100,
-      aiOverviews: 5,
-      geoPresence: 100,
     };
 
     const maxValue = maxValues[key] || 100;
@@ -164,10 +151,18 @@ export function ReputationScoreBreakdown({
 
       // Calculate scores for animation
       Object.entries(scoreData).forEach(([key, value]) => {
-        if (type !== "individual" || key !== "wikipediaPresence") {
-          const score = getFactorScore(key, value);
-          newAnimatedValues[key] = score;
-        }
+        // Filter out deprecated and non-displayed fields
+        if (
+          key === "geoPresence" ||
+          key === "aiOverviews" ||
+          key === "totalResults"
+        )
+          return;
+        // Filter out Wikipedia presence for individuals
+        if (type === "individual" && key === "wikipediaPresence") return;
+
+        const score = getFactorScore(key, value);
+        newAnimatedValues[key] = score;
       });
 
       // Reset to 0 first
@@ -185,9 +180,20 @@ export function ReputationScoreBreakdown({
     }
   }, [activeChart, scoreData, type]);
 
-  // Calculate pie chart data
+  // Calculate pie chart data (exclude geoPresence and aiOverviews, and totalResults)
   const pieData: FactorData[] = Object.entries(scoreData)
-    .filter(([key]) => type !== "individual" || key !== "wikipediaPresence")
+    .filter(([key]) => {
+      // Filter out deprecated and non-displayed fields
+      if (
+        key === "geoPresence" ||
+        key === "aiOverviews" ||
+        key === "totalResults"
+      )
+        return false;
+      // Filter out Wikipedia presence for individuals
+      if (type === "individual" && key === "wikipediaPresence") return false;
+      return true;
+    })
     .map(([key, value]) => ({
       label: getFactorLabel(key),
       value: getFactorScore(key, value),

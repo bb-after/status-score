@@ -64,7 +64,6 @@ interface SearchResultsProps {
     ownedAssets: number;
     negativeLinks: number;
     socialPresence: number;
-    aiOverviews: number;
     geoPresence: number;
     totalResults?: number;
   };
@@ -201,7 +200,6 @@ export function SearchResults({
       ownedAssets: 4,
       negativeLinks: negativeCount,
       socialPresence: 85,
-      aiOverviews: 3,
       geoPresence: 70,
     };
 
